@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SGB - Sistema de Gestão do Borba
 
-## Getting Started
+Sistema de gestão para o **Clube de Desbravadores Borba Gato** (IASD Santo Amaro, fundado em 1965).
 
-First, run the development server:
+## Sobre o Projeto
+
+O SGB gerencia:
+
+- **Unidades** - Grupos de desbravadores com seus conselheiros
+- **Membros** - Desbravadores e diretoria do clube
+- **Presenças** - Controle de chamada nos encontros
+- **Especialidades** - Registro de especialidades conquistadas
+- **Mensalidades** - Controle financeiro
+
+## Stack Tecnológica
+
+| Tecnologia                                    | Uso                                      |
+| --------------------------------------------- | ---------------------------------------- |
+| [Next.js 16](https://nextjs.org/)             | Frontend e Backend (App Router)          |
+| [Supabase](https://supabase.com/)             | Banco de dados PostgreSQL e Autenticação |
+| [Tailwind CSS](https://tailwindcss.com/)      | Estilização                              |
+| [TypeScript](https://www.typescriptlang.org/) | Linguagem                                |
+| [Vercel](https://vercel.com/)                 | Deploy                                   |
+
+## Começando
+
+### Pré-requisitos
+
+- Node.js 20.9+
+- npm ou yarn
+- Conta no Supabase
+
+### Instalação
 
 ```bash
+# Clonar o repositório
+git clone <https://github.com/GabrielMNobre/sgb.git>
+cd sgb
+
+# Instalar dependências
+npm install
+
+# Configurar variáveis de ambiente
+cp .env.example .env.local
+# Edite .env.local com suas credenciais do Supabase
+
+# Rodar em desenvolvimento
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Variáveis de Ambiente
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+NEXT_PUBLIC_SUPABASE_URL=sua_url_do_supabase
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_anon_key
+SUPABASE_SERVICE_ROLE_KEY=sua_service_role_key
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts Disponíveis
 
-## Learn More
+```bash
+npm run dev       # Servidor de desenvolvimento
+npm run build     # Build para produção
+npm run start     # Iniciar servidor de produção
+npm run lint      # Verificar linting
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Papéis de Usuário
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Papel           | Acesso                                         |
+| --------------- | ---------------------------------------------- |
+| **Admin**       | Acesso total, gerencia encontros e relatórios  |
+| **Secretaria**  | Cadastro de membros, unidades e especialidades |
+| **Tesoureiro**  | Controle de mensalidades e pagamentos          |
+| **Conselheiro** | Gerencia apenas sua unidade, faz chamadas      |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Estrutura do Projeto
 
-## Deploy on Vercel
+```
+src/
+├── app/                    # Rotas e páginas (App Router)
+│   ├── (auth)/            # Páginas de autenticação
+│   └── (dashboard)/       # Dashboards por papel
+├── components/            # Componentes React
+│   ├── ui/               # Componentes base (Button, Input, Card)
+│   ├── forms/            # Formulários
+│   └── layout/           # Componentes de layout
+├── lib/                   # Utilitários e configurações
+│   ├── supabase/         # Cliente Supabase
+│   └── utils/            # Funções auxiliares
+├── hooks/                 # React Hooks customizados
+├── types/                 # Definições TypeScript
+└── services/             # Lógica de negócio
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Convenções de Código
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Contexto       | Convenção  | Exemplo           |
+| -------------- | ---------- | ----------------- |
+| Banco de dados | snake_case | `data_nascimento` |
+| TypeScript     | camelCase  | `dataNascimento`  |
+| Arquivos       | kebab-case | `use-auth.ts`     |
+| Componentes    | PascalCase | `MemberCard.tsx`  |
+
+## Identidade Visual
+
+- **Cor Primária:** `#1a2b5f` (Azul marinho)
+- **Cor Secundária:** `#f5c518` (Amarelo/Dourado)
