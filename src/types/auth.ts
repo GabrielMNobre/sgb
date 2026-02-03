@@ -16,3 +16,9 @@ export interface SessionUser {
   nome: string;
   papel: PapelUsuario;
 }
+
+export interface AuthState {
+  user: Usuario | null;
+  loading: boolean;
+  error: string | null;
+}

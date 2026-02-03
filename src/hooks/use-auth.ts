@@ -2,34 +2,33 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { User } from "@supabase/supabase-js";
-import type { SessionUser } from "@/types/auth";
+import { Usuario, PapelUsuario } from "@/types/auth";
+import { useRouter } from "next/navigation";
+import { snakeToCamel } from "@/lib/utils/case-converter";
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
+  const [user, setUser] = useState<Usuario | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
     const getUser = async () => {
       const {
-        data: { user },
+        data: { user: authUser },
       } = await supabase.auth.getUser();
-      setUser(user);
 
-      if (user) {
-        const { data: usuario } = await supabase
+      if (authUser) {
+        const { data } = await supabase
           .from("usuarios")
-          .select("id, email, nome, papel")
-          .eq("id", user.id)
+          .select("*")
+          .eq("id", authUser.id)
           .single();
 
-        if (usuario) {
-          setSessionUser(usuario as SessionUser);
+        if (data) {
+          setUser(snakeToCamel<Usuario>(data));
         }
       }
-
       setLoading(false);
     };
 
@@ -37,25 +36,89 @@ export function useAuth() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (!session?.user) {
-        setSessionUser(null);
+    } = supabase.auth.onAuthStateChange(async (event) => {
+      if (event === "SIGNED_OUT") {
+        setUser(null);
+        router.push("/login");
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase]);
+  }, [supabase, router]);
+
+  const signIn = async (email: string, password: string) => {
+    setLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setLoading(false);
+      return { error: getErrorMessage(error.message) };
+    }
+
+    if (data.user) {
+      const { data: usuarioData } = await supabase
+        .from("usuarios")
+        .select("*")
+        .eq("id", data.user.id)
+        .single();
+
+      const usuario = usuarioData as {
+        ativo: boolean;
+        papel: PapelUsuario;
+      } | null;
+
+      if (usuario) {
+        if (!usuario.ativo) {
+          await supabase.auth.signOut();
+          setLoading(false);
+          return { error: "Usuário inativo. Entre em contato com o administrador." };
+        }
+
+        setUser(snakeToCamel<Usuario>(usuarioData));
+        router.push(getRedirectByRole(usuario.papel));
+      } else {
+        await supabase.auth.signOut();
+        setLoading(false);
+        return { error: "Usuário não encontrado no sistema." };
+      }
+    }
+
+    setLoading(false);
+    return { error: null };
+  };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    window.location.href = "/login";
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      router.push("/login");
+      router.refresh();
+    } catch (error) {
+      console.error("Erro ao realizar logout:", error);
+    }
   };
 
-  return {
-    user,
-    sessionUser,
-    loading,
-    signOut,
+  return { user, loading, signIn, signOut };
+}
+
+function getRedirectByRole(papel: PapelUsuario): string {
+  const routes: Record<PapelUsuario, string> = {
+    admin: "/admin",
+    secretaria: "/secretaria",
+    tesoureiro: "/tesoureiro",
+    conselheiro: "/conselheiro",
   };
+  return routes[papel];
+}
+
+function getErrorMessage(error: string): string {
+  const messages: Record<string, string> = {
+    "Invalid login credentials": "Email ou senha incorretos.",
+    "Email not confirmed": "Email não confirmado. Verifique sua caixa de entrada.",
+    "Too many requests": "Muitas tentativas. Aguarde alguns minutos.",
+  };
+  return messages[error] || "Erro ao fazer login. Tente novamente.";
 }
