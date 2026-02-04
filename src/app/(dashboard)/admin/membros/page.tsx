@@ -4,9 +4,10 @@ import { getMembros, getClasses } from "@/services/membros";
 import { getUnidadesAtivas } from "@/services/unidades";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { MembrosTable } from "./membros-table";
+import { MembrosTable } from "@/components/tables/membros-table";
+import { toggleMembroStatusAction } from "./actions";
 
-export default async function MembrosPage() {
+export default async function AdminMembrosPage() {
   const [membros, unidades, classes] = await Promise.all([
     getMembros(),
     getUnidadesAtivas(),
@@ -20,7 +21,7 @@ export default async function MembrosPage() {
           <h1 className="text-2xl font-bold text-gray-900">Membros</h1>
           <p className="text-gray-500">Gerencie os membros do clube</p>
         </div>
-        <Link href="/secretaria/membros/novo">
+        <Link href="/admin/membros/novo">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             Novo Membro
@@ -29,7 +30,13 @@ export default async function MembrosPage() {
       </div>
 
       <Card>
-        <MembrosTable membros={membros} unidades={unidades} classes={classes} />
+        <MembrosTable
+          membros={membros}
+          unidades={unidades}
+          classes={classes}
+          basePath="/admin/membros"
+          onToggleStatus={toggleMembroStatusAction}
+        />
       </Card>
     </div>
   );

@@ -7,11 +7,14 @@ import {
   Home,
   Users,
   Calendar,
-  FileText,
   DollarSign,
   Award,
   ClipboardList,
+  Link2,
   X,
+  Building2,
+  UserCog,
+  BarChart3,
 } from "lucide-react";
 import { Usuario, PapelUsuario } from "@/types/auth";
 import { LogoutButton } from "./logout-button";
@@ -24,19 +27,63 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-const menuItems: Record<
-  PapelUsuario,
-  Array<{ href: string; label: string; icon: typeof Home }>
-> = {
-  admin: [
-    { href: "/admin", label: "Dashboard", icon: Home },
-    { href: "/admin/encontros", label: "Encontros", icon: Calendar },
-    { href: "/admin/relatorios", label: "Relatórios", icon: FileText },
-  ],
+interface MenuItem {
+  href: string;
+  label: string;
+  icon: typeof Home;
+}
+
+interface MenuSection {
+  section: string | null;
+  items: MenuItem[];
+}
+
+type MenuConfig = MenuItem[] | MenuSection[];
+
+function isMenuSections(config: MenuConfig): config is MenuSection[] {
+  return config.length > 0 && "section" in config[0];
+}
+
+const adminMenu: MenuSection[] = [
+  {
+    section: null,
+    items: [{ href: "/admin", label: "Dashboard", icon: Home }],
+  },
+  {
+    section: "Gestão",
+    items: [
+      { href: "/admin/membros", label: "Membros", icon: Users },
+      { href: "/admin/unidades", label: "Unidades", icon: Building2 },
+      { href: "/admin/conselheiros", label: "Conselheiros", icon: UserCog },
+      { href: "/admin/especialidades", label: "Especialidades", icon: Award },
+    ],
+  },
+  {
+    section: "Encontros",
+    items: [
+      { href: "/admin/encontros", label: "Encontros", icon: Calendar },
+      { href: "/admin/chamada", label: "Chamada", icon: ClipboardList },
+    ],
+  },
+  {
+    section: "Financeiro",
+    items: [
+      { href: "/admin/mensalidades", label: "Mensalidades", icon: DollarSign },
+    ],
+  },
+  {
+    section: "Relatórios",
+    items: [{ href: "/admin/relatorios", label: "Relatórios", icon: BarChart3 }],
+  },
+];
+
+const menuItems: Record<PapelUsuario, MenuConfig> = {
+  admin: adminMenu,
   secretaria: [
     { href: "/secretaria", label: "Dashboard", icon: Home },
     { href: "/secretaria/membros", label: "Membros", icon: Users },
     { href: "/secretaria/unidades", label: "Unidades", icon: ClipboardList },
+    { href: "/secretaria/conselheiros", label: "Conselheiros", icon: Link2 },
     { href: "/secretaria/especialidades", label: "Especialidades", icon: Award },
   ],
   tesoureiro: [
@@ -46,13 +93,74 @@ const menuItems: Record<
   conselheiro: [
     { href: "/conselheiro", label: "Dashboard", icon: Home },
     { href: "/conselheiro/minha-unidade", label: "Minha Unidade", icon: Users },
+    { href: "/conselheiro/minha-unidade/especialidades", label: "Especialidades", icon: Award },
     { href: "/conselheiro/chamada", label: "Chamada", icon: ClipboardList },
   ],
 };
 
+function MenuItemLink({
+  item,
+  isActive,
+  onClose,
+}: {
+  item: MenuItem;
+  isActive: boolean;
+  onClose?: () => void;
+}) {
+  const Icon = item.icon;
+  return (
+    <Link
+      href={item.href}
+      onClick={onClose}
+      className={cn(
+        "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
+        isActive
+          ? "bg-secondary text-primary font-medium"
+          : "text-gray-200 hover:bg-white/10"
+      )}
+    >
+      <Icon className="h-5 w-5" />
+      {item.label}
+    </Link>
+  );
+}
+
 export function Sidebar({ user, isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const items = menuItems[user.papel] || [];
+  const config = menuItems[user.papel] || [];
+
+  const renderMenu = () => {
+    if (isMenuSections(config)) {
+      return config.map((section, sectionIndex) => (
+        <div key={sectionIndex} className={section.section ? "mt-4" : ""}>
+          {section.section && (
+            <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              {section.section}
+            </div>
+          )}
+          <div className="space-y-1">
+            {section.items.map((item) => (
+              <MenuItemLink
+                key={item.href}
+                item={item}
+                isActive={pathname === item.href || pathname.startsWith(item.href + "/")}
+                onClose={onClose}
+              />
+            ))}
+          </div>
+        </div>
+      ));
+    }
+
+    return config.map((item) => (
+      <MenuItemLink
+        key={item.href}
+        item={item}
+        isActive={pathname === item.href}
+        onClose={onClose}
+      />
+    ));
+  };
 
   return (
     <>
@@ -67,12 +175,12 @@ export function Sidebar({ user, isOpen, onClose }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed top-0 left-0 h-full w-64 bg-primary text-white z-50 transform transition-transform duration-200 lg:translate-x-0",
-          isOpen ? "translate-x-0" : "-translate-x-full",
+          "fixed top-0 left-0 h-full w-64 bg-primary text-white z-50 transform transition-transform duration-200 lg:translate-x-0 flex flex-col",
+          isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-white/10">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-white/10 flex-shrink-0">
           <div className="flex items-center gap-3">
             <Image
               src="/logo.png"
@@ -97,32 +205,12 @@ export function Sidebar({ user, isOpen, onClose }: SidebarProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          {items.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onClose}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
-                  isActive
-                    ? "bg-secondary text-primary font-medium"
-                    : "text-gray-200 hover:bg-white/10",
-                )}
-              >
-                <Icon className="h-5 w-5" />
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+          {renderMenu()}
         </nav>
 
         {/* Footer com logout */}
-        <div className="p-3 border-t border-white/10">
+        <div className="p-3 border-t border-white/10 flex-shrink-0">
           <div className="px-3 py-2 mb-2">
             <p className="text-sm font-medium">{user.nome}</p>
             <p className="text-xs text-gray-300">{user.email}</p>

@@ -3,9 +3,10 @@ import { Plus } from "lucide-react";
 import { getUnidades } from "@/services/unidades";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { UnidadesTable } from "./unidades-table";
+import { UnidadesTable } from "@/components/tables/unidades-table";
+import { toggleUnidadeStatusAction } from "./actions";
 
-export default async function UnidadesPage() {
+export default async function AdminUnidadesPage() {
   const unidades = await getUnidades();
 
   return (
@@ -15,7 +16,7 @@ export default async function UnidadesPage() {
           <h1 className="text-2xl font-bold text-gray-900">Unidades</h1>
           <p className="text-gray-500">Gerencie as unidades do clube</p>
         </div>
-        <Link href="/secretaria/unidades/nova">
+        <Link href="/admin/unidades/nova">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             Nova Unidade
@@ -24,7 +25,11 @@ export default async function UnidadesPage() {
       </div>
 
       <Card>
-        <UnidadesTable unidades={unidades} />
+        <UnidadesTable
+          unidades={unidades}
+          basePath="/admin/unidades"
+          onToggleStatus={toggleUnidadeStatusAction}
+        />
       </Card>
     </div>
   );

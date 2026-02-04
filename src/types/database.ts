@@ -182,6 +182,139 @@ export interface Database {
           atualizado_em?: string;
         };
       };
+      classes: {
+        Row: {
+          id: string;
+          nome: string;
+          tipo: "desbravador" | "lideranca";
+          ordem: number;
+        };
+        Insert: {
+          id?: string;
+          nome: string;
+          tipo: "desbravador" | "lideranca";
+          ordem: number;
+        };
+        Update: {
+          id?: string;
+          nome?: string;
+          tipo?: "desbravador" | "lideranca";
+          ordem?: number;
+        };
+      };
+      conselheiro_unidade: {
+        Row: {
+          id: string;
+          unidade_id: string;
+          usuario_id: string;
+          principal: boolean;
+          criado_em: string;
+        };
+        Insert: {
+          id?: string;
+          unidade_id: string;
+          usuario_id: string;
+          principal?: boolean;
+          criado_em?: string;
+        };
+        Update: {
+          id?: string;
+          unidade_id?: string;
+          usuario_id?: string;
+          principal?: boolean;
+          criado_em?: string;
+        };
+      };
+      historico_classes: {
+        Row: {
+          id: string;
+          membro_id: string;
+          classe_id: string;
+          ano: number;
+          criado_em: string;
+        };
+        Insert: {
+          id?: string;
+          membro_id: string;
+          classe_id: string;
+          ano: number;
+          criado_em?: string;
+        };
+        Update: {
+          id?: string;
+          membro_id?: string;
+          classe_id?: string;
+          ano?: number;
+          criado_em?: string;
+        };
+      };
+      especialidades: {
+        Row: {
+          id: string;
+          nome: string;
+          categoria: "atividades_missionarias" | "atividades_profissionais" | "artes_habilidades_manuais" | "ciencia_saude" | "estudos_natureza" | "atividades_recreativas" | "atividades_agricolas" | "adra";
+          descricao: string | null;
+          ativa: boolean;
+          criado_em: string;
+          atualizado_em: string;
+        };
+        Insert: {
+          id?: string;
+          nome: string;
+          categoria: "atividades_missionarias" | "atividades_profissionais" | "artes_habilidades_manuais" | "ciencia_saude" | "estudos_natureza" | "atividades_recreativas" | "atividades_agricolas" | "adra";
+          descricao?: string | null;
+          ativa?: boolean;
+          criado_em?: string;
+          atualizado_em?: string;
+        };
+        Update: {
+          id?: string;
+          nome?: string;
+          categoria?: "atividades_missionarias" | "atividades_profissionais" | "artes_habilidades_manuais" | "ciencia_saude" | "estudos_natureza" | "atividades_recreativas" | "atividades_agricolas" | "adra";
+          descricao?: string | null;
+          ativa?: boolean;
+          criado_em?: string;
+          atualizado_em?: string;
+        };
+      };
+      membro_especialidade: {
+        Row: {
+          id: string;
+          membro_id: string;
+          especialidade_id: string;
+          data_conclusao: string;
+          entregue: boolean;
+          data_entrega: string | null;
+          observacao: string | null;
+          registrado_por: string | null;
+          criado_em: string;
+          atualizado_em: string;
+        };
+        Insert: {
+          id?: string;
+          membro_id: string;
+          especialidade_id: string;
+          data_conclusao: string;
+          entregue?: boolean;
+          data_entrega?: string | null;
+          observacao?: string | null;
+          registrado_por?: string | null;
+          criado_em?: string;
+          atualizado_em?: string;
+        };
+        Update: {
+          id?: string;
+          membro_id?: string;
+          especialidade_id?: string;
+          data_conclusao?: string;
+          entregue?: boolean;
+          data_entrega?: string | null;
+          observacao?: string | null;
+          registrado_por?: string | null;
+          criado_em?: string;
+          atualizado_em?: string;
+        };
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
