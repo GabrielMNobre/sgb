@@ -85,6 +85,7 @@ const menuItems: Record<PapelUsuario, MenuConfig> = {
     { href: "/secretaria/unidades", label: "Unidades", icon: ClipboardList },
     { href: "/secretaria/conselheiros", label: "Conselheiros", icon: Link2 },
     { href: "/secretaria/especialidades", label: "Especialidades", icon: Award },
+    { href: "/secretaria/especialidades/conquistas", label: "Conquistas", icon: Award },
   ],
   tesoureiro: [
     { href: "/tesoureiro", label: "Dashboard", icon: Home },
