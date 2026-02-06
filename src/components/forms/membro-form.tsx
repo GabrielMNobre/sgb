@@ -86,7 +86,7 @@ export function MembroForm({ membro, unidades, classes, onSubmit, redirectPath =
   // Filtrar classes por tipo
   const classesFiltradas = classes.filter((c) => {
     if (tipo === "desbravador") return c.tipo === "desbravador";
-    return c.tipo === "lideranca";
+    return c.tipo === "diretoria";
   });
 
   // Limpar unidade quando tipo muda para diretoria

@@ -3,7 +3,8 @@ import { Users, Building2, UserPlus, Link2 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { countUnidadesAtivas } from "@/services/unidades";
+import { countUnidadesAtivas, getUnidadesComContagem } from "@/services/unidades";
+import { getUnidadesComConselheiros } from "@/services/conselheiros";
 import {
   countMembrosAtivos,
   countDesbravadoresAtivos,
@@ -12,14 +13,24 @@ import {
 } from "@/services/membros";
 
 export default async function SecretariaPage() {
-  const [totalUnidades, totalMembros, totalDesbravadores, totalDiretoria, membrosRecentes] =
+  const [totalUnidades, totalMembros, totalDesbravadores, totalDiretoria, membrosRecentes, unidadesContagem, unidadesConselheiros] =
     await Promise.all([
       countUnidadesAtivas(),
       countMembrosAtivos(),
       countDesbravadoresAtivos(),
       countDiretoriaAtivos(),
       getMembrosRecentes(5),
+      getUnidadesComContagem(),
+      getUnidadesComConselheiros(),
     ]);
+
+  const unidadesComDados = unidadesContagem.map((u) => {
+    const conselheirosData = unidadesConselheiros.find((uc) => uc.id === u.id);
+    return {
+      ...u,
+      totalConselheiros: conselheirosData?.conselheiros?.length || 0,
+    };
+  });
 
   return (
     <div className="space-y-6">
@@ -137,6 +148,55 @@ export default async function SecretariaPage() {
           </Card>
         </Link>
       </div>
+
+      {/* Unidades */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Unidades</CardTitle>
+            <Link href="/secretaria/unidades">
+              <Button variant="ghost" size="sm">
+                Ver todas
+              </Button>
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {unidadesComDados.length === 0 ? (
+            <p className="text-center text-gray-500 py-8">
+              Nenhuma unidade ativa cadastrada
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {unidadesComDados.map((unidade) => (
+                <div
+                  key={unidade.id}
+                  className="flex items-center justify-between py-2 border-b last:border-0"
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="h-10 w-10 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: unidade.corPrimaria + "20" }}
+                    >
+                      <Building2
+                        className="h-5 w-5"
+                        style={{ color: unidade.corPrimaria }}
+                      />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">{unidade.nome}</p>
+                      <div className="flex items-center gap-3 text-xs text-gray-500">
+                        <span>{unidade.totalMembros} membro(s)</span>
+                        <span>{unidade.totalConselheiros} conselheiro(s)</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Membros recentes */}
       <Card>

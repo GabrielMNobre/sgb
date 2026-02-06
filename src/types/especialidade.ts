@@ -39,6 +39,7 @@ export interface MembroEspecialidadeComRelacoes extends MembroEspecialidade {
     id: string;
     nome: string;
     unidadeId?: string;
+    unidadeNome?: string;
   };
 }
 

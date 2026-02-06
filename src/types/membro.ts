@@ -42,8 +42,34 @@ export interface MembroFormData {
 export interface Classe {
   id: string;
   nome: string;
-  tipo: "desbravador" | "lideranca";
+  tipo: "desbravador" | "diretoria";
   ordem: number;
+}
+
+export interface HistoricoClasse {
+  id: string;
+  membroId: string;
+  classeId: string;
+  ano: number;
+  dataInvestidura?: Date;
+  observacao?: string;
+  criadoEm: Date;
+}
+
+export interface HistoricoClasseComRelacoes extends HistoricoClasse {
+  classe: {
+    id: string;
+    nome: string;
+    tipo: string;
+    ordem: number;
+  };
+}
+
+export interface HistoricoClasseFormData {
+  classeId: string;
+  ano: number;
+  dataInvestidura?: string;
+  observacao?: string;
 }
 
 export const CLASSES_DESBRAVADOR: Omit<Classe, "id">[] = [
@@ -56,7 +82,7 @@ export const CLASSES_DESBRAVADOR: Omit<Classe, "id">[] = [
 ];
 
 export const CLASSES_LIDERANCA: Omit<Classe, "id">[] = [
-  { nome: "Agrupada", tipo: "lideranca", ordem: 1 },
-  { nome: "Líder", tipo: "lideranca", ordem: 2 },
-  { nome: "Líder Master", tipo: "lideranca", ordem: 3 },
+  { nome: "Agrupada", tipo: "diretoria", ordem: 1 },
+  { nome: "Líder", tipo: "diretoria", ordem: 2 },
+  { nome: "Líder Master", tipo: "diretoria", ordem: 3 },
 ];
