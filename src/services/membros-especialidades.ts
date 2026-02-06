@@ -16,7 +16,7 @@ export async function getEspecialidadesDoMembro(
   const db = supabase as any;
 
   const { data, error } = await db
-    .from("membro_especialidade")
+    .from("membros_especialidades")
     .select(`
       *,
       especialidades (
@@ -53,7 +53,7 @@ export async function countEspecialidadesDoMembro(membroId: string): Promise<num
   const db = supabase as any;
 
   const { count, error } = await db
-    .from("membro_especialidade")
+    .from("membros_especialidades")
     .select("*", { count: "exact", head: true })
     .eq("membro_id", membroId);
 
@@ -75,7 +75,7 @@ export async function registrarConquista(
 
   // Verificar se já existe esta especialidade para este membro
   const { data: existente } = await db
-    .from("membro_especialidade")
+    .from("membros_especialidades")
     .select("id")
     .eq("membro_id", formData.membroId)
     .eq("especialidade_id", formData.especialidadeId)
@@ -96,7 +96,7 @@ export async function registrarConquista(
   });
 
   const { data, error } = await db
-    .from("membro_especialidade")
+    .from("membros_especialidades")
     .insert(dataToInsert)
     .select()
     .single();
@@ -118,7 +118,7 @@ export async function marcarEntrega(
   const db = supabase as any;
 
   const { error } = await db
-    .from("membro_especialidade")
+    .from("membros_especialidades")
     .update({
       entregue: true,
       data_entrega: dataEntrega,
@@ -141,7 +141,7 @@ export async function marcarEntregasEmLote(
   const db = supabase as any;
 
   const { error } = await db
-    .from("membro_especialidade")
+    .from("membros_especialidades")
     .update({
       entregue: true,
       data_entrega: dataEntrega,
@@ -164,7 +164,7 @@ export async function getEspecialidadesPendentes(
   const db = supabase as any;
 
   let query = db
-    .from("membro_especialidade")
+    .from("membros_especialidades")
     .select(`
       id,
       membro_id,
@@ -230,7 +230,7 @@ export async function removerConquista(id: string): Promise<void> {
   const db = supabase as any;
 
   const { error } = await db
-    .from("membro_especialidade")
+    .from("membros_especialidades")
     .delete()
     .eq("id", id);
 
@@ -289,13 +289,66 @@ export async function getMembrosComEspecialidadesDaUnidade(
   return result;
 }
 
+export async function getAllConquistas(): Promise<MembroEspecialidadeComRelacoes[]> {
+  const supabase = await createClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+
+  const { data, error } = await db
+    .from("membros_especialidades")
+    .select(`
+      *,
+      especialidades (
+        id,
+        nome,
+        categoria
+      ),
+      membros (
+        id,
+        nome,
+        unidade_id,
+        unidades (
+          id,
+          nome
+        )
+      )
+    `)
+    .order("data_conclusao", { ascending: false });
+
+  if (error) {
+    console.error("Erro ao buscar conquistas:", error);
+    throw new Error("Erro ao buscar conquistas");
+  }
+
+  return (data || []).map((item: Record<string, unknown>) => {
+    const base = snakeToCamel<MembroEspecialidade>(item);
+    const esp = item.especialidades as Record<string, unknown> | null;
+    const membro = item.membros as Record<string, unknown> | null;
+    const unidade = membro?.unidades as Record<string, unknown> | null;
+    return {
+      ...base,
+      especialidade: esp ? {
+        id: esp.id as string,
+        nome: esp.nome as string,
+        categoria: esp.categoria as string,
+      } : { id: "", nome: "", categoria: "" },
+      membro: membro ? {
+        id: membro.id as string,
+        nome: membro.nome as string,
+        unidadeId: membro.unidade_id as string | undefined,
+        unidadeNome: unidade?.nome as string | undefined,
+      } : undefined,
+    };
+  });
+}
+
 export async function countTotalConquistas(): Promise<number> {
   const supabase = await createClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
 
   const { count, error } = await db
-    .from("membro_especialidade")
+    .from("membros_especialidades")
     .select("*", { count: "exact", head: true });
 
   if (error) {
@@ -312,7 +365,7 @@ export async function countConquistasPendentes(): Promise<number> {
   const db = supabase as any;
 
   const { count, error } = await db
-    .from("membro_especialidade")
+    .from("membros_especialidades")
     .select("*", { count: "exact", head: true })
     .eq("entregue", false);
 
