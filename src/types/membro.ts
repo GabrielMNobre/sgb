@@ -10,6 +10,8 @@ export interface Membro {
   telefone?: string;
   responsavel?: string;
   telefoneResponsavel?: string;
+  isentoMensalidade: boolean;
+  motivoIsencao?: string;
   ativo: boolean;
   criadoEm: Date;
   atualizadoEm: Date;
@@ -36,6 +38,8 @@ export interface MembroFormData {
   telefone?: string;
   responsavel?: string;
   telefoneResponsavel?: string;
+  isentoMensalidade: boolean;
+  motivoIsencao?: string;
   ativo: boolean;
 }
 
