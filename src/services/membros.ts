@@ -385,3 +385,63 @@ export async function getMembrosRecentes(limite: number = 5): Promise<MembroComR
     };
   });
 }
+
+export interface DesbravadorPorClasse {
+  classeId: string;
+  classeNome: string;
+  ordem: number;
+  quantidade: number;
+}
+
+export async function getDesbravadoresPorClasse(): Promise<DesbravadorPorClasse[]> {
+  const supabase = await createClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+
+  const { data, error } = await db
+    .from("membros")
+    .select(`
+      classe_id,
+      classes (
+        id,
+        nome,
+        ordem
+      )
+    `)
+    .eq("ativo", true)
+    .eq("tipo", "desbravador")
+    .not("classe_id", "is", null);
+
+  if (error) {
+    console.error("Erro ao buscar desbravadores por classe:", error);
+    throw new Error("Erro ao buscar desbravadores por classe");
+  }
+
+  // Agrupar por classe
+  const grouped = new Map<string, { nome: string; ordem: number; count: number }>();
+
+  (data || []).forEach((item: Record<string, unknown>) => {
+    const classes = item.classes as Record<string, unknown> | null;
+    if (!classes) return;
+
+    const classeId = classes.id as string;
+    const classeNome = classes.nome as string;
+    const ordem = classes.ordem as number;
+
+    if (grouped.has(classeId)) {
+      grouped.get(classeId)!.count++;
+    } else {
+      grouped.set(classeId, { nome: classeNome, ordem, count: 1 });
+    }
+  });
+
+  // Converter para array e ordenar por ordem
+  return Array.from(grouped.entries())
+    .map(([classeId, info]) => ({
+      classeId,
+      classeNome: info.nome,
+      ordem: info.ordem,
+      quantidade: info.count,
+    }))
+    .sort((a, b) => a.ordem - b.ordem);
+}

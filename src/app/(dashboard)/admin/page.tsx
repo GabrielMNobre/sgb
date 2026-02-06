@@ -15,6 +15,7 @@ import {
   countMembrosAtivos,
   countDesbravadoresAtivos,
   countDiretoriaAtivos,
+  getDesbravadoresPorClasse,
 } from "@/services/membros";
 import { countConselheirosAtivos } from "@/services/conselheiros";
 import { countEspecialidadesAtivas } from "@/services/especialidades";
@@ -30,6 +31,7 @@ export default async function AdminPage() {
     totalEspecialidades,
     conquistasPendentes,
     unidadesComContagem,
+    desbravadoresPorClasse,
   ] = await Promise.all([
     countMembrosAtivos(),
     countDesbravadoresAtivos(),
@@ -39,6 +41,7 @@ export default async function AdminPage() {
     countEspecialidadesAtivas(),
     countConquistasPendentes(),
     getUnidadesComContagem(),
+    getDesbravadoresPorClasse(),
   ]);
 
   return (
@@ -242,6 +245,42 @@ export default async function AdminPage() {
                     <Badge variant="outline">{unidade.totalMembros} membros</Badge>
                   </div>
                 ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Desbravadores por Classe */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Desbravadores por Classe
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {desbravadoresPorClasse.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>Nenhum desbravador ativo com classe definida</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {desbravadoresPorClasse.map((item) => (
+                  <div
+                    key={item.classeId}
+                    className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg"
+                  >
+                    <span className="font-medium text-gray-900">{item.classeNome}</span>
+                    <Badge variant="default">{item.quantidade}</Badge>
+                  </div>
+                ))}
+                <div className="flex items-center justify-between py-2 px-3 bg-primary/10 rounded-lg mt-3">
+                  <span className="font-semibold text-primary">Total</span>
+                  <Badge variant="default" className="bg-primary">
+                    {desbravadoresPorClasse.reduce((sum, item) => sum + item.quantidade, 0)}
+                  </Badge>
+                </div>
               </div>
             )}
           </CardContent>
