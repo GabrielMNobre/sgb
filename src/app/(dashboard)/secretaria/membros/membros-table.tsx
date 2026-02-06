@@ -200,7 +200,14 @@ export function MembrosTable({ membros, unidades, classes }: MembrosTableProps) 
           <TableBody>
             {membrosFiltrados.map((membro) => (
               <TableRow key={membro.id}>
-                <TableCell className="font-medium">{membro.nome.toUpperCase()}</TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    {membro.nome.toUpperCase()}
+                    {membro.isentoMensalidade && (
+                      <Badge variant="warning" className="text-xs">Isento</Badge>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell>
                   <Badge variant={membro.tipo === "desbravador" ? "default" : "outline"}>
                     {membro.tipo === "desbravador" ? "Desbravador" : "Diretoria"}

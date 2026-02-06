@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Package, CheckSquare, Square } from "lucide-react";
+import { Package, CheckSquare, Square, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -109,8 +109,41 @@ export function EntregasManager({ entregas, unidades }: EntregasManagerProps) {
     );
   }
 
+  // Agrupar especialidades pendentes para resumo de compra
+  const agrupado: Record<string, number> = {};
+  entregas.forEach((e) => {
+    agrupado[e.especialidadeNome] = (agrupado[e.especialidadeNome] || 0) + 1;
+  });
+  const listaCompra = Object.entries(agrupado).sort((a, b) => b[1] - a[1]);
+
   return (
     <div className="space-y-4">
+      {/* Resumo de especialidades para compra */}
+      {entregas.length > 0 && (
+        <div className="mx-4 mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="flex items-center gap-2 mb-3">
+            <ShoppingCart className="h-5 w-5 text-amber-700" />
+            <h3 className="font-semibold text-amber-900">
+              Especialidades para Compra
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-1">
+            {listaCompra.map(([nome, qty]) => (
+              <div key={nome} className="flex items-center justify-between text-sm py-1">
+                <span className="text-gray-700">{nome}</span>
+                <span className="font-medium text-amber-800 ml-2">{qty}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 pt-3 border-t border-amber-300 flex items-center justify-between">
+            <span className="text-sm font-semibold text-amber-900">Total</span>
+            <span className="text-sm font-bold text-amber-900">
+              {entregas.length} insígnia(s)
+            </span>
+          </div>
+        </div>
+      )}
+
       <div className="p-4 border-b flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
         <Select
           value={unidadeFiltro}

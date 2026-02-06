@@ -155,6 +155,8 @@ export async function createMembro(formData: MembroFormData): Promise<Membro> {
     telefone: formData.telefone || null,
     responsavel: formData.responsavel || null,
     telefoneResponsavel: formData.telefoneResponsavel || null,
+    isentoMensalidade: formData.isentoMensalidade,
+    motivoIsencao: formData.isentoMensalidade ? formData.motivoIsencao || null : null,
     ativo: formData.ativo,
   });
 
@@ -194,6 +196,8 @@ export async function updateMembro(id: string, formData: MembroFormData): Promis
     telefone: formData.telefone || null,
     responsavel: formData.responsavel || null,
     telefoneResponsavel: formData.telefoneResponsavel || null,
+    isentoMensalidade: formData.isentoMensalidade,
+    motivoIsencao: formData.isentoMensalidade ? formData.motivoIsencao || null : null,
     ativo: formData.ativo,
     atualizadoEm: new Date().toISOString(),
   });

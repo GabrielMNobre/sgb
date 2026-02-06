@@ -21,6 +21,8 @@ const membroSchema = z.object({
   telefone: z.string().max(20, "Telefone inválido").optional(),
   responsavel: z.string().max(200, "Nome muito longo").optional(),
   telefoneResponsavel: z.string().max(20, "Telefone inválido").optional(),
+  isentoMensalidade: z.boolean(),
+  motivoIsencao: z.string().max(500, "Motivo muito longo").optional(),
   ativo: z.boolean(),
 });
 
@@ -58,12 +60,15 @@ export function MembroForm({ membro, unidades, classes, onSubmit, redirectPath =
       telefone: membro?.telefone || "",
       responsavel: membro?.responsavel || "",
       telefoneResponsavel: membro?.telefoneResponsavel || "",
+      isentoMensalidade: membro?.isentoMensalidade ?? false,
+      motivoIsencao: membro?.motivoIsencao || "",
       ativo: membro?.ativo ?? true,
     },
   });
 
   const tipo = watch("tipo");
   const dataNascimento = watch("dataNascimento");
+  const isentoMensalidade = watch("isentoMensalidade");
   const ativo = watch("ativo");
 
   // Calcular se é menor de idade
@@ -118,12 +123,18 @@ export function MembroForm({ membro, unidades, classes, onSubmit, redirectPath =
       return;
     }
 
+    if (data.isentoMensalidade && !data.motivoIsencao?.trim()) {
+      error("Motivo da isenção é obrigatório para membros isentos");
+      return;
+    }
+
     setLoading(true);
     try {
       await onSubmit({
         ...data,
         unidadeId: data.unidadeId || undefined,
         classeId: data.classeId || undefined,
+        motivoIsencao: data.isentoMensalidade ? data.motivoIsencao : undefined,
       });
       success(membro ? "Membro atualizado com sucesso" : "Membro cadastrado com sucesso");
       router.push(redirectPath);
@@ -275,6 +286,43 @@ export function MembroForm({ membro, unidades, classes, onSubmit, redirectPath =
           </div>
         </div>
       )}
+
+      <div className="space-y-3">
+        <div>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isentoMensalidade}
+              onChange={(e) => {
+                setValue("isentoMensalidade", e.target.checked);
+                if (!e.target.checked) {
+                  setValue("motivoIsencao", "");
+                }
+              }}
+              className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <span className="text-sm font-medium text-gray-700">Isento de mensalidade</span>
+          </label>
+          <p className="text-xs text-gray-500 mt-1 ml-8">
+            Membros isentos não geram mensalidades e não contam como inadimplentes
+          </p>
+        </div>
+
+        {isentoMensalidade && (
+          <div className="ml-8">
+            <label className="label">Motivo da Isenção *</label>
+            <textarea
+              {...register("motivoIsencao")}
+              placeholder="Informe o motivo da isenção de mensalidade"
+              rows={3}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+            {errors.motivoIsencao && (
+              <p className="text-xs text-red-500 mt-1">{errors.motivoIsencao.message}</p>
+            )}
+          </div>
+        )}
+      </div>
 
       <div>
         <label className="flex items-center gap-3 cursor-pointer">
