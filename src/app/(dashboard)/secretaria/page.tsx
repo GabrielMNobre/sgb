@@ -223,7 +223,7 @@ export default async function SecretariaPage() {
               ))}
               <div className="flex items-center justify-between py-2 px-3 bg-primary/10 rounded-lg mt-3">
                 <span className="font-semibold text-primary">Total</span>
-                <Badge variant="default" className="bg-primary">
+                <Badge variant="default" className="bg-primary text-white">
                   {desbravadoresPorClasse.reduce((sum, item) => sum + item.quantidade, 0)}
                 </Badge>
               </div>
