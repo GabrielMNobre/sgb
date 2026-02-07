@@ -97,3 +97,71 @@ export async function removerHistoricoClasse(id: string): Promise<void> {
     throw new Error("Erro ao remover historico de classe");
   }
 }
+
+/**
+ * Atualiza a classe_id do membro para a classe de maior ordem no histórico
+ * Chamada automaticamente após adicionar ou remover classe do histórico
+ */
+export async function atualizarClasseAtualDoMembro(membroId: string): Promise<void> {
+  const supabase = await createClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+
+  // Buscar todas as classes do histórico do membro
+  const { data: historico, error: historicoError } = await db
+    .from("historico_classes")
+    .select(`
+      id,
+      classe_id,
+      classes (
+        id,
+        ordem
+      )
+    `)
+    .eq("membro_id", membroId);
+
+  if (historicoError) {
+    console.error("Erro ao buscar histórico de classes:", historicoError);
+    throw new Error("Erro ao atualizar classe atual do membro");
+  }
+
+  // Se não há histórico, limpar a classe_id
+  if (!historico || historico.length === 0) {
+    await db
+      .from("membros")
+      .update({
+        classe_id: null,
+        atualizado_em: new Date().toISOString()
+      })
+      .eq("id", membroId);
+    return;
+  }
+
+  // Encontrar a classe de maior ordem
+  let maiorOrdem = -1;
+  let classeIdMaiorOrdem = null;
+
+  for (const item of historico) {
+    const classe = item.classes as { id: string; ordem: number } | null;
+    if (classe && classe.ordem > maiorOrdem) {
+      maiorOrdem = classe.ordem;
+      classeIdMaiorOrdem = classe.id;
+    }
+  }
+
+  // Atualizar o membro com a classe de maior ordem
+  if (classeIdMaiorOrdem) {
+    const { error: updateError } = await db
+      .from("membros")
+      .update({
+        classe_id: classeIdMaiorOrdem,
+        atualizado_em: new Date().toISOString()
+      })
+      .eq("id", membroId);
+
+    if (updateError) {
+      console.error("Erro ao atualizar classe do membro:", updateError);
+      throw new Error("Erro ao atualizar classe atual do membro");
+    }
+  }
+}
