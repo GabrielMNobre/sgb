@@ -2,9 +2,9 @@ import Link from "next/link";
 import {
   Users,
   Building2,
-  Award,
+  // Award, // Temporariamente oculto
   UserCog,
-  Package,
+  // Package, // Temporariamente oculto
   Calendar,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -18,8 +18,8 @@ import {
   getDesbravadoresPorClasse,
 } from "@/services/membros";
 import { countConselheirosAtivos } from "@/services/conselheiros";
-import { countEspecialidadesAtivas } from "@/services/especialidades";
-import { countConquistasPendentes } from "@/services/membros-especialidades";
+// import { countEspecialidadesAtivas } from "@/services/especialidades"; // Temporariamente oculto
+// import { countConquistasPendentes } from "@/services/membros-especialidades"; // Temporariamente oculto
 
 export default async function AdminPage() {
   const [
@@ -28,8 +28,6 @@ export default async function AdminPage() {
     totalDiretoria,
     totalConselheiros,
     totalUnidades,
-    totalEspecialidades,
-    conquistasPendentes,
     unidadesComContagem,
     desbravadoresPorClasse,
   ] = await Promise.all([
@@ -38,11 +36,13 @@ export default async function AdminPage() {
     countDiretoriaAtivos(),
     countConselheirosAtivos(),
     countUnidadesAtivas(),
-    countEspecialidadesAtivas(),
-    countConquistasPendentes(),
     getUnidadesComContagem(),
     getDesbravadoresPorClasse(),
   ]);
+
+  // Temporariamente oculto - Especialidades
+  // const totalEspecialidades = await countEspecialidadesAtivas();
+  // const conquistasPendentes = await countConquistasPendentes();
 
   return (
     <div className="space-y-6">
@@ -135,6 +135,7 @@ export default async function AdminPage() {
             </CardContent>
           </Card>
 
+          {/* Temporariamente oculto
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -162,6 +163,7 @@ export default async function AdminPage() {
               </div>
             </CardContent>
           </Card>
+          */}
         </div>
       </div>
 
@@ -325,6 +327,7 @@ export default async function AdminPage() {
             </Card>
           </Link>
 
+          {/* Temporariamente oculto
           <Link href="/admin/especialidades/nova">
             <Card className="hover:bg-gray-50 transition-colors cursor-pointer h-full">
               <CardContent className="pt-6">
@@ -340,6 +343,7 @@ export default async function AdminPage() {
               </CardContent>
             </Card>
           </Link>
+          */}
 
           <Link href="/admin/conselheiros">
             <Card className="hover:bg-gray-50 transition-colors cursor-pointer h-full">
