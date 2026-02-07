@@ -56,6 +56,7 @@ const adminMenu: MenuSection[] = [
       { href: "/admin/unidades", label: "Unidades", icon: Building2 },
       { href: "/admin/conselheiros", label: "Conselheiros", icon: UserCog },
       { href: "/admin/especialidades", label: "Especialidades", icon: Award },
+      { href: "/admin/usuarios", label: "Usuários", icon: UserCog },
     ],
   },
   {
@@ -86,6 +87,7 @@ const menuItems: Record<PapelUsuario, MenuConfig> = {
     { href: "/secretaria/conselheiros", label: "Conselheiros", icon: Link2 },
     { href: "/secretaria/especialidades", label: "Especialidades", icon: Award },
     { href: "/secretaria/especialidades/conquistas", label: "Conquistas", icon: Award },
+    { href: "/secretaria/usuarios", label: "Usuários", icon: UserCog },
   ],
   tesoureiro: [
     { href: "/tesoureiro", label: "Dashboard", icon: Home },
