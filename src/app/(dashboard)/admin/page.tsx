@@ -2,9 +2,9 @@ import Link from "next/link";
 import {
   Users,
   Building2,
-  Award,
+  // Award, // Temporariamente oculto
   UserCog,
-  Package,
+  // Package, // Temporariamente oculto
   Calendar,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -15,10 +15,11 @@ import {
   countMembrosAtivos,
   countDesbravadoresAtivos,
   countDiretoriaAtivos,
+  getDesbravadoresPorClasse,
 } from "@/services/membros";
 import { countConselheirosAtivos } from "@/services/conselheiros";
-import { countEspecialidadesAtivas } from "@/services/especialidades";
-import { countConquistasPendentes } from "@/services/membros-especialidades";
+// import { countEspecialidadesAtivas } from "@/services/especialidades"; // Temporariamente oculto
+// import { countConquistasPendentes } from "@/services/membros-especialidades"; // Temporariamente oculto
 
 export default async function AdminPage() {
   const [
@@ -27,19 +28,21 @@ export default async function AdminPage() {
     totalDiretoria,
     totalConselheiros,
     totalUnidades,
-    totalEspecialidades,
-    conquistasPendentes,
     unidadesComContagem,
+    desbravadoresPorClasse,
   ] = await Promise.all([
     countMembrosAtivos(),
     countDesbravadoresAtivos(),
     countDiretoriaAtivos(),
     countConselheirosAtivos(),
     countUnidadesAtivas(),
-    countEspecialidadesAtivas(),
-    countConquistasPendentes(),
     getUnidadesComContagem(),
+    getDesbravadoresPorClasse(),
   ]);
+
+  // Temporariamente oculto - Especialidades
+  // const totalEspecialidades = await countEspecialidadesAtivas();
+  // const conquistasPendentes = await countConquistasPendentes();
 
   return (
     <div className="space-y-6">
@@ -132,6 +135,7 @@ export default async function AdminPage() {
             </CardContent>
           </Card>
 
+          {/* Temporariamente oculto
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -159,6 +163,7 @@ export default async function AdminPage() {
               </div>
             </CardContent>
           </Card>
+          */}
         </div>
       </div>
 
@@ -246,6 +251,42 @@ export default async function AdminPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Desbravadores por Classe */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Desbravadores por Classe
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {desbravadoresPorClasse.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>Nenhum desbravador ativo com classe definida</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {desbravadoresPorClasse.map((item) => (
+                  <div
+                    key={item.classeId}
+                    className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg"
+                  >
+                    <span className="font-medium text-gray-900">{item.classeNome}</span>
+                    <Badge variant="default">{item.quantidade}</Badge>
+                  </div>
+                ))}
+                <div className="flex items-center justify-between py-2 px-3 bg-primary/10 rounded-lg mt-3">
+                  <span className="font-semibold text-primary">Total</span>
+                  <Badge variant="default" className="bg-primary text-white">
+                    {desbravadoresPorClasse.reduce((sum, item) => sum + item.quantidade, 0)}
+                  </Badge>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Atalhos rápidos */}
@@ -286,6 +327,7 @@ export default async function AdminPage() {
             </Card>
           </Link>
 
+          {/* Temporariamente oculto
           <Link href="/admin/especialidades/nova">
             <Card className="hover:bg-gray-50 transition-colors cursor-pointer h-full">
               <CardContent className="pt-6">
@@ -301,6 +343,7 @@ export default async function AdminPage() {
               </CardContent>
             </Card>
           </Link>
+          */}
 
           <Link href="/admin/conselheiros">
             <Card className="hover:bg-gray-50 transition-colors cursor-pointer h-full">

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Edit, ToggleLeft, ToggleRight, Users } from "lucide-react";
+import { Edit, ToggleLeft, ToggleRight, Users, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
@@ -11,6 +11,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
+import { GerenciarClassesModal } from "@/components/forms/gerenciar-classes-modal";
 import {
   Table,
   TableBody,
@@ -19,23 +20,29 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { MembroComRelacoes, Classe } from "@/types/membro";
+import type { MembroComRelacoes, Classe, HistoricoClasseComRelacoes, HistoricoClasseFormData } from "@/types/membro";
 import type { Unidade } from "@/types/unidade";
 
 interface MembrosTableProps {
   membros: MembroComRelacoes[];
   unidades: Unidade[];
   classes: Classe[];
+  historicos: Record<string, HistoricoClasseComRelacoes[]>;
   basePath: string;
   onToggleStatus: (id: string, ativo: boolean) => Promise<void>;
+  onAddClasse: (membroId: string, data: HistoricoClasseFormData) => Promise<void>;
+  onRemoveClasse: (membroId: string, historicoId: string) => Promise<void>;
 }
 
 export function MembrosTable({
   membros,
   unidades,
   classes,
+  historicos,
   basePath,
   onToggleStatus,
+  onAddClasse,
+  onRemoveClasse,
 }: MembrosTableProps) {
   const [busca, setBusca] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
@@ -43,6 +50,10 @@ export function MembrosTable({
   const [filtroClasse, setFiltroClasse] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("");
   const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    membro: MembroComRelacoes | null;
+  }>({ isOpen: false, membro: null });
+  const [gerenciarClassesModal, setGerenciarClassesModal] = useState<{
     isOpen: boolean;
     membro: MembroComRelacoes | null;
   }>({ isOpen: false, membro: null });
@@ -90,6 +101,16 @@ export function MembrosTable({
       setLoading(false);
       setConfirmDialog({ isOpen: false, membro: null });
     }
+  };
+
+  const handleAddClasse = async (data: HistoricoClasseFormData) => {
+    if (!gerenciarClassesModal.membro) return;
+    await onAddClasse(gerenciarClassesModal.membro.id, data);
+  };
+
+  const handleRemoveClasse = async (historicoId: string) => {
+    if (!gerenciarClassesModal.membro) return;
+    await onRemoveClasse(gerenciarClassesModal.membro.id, historicoId);
   };
 
   const clearFilters = () => {
@@ -235,8 +256,16 @@ export function MembrosTable({
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setGerenciarClassesModal({ isOpen: true, membro })}
+                      title="Gerenciar Classes"
+                    >
+                      <History className="h-4 w-4" />
+                    </Button>
                     <Link href={`${basePath}/${membro.id}`}>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" title="Editar">
                         <Edit className="h-4 w-4" />
                       </Button>
                     </Link>
@@ -244,6 +273,7 @@ export function MembrosTable({
                       variant="ghost"
                       size="sm"
                       onClick={() => setConfirmDialog({ isOpen: true, membro })}
+                      title={membro.ativo ? "Inativar" : "Ativar"}
                     >
                       {membro.ativo ? (
                         <ToggleRight className="h-4 w-4 text-green-600" />
@@ -273,6 +303,20 @@ export function MembrosTable({
         variant={confirmDialog.membro?.ativo ? "danger" : "warning"}
         loading={loading}
       />
+
+      {gerenciarClassesModal.membro && (
+        <GerenciarClassesModal
+          isOpen={gerenciarClassesModal.isOpen}
+          onClose={() => setGerenciarClassesModal({ isOpen: false, membro: null })}
+          membroId={gerenciarClassesModal.membro.id}
+          membroNome={gerenciarClassesModal.membro.nome}
+          membroTipo={gerenciarClassesModal.membro.tipo}
+          classes={classes}
+          historico={historicos[gerenciarClassesModal.membro.id] || []}
+          onAdd={handleAddClasse}
+          onRemove={handleRemoveClasse}
+        />
+      )}
     </div>
   );
 }

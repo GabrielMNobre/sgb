@@ -9,19 +9,19 @@ import {
 
 export async function vincularConselheiroAction(
   unidadeId: string,
-  usuarioId: string,
+  membroId: string,
   principal: boolean
 ) {
-  await vincularConselheiro(unidadeId, usuarioId, principal);
+  await vincularConselheiro(unidadeId, membroId, principal);
   revalidatePath("/admin/conselheiros");
 }
 
-export async function removerVinculoAction(unidadeId: string, usuarioId: string) {
-  await removerVinculoConselheiro(unidadeId, usuarioId);
+export async function removerVinculoAction(unidadeId: string, membroId: string) {
+  await removerVinculoConselheiro(unidadeId, membroId);
   revalidatePath("/admin/conselheiros");
 }
 
-export async function definirPrincipalAction(unidadeId: string, usuarioId: string) {
-  await definirConselheiroPrincipal(unidadeId, usuarioId);
+export async function definirPrincipalAction(unidadeId: string, membroId: string) {
+  await definirConselheiroPrincipal(unidadeId, membroId);
   revalidatePath("/admin/conselheiros");
 }

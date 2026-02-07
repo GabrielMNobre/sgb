@@ -36,7 +36,7 @@ export function ConselheirosManager({
   const [confirmDelete, setConfirmDelete] = useState<{
     isOpen: boolean;
     unidadeId: string;
-    usuarioId: string;
+    membroId: string;
     nome: string;
   } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -46,7 +46,7 @@ export function ConselheirosManager({
   // Filtrar conselheiros já vinculados à unidade selecionada
   const conselheirosDisponivelParaUnidade = conselheirosDisponiveis.filter(
     (c) =>
-      !addModal.unidade?.conselheiros.some((v) => v.usuarioId === c.id)
+      !addModal.unidade?.conselheiros.some((v) => v.membroId === c.id)
   );
 
   const handleAddConselheiro = async () => {
@@ -74,7 +74,7 @@ export function ConselheirosManager({
 
     setLoading(true);
     try {
-      await removerVinculoAction(confirmDelete.unidadeId, confirmDelete.usuarioId);
+      await removerVinculoAction(confirmDelete.unidadeId, confirmDelete.membroId);
       success("Vínculo removido com sucesso");
       router.refresh();
     } catch (err) {
@@ -85,10 +85,10 @@ export function ConselheirosManager({
     }
   };
 
-  const handleSetPrincipal = async (unidadeId: string, usuarioId: string) => {
+  const handleSetPrincipal = async (unidadeId: string, membroId: string) => {
     setLoading(true);
     try {
-      await definirPrincipalAction(unidadeId, usuarioId);
+      await definirPrincipalAction(unidadeId, membroId);
       success("Conselheiro principal definido com sucesso");
       router.refresh();
     } catch (err) {
@@ -118,8 +118,8 @@ export function ConselheirosManager({
     return (
       <EmptyState
         icon={Users}
-        title="Nenhum conselheiro disponível"
-        description="É necessário cadastrar usuários com o papel de conselheiro"
+        title="Nenhum membro da diretoria disponível"
+        description="É necessário cadastrar membros do tipo diretoria para vincular às unidades"
       />
     );
   }
@@ -164,7 +164,7 @@ export function ConselheirosManager({
                     key={vinculo.id}
                     className="flex items-center gap-2 bg-gray-100 rounded-full pl-3 pr-2 py-1"
                   >
-                    <span className="text-sm">{vinculo.usuario.nome}</span>
+                    <span className="text-sm">{vinculo.membro.nome}</span>
                     {vinculo.principal && (
                       <Badge variant="warning" className="text-xs">
                         <Star className="h-3 w-3 mr-1" />
@@ -174,7 +174,7 @@ export function ConselheirosManager({
                     {!vinculo.principal && (
                       <button
                         onClick={() =>
-                          handleSetPrincipal(unidade.id, vinculo.usuarioId)
+                          handleSetPrincipal(unidade.id, vinculo.membroId)
                         }
                         className="p-1 hover:bg-gray-200 rounded-full transition-colors"
                         title="Definir como principal"
@@ -188,8 +188,8 @@ export function ConselheirosManager({
                         setConfirmDelete({
                           isOpen: true,
                           unidadeId: unidade.id,
-                          usuarioId: vinculo.usuarioId,
-                          nome: vinculo.usuario.nome,
+                          membroId: vinculo.membroId,
+                          nome: vinculo.membro.nome,
                         })
                       }
                       className="p-1 hover:bg-red-100 rounded-full transition-colors"
@@ -215,7 +215,7 @@ export function ConselheirosManager({
       >
         <div className="space-y-4">
           <div>
-            <label className="label">Conselheiro *</label>
+            <label className="label">Membro da Diretoria *</label>
             <Select
               value={selectedConselheiro}
               onChange={(e) => setSelectedConselheiro(e.target.value)}
@@ -223,7 +223,7 @@ export function ConselheirosManager({
                 value: c.id,
                 label: c.nome,
               }))}
-              placeholder="Selecione um conselheiro"
+              placeholder="Selecione um membro da diretoria"
             />
           </div>
 

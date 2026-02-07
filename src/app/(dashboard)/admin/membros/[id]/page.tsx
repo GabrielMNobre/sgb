@@ -11,6 +11,7 @@ interface EditarMembroPageProps {
 
 export default async function EditarMembroPage({ params }: EditarMembroPageProps) {
   const { id } = await params;
+
   const [membro, unidades, classes] = await Promise.all([
     getMembroById(id),
     getUnidadesAtivas(),

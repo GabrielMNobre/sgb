@@ -2,9 +2,11 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { getMembros, getClasses } from "@/services/membros";
 import { getUnidadesAtivas } from "@/services/unidades";
+import { getHistoricoDoMembro } from "@/services/historico-classes";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MembrosTable } from "./membros-table";
+import type { HistoricoClasseComRelacoes } from "@/types/membro";
 
 export default async function MembrosPage() {
   const [membros, unidades, classes] = await Promise.all([
@@ -12,6 +14,14 @@ export default async function MembrosPage() {
     getUnidadesAtivas(),
     getClasses(),
   ]);
+
+  // Buscar históricos de todos os membros
+  const historicos: Record<string, HistoricoClasseComRelacoes[]> = {};
+  await Promise.all(
+    membros.map(async (membro) => {
+      historicos[membro.id] = await getHistoricoDoMembro(membro.id);
+    })
+  );
 
   return (
     <div className="space-y-6">
@@ -29,7 +39,12 @@ export default async function MembrosPage() {
       </div>
 
       <Card>
-        <MembrosTable membros={membros} unidades={unidades} classes={classes} />
+        <MembrosTable
+          membros={membros}
+          unidades={unidades}
+          classes={classes}
+          historicos={historicos}
+        />
       </Card>
     </div>
   );
