@@ -67,12 +67,11 @@ export async function getUnidadeComConselheiros(id: string): Promise<UnidadeComC
       conselheiros_unidades (
         id,
         unidade_id,
-        usuario_id,
+        membro_id,
         principal,
-        usuarios (
+        membros (
           id,
-          nome,
-          email
+          nome
         )
       )
     `)
@@ -92,13 +91,12 @@ export async function getUnidadeComConselheiros(id: string): Promise<UnidadeComC
   const conselheiros = conselheiroUnidade.map((c) => ({
     id: c.id as string,
     unidadeId: c.unidade_id as string,
-    usuarioId: c.usuario_id as string,
+    membroId: c.membro_id as string,
     principal: c.principal as boolean,
-    usuario: c.usuarios ? {
-      id: (c.usuarios as Record<string, unknown>).id as string,
-      nome: (c.usuarios as Record<string, unknown>).nome as string,
-      email: (c.usuarios as Record<string, unknown>).email as string,
-    } : { id: "", nome: "", email: "" },
+    membro: c.membros ? {
+      id: (c.membros as Record<string, unknown>).id as string,
+      nome: (c.membros as Record<string, unknown>).nome as string,
+    } : { id: "", nome: "" },
   }));
 
   return { ...unidade, conselheiros };

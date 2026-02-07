@@ -5,22 +5,21 @@ import type { ConselheiroVinculo, UnidadeComConselheiros } from "@/types/unidade
 export interface ConselheiroDisponivel {
   id: string;
   nome: string;
-  email: string;
 }
 
 export async function getConselheirosDisponiveis(): Promise<ConselheiroDisponivel[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from("usuarios")
-    .select("id, nome, email")
-    .eq("papel", "conselheiro")
+    .from("membros")
+    .select("id, nome")
+    .eq("tipo", "diretoria")
     .eq("ativo", true)
     .order("nome");
 
   if (error) {
-    console.error("Erro ao buscar conselheiros:", error);
-    throw new Error("Erro ao buscar conselheiros");
+    console.error("Erro ao buscar membros da diretoria:", error);
+    throw new Error("Erro ao buscar membros da diretoria");
   }
 
   return data || [];
@@ -37,12 +36,11 @@ export async function getUnidadesComConselheiros(): Promise<UnidadeComConselheir
       conselheiros_unidades (
         id,
         unidade_id,
-        usuario_id,
+        membro_id,
         principal,
-        usuarios (
+        membros (
           id,
-          nome,
-          email
+          nome
         )
       )
     `)
@@ -60,13 +58,12 @@ export async function getUnidadesComConselheiros(): Promise<UnidadeComConselheir
     const conselheiros = conselheiroUnidade.map((c) => ({
       id: c.id as string,
       unidadeId: c.unidade_id as string,
-      usuarioId: c.usuario_id as string,
+      membroId: c.membro_id as string,
       principal: c.principal as boolean,
-      usuario: c.usuarios ? {
-        id: (c.usuarios as Record<string, unknown>).id as string,
-        nome: (c.usuarios as Record<string, unknown>).nome as string,
-        email: (c.usuarios as Record<string, unknown>).email as string,
-      } : { id: "", nome: "", email: "" },
+      membro: c.membros ? {
+        id: (c.membros as Record<string, unknown>).id as string,
+        nome: (c.membros as Record<string, unknown>).nome as string,
+      } : { id: "", nome: "" },
     }));
 
     return { ...unidade, conselheiros };
@@ -75,7 +72,7 @@ export async function getUnidadesComConselheiros(): Promise<UnidadeComConselheir
 
 export async function vincularConselheiro(
   unidadeId: string,
-  usuarioId: string,
+  membroId: string,
   principal: boolean = false
 ): Promise<void> {
   const supabase = await createClient();
@@ -96,7 +93,7 @@ export async function vincularConselheiro(
     .from("conselheiros_unidades")
     .select("id")
     .eq("unidade_id", unidadeId)
-    .eq("usuario_id", usuarioId)
+    .eq("membro_id", membroId)
     .single();
 
   if (existente) {
@@ -116,7 +113,7 @@ export async function vincularConselheiro(
       .from("conselheiros_unidades")
       .insert({
         unidade_id: unidadeId,
-        usuario_id: usuarioId,
+        membro_id: membroId,
         principal,
       });
 
@@ -129,7 +126,7 @@ export async function vincularConselheiro(
 
 export async function removerVinculoConselheiro(
   unidadeId: string,
-  usuarioId: string
+  membroId: string
 ): Promise<void> {
   const supabase = await createClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -139,7 +136,7 @@ export async function removerVinculoConselheiro(
     .from("conselheiros_unidades")
     .delete()
     .eq("unidade_id", unidadeId)
-    .eq("usuario_id", usuarioId);
+    .eq("membro_id", membroId);
 
   if (error) {
     console.error("Erro ao remover vínculo:", error);
@@ -149,7 +146,7 @@ export async function removerVinculoConselheiro(
 
 export async function definirConselheiroPrincipal(
   unidadeId: string,
-  usuarioId: string
+  membroId: string
 ): Promise<void> {
   const supabase = await createClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -167,7 +164,7 @@ export async function definirConselheiroPrincipal(
     .from("conselheiros_unidades")
     .update({ principal: true })
     .eq("unidade_id", unidadeId)
-    .eq("usuario_id", usuarioId);
+    .eq("membro_id", membroId);
 
   if (error) {
     console.error("Erro ao definir conselheiro principal:", error);
@@ -185,12 +182,11 @@ export async function getConselheirosVinculados(unidadeId: string): Promise<Cons
     .select(`
       id,
       unidade_id,
-      usuario_id,
+      membro_id,
       principal,
-      usuarios (
+      membros (
         id,
-        nome,
-        email
+        nome
       )
     `)
     .eq("unidade_id", unidadeId);
@@ -203,17 +199,16 @@ export async function getConselheirosVinculados(unidadeId: string): Promise<Cons
   return (data || []).map((c: Record<string, unknown>) => ({
     id: c.id as string,
     unidadeId: c.unidade_id as string,
-    usuarioId: c.usuario_id as string,
+    membroId: c.membro_id as string,
     principal: c.principal as boolean,
-    usuario: c.usuarios ? {
-      id: (c.usuarios as Record<string, unknown>).id as string,
-      nome: (c.usuarios as Record<string, unknown>).nome as string,
-      email: (c.usuarios as Record<string, unknown>).email as string,
-    } : { id: "", nome: "", email: "" },
+    membro: c.membros ? {
+      id: (c.membros as Record<string, unknown>).id as string,
+      nome: (c.membros as Record<string, unknown>).nome as string,
+    } : { id: "", nome: "" },
   }));
 }
 
-export async function getUnidadeDoConselheiro(usuarioId: string): Promise<{
+export async function getUnidadeDoConselheiro(membroId: string): Promise<{
   unidadeId: string;
   unidadeNome: string;
   principal: boolean;
@@ -232,7 +227,7 @@ export async function getUnidadeDoConselheiro(usuarioId: string): Promise<{
         nome
       )
     `)
-    .eq("usuario_id", usuarioId)
+    .eq("membro_id", membroId)
     .order("principal", { ascending: false })
     .limit(1)
     .single();
@@ -258,13 +253,11 @@ export async function countConselheirosAtivos(): Promise<number> {
   const supabase = await createClient();
 
   const { count, error } = await supabase
-    .from("usuarios")
-    .select("*", { count: "exact", head: true })
-    .eq("papel", "conselheiro")
-    .eq("ativo", true);
+    .from("conselheiros_unidades")
+    .select("*", { count: "exact", head: true });
 
   if (error) {
-    console.error("Erro ao contar conselheiros:", error);
+    console.error("Erro ao contar membros da diretoria:", error);
     return 0;
   }
 
