@@ -24,11 +24,10 @@ export interface UnidadeComConselheiros extends Unidade {
 export interface ConselheiroVinculo {
   id: string;
   unidadeId: string;
-  usuarioId: string;
+  membroId: string;
   principal: boolean;
-  usuario: {
+  membro: {
     id: string;
     nome: string;
-    email: string;
   };
 }

@@ -5,6 +5,7 @@ export interface Usuario {
   email: string;
   nome: string;
   papel: PapelUsuario;
+  membroId: string | null;
   ativo: boolean;
   criadoEm: Date;
   atualizadoEm: Date;
