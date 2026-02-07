@@ -207,7 +207,7 @@ export function MembroForm({ membro, unidades, classes, onSubmit, redirectPath =
           </div>
 
           <div>
-            <label className="label">Classe *</label>
+            <label className="label">Classe {!membro && "*"}</label>
             <Select
               {...register("classeId")}
               options={classesOptions}
