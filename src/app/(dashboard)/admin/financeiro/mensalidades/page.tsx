@@ -5,7 +5,7 @@ import {
   gerarMensalidadesDoMesAction,
   registrarPagamentosAction,
   estornarPagamentoAction,
-} from "./actions";
+} from "../actions";
 
 export default async function MensalidadesPage({
   searchParams,
@@ -36,7 +36,7 @@ export default async function MensalidadesPage({
       <MensalidadesControl
         initialMensalidades={mensalidades}
         unidades={unidades}
-        basePath="/tesoureiro/mensalidades"
+        basePath="/admin/financeiro/mensalidades"
         initialMes={mes}
         initialAno={ano}
         onGerar={gerarMensalidadesDoMesAction}

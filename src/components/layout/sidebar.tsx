@@ -15,6 +15,8 @@ import {
   Building2,
   UserCog,
   BarChart3,
+  ShoppingCart,
+  CalendarDays,
 } from "lucide-react";
 import { Usuario, PapelUsuario } from "@/types/auth";
 import { LogoutButton } from "./logout-button";
@@ -69,7 +71,10 @@ const adminMenu: MenuSection[] = [
   {
     section: "Financeiro",
     items: [
-      { href: "/admin/mensalidades", label: "Mensalidades", icon: DollarSign },
+      { href: "/admin/financeiro", label: "Dashboard", icon: DollarSign },
+      { href: "/admin/financeiro/mensalidades", label: "Mensalidades", icon: DollarSign },
+      { href: "/admin/financeiro/gastos", label: "Gastos", icon: ShoppingCart },
+      { href: "/admin/financeiro/gastos/eventos", label: "Eventos", icon: CalendarDays },
     ],
   },
   {
@@ -92,6 +97,8 @@ const menuItems: Record<PapelUsuario, MenuConfig> = {
   tesoureiro: [
     { href: "/tesoureiro", label: "Dashboard", icon: Home },
     { href: "/tesoureiro/mensalidades", label: "Mensalidades", icon: DollarSign },
+    { href: "/tesoureiro/gastos", label: "Gastos", icon: ShoppingCart },
+    { href: "/tesoureiro/gastos/eventos", label: "Eventos", icon: CalendarDays },
   ],
   conselheiro: [
     { href: "/conselheiro", label: "Dashboard", icon: Home },
@@ -159,7 +166,7 @@ export function Sidebar({ user, isOpen, onClose }: SidebarProps) {
       <MenuItemLink
         key={item.href}
         item={item}
-        isActive={pathname === item.href}
+        isActive={pathname === item.href || pathname.startsWith(item.href + "/")}
         onClose={onClose}
       />
     ));

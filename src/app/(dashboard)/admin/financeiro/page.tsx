@@ -60,7 +60,7 @@ export default async function TesoureiroPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
-          Dashboard - Tesoureiro
+          Dashboard - Financeiro
         </h1>
         <p className="text-gray-500">Controle financeiro do clube</p>
       </div>
@@ -362,7 +362,7 @@ export default async function TesoureiroPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Últimos Gastos</CardTitle>
-            <Link href="/tesoureiro/gastos">
+            <Link href="/admin/financeiro/gastos">
               <Button variant="ghost" size="sm">
                 Ver todos
               </Button>
@@ -408,7 +408,7 @@ export default async function TesoureiroPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Maiores Inadimplentes</CardTitle>
-            <Link href="/tesoureiro/mensalidades">
+            <Link href="/admin/financeiro/mensalidades">
               <Button variant="ghost" size="sm">
                 Ver todos
               </Button>
