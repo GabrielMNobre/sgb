@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ConselheirosManager } from "./conselheiros-manager";
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminConselheirosPage() {
   let unidades: Awaited<ReturnType<typeof getUnidadesComConselheiros>> = [];
   let conselheirosDisponiveis: Awaited<ReturnType<typeof getConselheirosDisponiveis>> = [];
