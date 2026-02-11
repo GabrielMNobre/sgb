@@ -69,7 +69,8 @@ const adminMenu: MenuSection[] = [
   {
     section: "Financeiro",
     items: [
-      { href: "/admin/mensalidades", label: "Mensalidades", icon: DollarSign },
+      { href: "/admin/financeiro", label: "Dashboard", icon: DollarSign },
+      { href: "/admin/financeiro/mensalidades", label: "Mensalidades", icon: DollarSign },
     ],
   },
   {
