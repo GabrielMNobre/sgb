@@ -7,6 +7,10 @@ import {
   Users,
   ShoppingCart,
   Wallet,
+  Heart,
+  ShoppingBag,
+  ArrowUpCircle,
+  ArrowDownCircle,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,13 +24,16 @@ import {
   obterReceitaUltimosSeisMeses,
 } from "@/services/mensalidades";
 import { calcularTotalMesAtual, getUltimosGastos } from "@/services/gastos";
+import { calcularReceitasMesAtual } from "@/services/receitas";
+import { obterVendasUltimas } from "@/services/vendas";
+import { obterDoacoesUltimas } from "@/services/doacoes";
 
 export default async function TesoureiroPage() {
   const hoje = new Date();
   const mesAtual = hoje.getMonth() + 1;
   const anoAtual = hoje.getFullYear();
 
-  const [totais, meta, taxas, totalInadimplentes, inadimplentes, receita, totalGastosMes, ultimosGastos] = await Promise.all([
+  const [totais, meta, taxas, totalInadimplentes, inadimplentes, receita, totalGastosMes, ultimosGastos, resumoReceitas, ultimasVendas, ultimasDoacoes] = await Promise.all([
     calcularTotaisMensalidade(mesAtual, anoAtual),
     calcularMetaMensal(mesAtual, anoAtual),
     calcularTaxaAdesao(mesAtual, anoAtual),
@@ -35,6 +42,9 @@ export default async function TesoureiroPage() {
     obterReceitaUltimosSeisMeses(),
     calcularTotalMesAtual(),
     getUltimosGastos(5),
+    calcularReceitasMesAtual(),
+    obterVendasUltimas(3),
+    obterDoacoesUltimas(3),
   ]);
 
   const formatCurrency = (value: number) =>
@@ -50,7 +60,9 @@ export default async function TesoureiroPage() {
   };
 
   const metaColors = getMetaColor(meta.percentualAlcancado);
-  const saldoMes = totais.totalPago - totalGastosMes;
+  const totalEntradas = resumoReceitas.totalGeral;
+  const totalSaidas = totalGastosMes;
+  const saldoMes = totalEntradas - totalSaidas;
   const saldoPositivo = saldoMes >= 0;
 
   const formatDate = (date: Date) =>
@@ -63,6 +75,138 @@ export default async function TesoureiroPage() {
           Dashboard - Tesoureiro
         </h1>
         <p className="text-gray-500">Controle financeiro do clube</p>
+      </div>
+
+      {/* Resumo Financeiro Consolidado */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign className="h-5 w-5" />
+            Resumo Financeiro do Mês
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Total de Entradas */}
+            <div className="p-6 bg-green-50 rounded-lg">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">
+                    Total de Entradas
+                  </p>
+                  <p className="text-3xl font-bold text-green-700">
+                    {formatCurrency(totalEntradas)}
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-green-200 rounded-full flex items-center justify-center">
+                  <ArrowUpCircle className="h-6 w-6 text-green-700" />
+                </div>
+              </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Mensalidades</span>
+                  <span className="font-semibold text-blue-700">
+                    {formatCurrency(resumoReceitas.mensalidades.total)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Vendas</span>
+                  <span className="font-semibold text-purple-700">
+                    {formatCurrency(resumoReceitas.vendas.total)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Doações</span>
+                  <span className="font-semibold text-green-700">
+                    {formatCurrency(resumoReceitas.doacoes.total)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Total de Saídas */}
+            <div className="p-6 bg-red-50 rounded-lg">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">
+                    Total de Saídas
+                  </p>
+                  <p className="text-3xl font-bold text-red-700">
+                    {formatCurrency(totalSaidas)}
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-red-200 rounded-full flex items-center justify-center">
+                  <ArrowDownCircle className="h-6 w-6 text-red-700" />
+                </div>
+              </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Gastos</span>
+                  <span className="font-semibold text-red-700">
+                    {formatCurrency(totalSaidas)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Saldo */}
+            <div className={`p-6 ${saldoPositivo ? "bg-blue-50" : "bg-orange-50"} rounded-lg`}>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">
+                    Saldo do Mês
+                  </p>
+                  <p className={`text-3xl font-bold ${saldoPositivo ? "text-blue-700" : "text-orange-700"}`}>
+                    {formatCurrency(saldoMes)}
+                  </p>
+                </div>
+                <div className={`h-12 w-12 ${saldoPositivo ? "bg-blue-200" : "bg-orange-200"} rounded-full flex items-center justify-center`}>
+                  <Wallet className={`h-6 w-6 ${saldoPositivo ? "text-blue-700" : "text-orange-700"}`} />
+                </div>
+              </div>
+              <div className="text-sm text-gray-600">
+                {saldoPositivo ? "Superávit" : "Déficit"} no período
+              </div>
+            </div>
+          </div>
+
+          {/* Distribuição de Receitas */}
+          {resumoReceitas.distribuicao.length > 0 && (
+            <div className="mt-6 pt-6 border-t">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                Origem das Receitas
+              </h3>
+              <div className="h-8 bg-gray-100 rounded-lg overflow-hidden flex">
+                {resumoReceitas.distribuicao.map((item) => (
+                  <div
+                    key={item.fonte}
+                    className={`${item.cor} flex items-center justify-center text-xs text-white font-medium transition-all hover:opacity-80`}
+                    style={{ width: `${item.percentual}%` }}
+                    title={`${item.fonte}: ${formatCurrency(item.valor)} (${item.percentual.toFixed(1)}%)`}
+                  >
+                    {item.percentual > 15 && `${item.percentual.toFixed(0)}%`}
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-4 pt-3 text-sm flex-wrap">
+                {resumoReceitas.distribuicao.map((item) => (
+                  <div key={item.fonte} className="flex items-center gap-2">
+                    <div className={`h-3 w-3 ${item.cor} rounded`} />
+                    <span className="text-gray-600">{item.fonte}</span>
+                    <span className={`font-semibold ${item.corTexto}`}>
+                      {formatCurrency(item.valor)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* MENSALIDADES */}
+      <div className="pt-4">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Mensalidades</h2>
       </div>
 
       {/* Revenue summary cards */}
@@ -300,59 +444,108 @@ export default async function TesoureiroPage() {
         </CardContent>
       </Card>
 
-      {/* Gastos e Saldo */}
+      {/* Outras Receitas */}
+      <div className="pt-4">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Outras Receitas</h2>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Últimas Vendas */}
         <Card>
-          <CardContent className="pt-6">
+          <CardHeader>
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">
-                  Total de Gastos no Mês
-                </p>
-                <p className="text-3xl font-bold text-error">
-                  {formatCurrency(totalGastosMes)}
-                </p>
-                <p className="text-xs text-gray-500 mt-2">
-                  {ultimosGastos.length} gasto(s) recente(s)
-                </p>
-              </div>
-              <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center">
-                <ShoppingCart className="h-6 w-6 text-error" />
-              </div>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingBag className="h-5 w-5" />
+                Últimas Vendas
+              </CardTitle>
+              <Link href="/tesoureiro/receitas/vendas">
+                <Button variant="ghost" size="sm">
+                  Ver todas
+                </Button>
+              </Link>
             </div>
+          </CardHeader>
+          <CardContent>
+            {ultimasVendas.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <ShoppingBag className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>Nenhuma venda registrada.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {ultimasVendas.map((venda) => (
+                  <div
+                    key={venda.id}
+                    className="flex items-center justify-between py-2 border-b last:border-0"
+                  >
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {venda.descricao}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {venda.categoria?.nome || "Sem categoria"} • {formatDate(venda.data)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-purple-600">
+                        {formatCurrency(venda.valorTotal)}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {venda.quantidade}x
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
+        {/* Últimas Doações */}
         <Card>
-          <CardContent className="pt-6">
+          <CardHeader>
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">
-                  Saldo do Mês
-                </p>
-                <p
-                  className={`text-3xl font-bold ${
-                    saldoPositivo ? "text-success" : "text-error"
-                  }`}
-                >
-                  {formatCurrency(saldoMes)}
-                </p>
-                <p className="text-xs text-gray-500 mt-2">
-                  Arrecadado - Gastos
-                </p>
-              </div>
-              <div
-                className={`h-12 w-12 ${
-                  saldoPositivo ? "bg-green-100" : "bg-red-100"
-                } rounded-full flex items-center justify-center`}
-              >
-                <Wallet
-                  className={`h-6 w-6 ${
-                    saldoPositivo ? "text-success" : "text-error"
-                  }`}
-                />
-              </div>
+              <CardTitle className="flex items-center gap-2">
+                <Heart className="h-5 w-5" />
+                Últimas Doações
+              </CardTitle>
+              <Link href="/tesoureiro/receitas/doacoes">
+                <Button variant="ghost" size="sm">
+                  Ver todas
+                </Button>
+              </Link>
             </div>
+          </CardHeader>
+          <CardContent>
+            {ultimasDoacoes.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <Heart className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>Nenhuma doação registrada.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {ultimasDoacoes.map((doacao) => (
+                  <div
+                    key={doacao.id}
+                    className="flex items-center justify-between py-2 border-b last:border-0"
+                  >
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {doacao.doador || "Anônimo"}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {formatDate(doacao.data)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-green-600">
+                        {formatCurrency(doacao.valor)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
