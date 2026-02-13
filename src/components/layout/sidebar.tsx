@@ -17,6 +17,8 @@ import {
   BarChart3,
   ShoppingCart,
   CalendarDays,
+  ShoppingBag,
+  Heart,
 } from "lucide-react";
 import { Usuario, PapelUsuario } from "@/types/auth";
 import { LogoutButton } from "./logout-button";
@@ -78,6 +80,13 @@ const adminMenu: MenuSection[] = [
     ],
   },
   {
+    section: "Receitas",
+    items: [
+      { href: "/admin/financeiro/receitas/vendas", label: "Vendas", icon: ShoppingBag },
+      { href: "/admin/financeiro/receitas/doacoes", label: "Doações", icon: Heart },
+    ],
+  },
+  {
     section: "Relatórios",
     items: [{ href: "/admin/relatorios", label: "Relatórios", icon: BarChart3 }],
   },
@@ -95,10 +104,25 @@ const menuItems: Record<PapelUsuario, MenuConfig> = {
     { href: "/secretaria/usuarios", label: "Usuários", icon: UserCog },
   ],
   tesoureiro: [
-    { href: "/tesoureiro", label: "Dashboard", icon: Home },
-    { href: "/tesoureiro/mensalidades", label: "Mensalidades", icon: DollarSign },
-    { href: "/tesoureiro/gastos", label: "Gastos", icon: ShoppingCart },
-    { href: "/tesoureiro/gastos/eventos", label: "Eventos", icon: CalendarDays },
+    {
+      section: null,
+      items: [{ href: "/tesoureiro", label: "Dashboard", icon: Home }],
+    },
+    {
+      section: "Financeiro",
+      items: [
+        { href: "/tesoureiro/mensalidades", label: "Mensalidades", icon: DollarSign },
+        { href: "/tesoureiro/gastos", label: "Gastos", icon: ShoppingCart },
+        { href: "/tesoureiro/gastos/eventos", label: "Eventos", icon: CalendarDays },
+      ],
+    },
+    {
+      section: "Receitas",
+      items: [
+        { href: "/tesoureiro/receitas/vendas", label: "Vendas", icon: ShoppingBag },
+        { href: "/tesoureiro/receitas/doacoes", label: "Doações", icon: Heart },
+      ],
+    },
   ],
   conselheiro: [
     { href: "/conselheiro", label: "Dashboard", icon: Home },
