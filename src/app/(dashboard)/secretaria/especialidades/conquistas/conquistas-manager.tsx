@@ -33,6 +33,7 @@ import {
   marcarEntregaAction,
   removerConquistaAction,
 } from "../actions";
+import { formatDate } from "@/lib/utils/date";
 
 interface ConquistasManagerProps {
   conquistas: MembroEspecialidadeComRelacoes[];
@@ -136,10 +137,6 @@ export function ConquistasManager({
       label: `${e.nome} (${e.categoria})`,
     })),
   ];
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("pt-BR");
-  };
 
   const resetForm = () => {
     setFormData({

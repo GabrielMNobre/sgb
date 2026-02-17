@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { Doacao } from "@/types/doacao";
 import { Pencil, Trash2, Heart } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 interface DoacoesTableProps {
   doacoes: Doacao[];
@@ -26,9 +27,6 @@ export function DoacoesTable({ doacoes, onEdit, onDelete }: DoacoesTableProps) {
       style: "currency",
       currency: "BRL",
     }).format(value);
-
-  const formatDate = (date: Date) =>
-    new Intl.DateTimeFormat("pt-BR").format(new Date(date));
 
   if (doacoes.length === 0) {
     return (

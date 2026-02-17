@@ -19,6 +19,7 @@ import { RegistrarPagamentoModal } from "@/components/forms/registrar-pagamento-
 import { MESES_LABELS } from "@/lib/constants";
 import type { MensalidadeComRelacoes, RegistrarPagamentoFormData } from "@/types/mensalidade";
 import type { Unidade } from "@/types/unidade";
+import { formatDate } from "@/lib/utils/date";
 
 interface MensalidadesTableProps {
   mensalidades: MensalidadeComRelacoes[];
@@ -166,11 +167,6 @@ export function MensalidadesTable({
       style: "currency",
       currency: "BRL",
     }).format(value);
-
-  const formatDate = (date: Date | undefined) => {
-    if (!date) return "-";
-    return new Intl.DateTimeFormat("pt-BR").format(new Date(date));
-  };
 
   const formatMonthYear = (mes: number, ano: number) =>
     `${MESES_LABELS[mes]}/${ano}`;

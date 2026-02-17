@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { VendaComCategoria } from "@/types/venda";
 import { Pencil, Trash2, ShoppingBag } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 interface VendasTableProps {
   vendas: VendaComCategoria[];
@@ -26,9 +27,6 @@ export function VendasTable({ vendas, onEdit, onDelete }: VendasTableProps) {
       style: "currency",
       currency: "BRL",
     }).format(value);
-
-  const formatDate = (date: Date) =>
-    new Intl.DateTimeFormat("pt-BR").format(new Date(date));
 
   if (vendas.length === 0) {
     return (

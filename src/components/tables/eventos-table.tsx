@@ -14,6 +14,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import type { EventoComGastos } from "@/types/evento";
 import { Pencil, Eye, ToggleLeft, ToggleRight, CalendarDays } from "lucide-react";
 import Link from "next/link";
+import { formatDate } from "@/lib/utils/date";
 
 interface EventosTableProps {
   eventos: EventoComGastos[];
@@ -33,11 +34,6 @@ export function EventosTable({
       style: "currency",
       currency: "BRL",
     }).format(value);
-
-  const formatDate = (date?: Date) => {
-    if (!date) return "-";
-    return new Intl.DateTimeFormat("pt-BR").format(new Date(date));
-  };
 
   if (eventos.length === 0) {
     return (

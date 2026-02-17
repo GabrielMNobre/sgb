@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/table";
 import type { Especialidade, MembroEspecialidadeComRelacoes, MembroEspecialidadeFormData } from "@/types/especialidade";
 import { registrarConquistaAction, marcarEntregaAction, removerConquistaAction } from "./actions";
+import { formatDate } from "@/lib/utils/date";
 
 interface MembroComEspecialidades {
   id: string;
@@ -119,10 +120,6 @@ export function EspecialidadesMembro({
       setLoading(false);
       setConfirmDialog({ isOpen: false, especialidade: null });
     }
-  };
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("pt-BR");
   };
 
   return (
