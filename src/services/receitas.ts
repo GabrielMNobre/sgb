@@ -1,6 +1,7 @@
 import { calcularTotaisMensalidade } from "./mensalidades";
 import { calcularTotalMesAtual as calcularTotalVendasMes, obterVendasUltimas } from "./vendas";
 import { calcularTotalMesAtual as calcularTotalDoacoesMes, obterDoacoesUltimas } from "./doacoes";
+import { calcularTotalPaesMesAtual } from "./pedidos-paes";
 
 export interface ResumoReceitas {
   mensalidades: {
@@ -14,6 +15,9 @@ export interface ResumoReceitas {
   doacoes: {
     total: number;
     quantidade: number;
+  };
+  paes: {
+    total: number;
   };
   totalGeral: number;
   distribuicao: Array<{
@@ -30,14 +34,15 @@ export async function calcularReceitasMesAtual(): Promise<ResumoReceitas> {
   const mesAtual = hoje.getMonth() + 1;
   const anoAtual = hoje.getFullYear();
 
-  const [mensalidades, vendas, doacoes] = await Promise.all([
+  const [mensalidades, vendas, doacoes, paesTotal] = await Promise.all([
     calcularTotaisMensalidade(mesAtual, anoAtual),
     calcularTotalVendasMes(),
     calcularTotalDoacoesMes(),
+    calcularTotalPaesMesAtual(),
   ]);
 
   const totalGeral =
-    mensalidades.totalPago + vendas.total + doacoes.total;
+    mensalidades.totalPago + vendas.total + doacoes.total + paesTotal;
 
   const distribuicao = [
     {
@@ -61,6 +66,13 @@ export async function calcularReceitasMesAtual(): Promise<ResumoReceitas> {
       cor: "bg-green-500",
       corTexto: "text-green-700",
     },
+    {
+      fonte: "Pães",
+      valor: paesTotal,
+      percentual: totalGeral > 0 ? (paesTotal / totalGeral) * 100 : 0,
+      cor: "bg-amber-500",
+      corTexto: "text-amber-700",
+    },
   ].filter((item) => item.valor > 0); // Apenas fontes com valor
 
   return {
@@ -75,6 +87,9 @@ export async function calcularReceitasMesAtual(): Promise<ResumoReceitas> {
     doacoes: {
       total: doacoes.total,
       quantidade: doacoes.quantidade,
+    },
+    paes: {
+      total: paesTotal,
     },
     totalGeral,
     distribuicao,

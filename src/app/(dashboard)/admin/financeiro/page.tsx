@@ -9,6 +9,7 @@ import {
   Wallet,
   Heart,
   ShoppingBag,
+  Wheat,
   ArrowUpCircle,
   ArrowDownCircle,
 } from "lucide-react";
@@ -27,13 +28,15 @@ import { calcularTotalMesAtual, getUltimosGastos } from "@/services/gastos";
 import { calcularReceitasMesAtual } from "@/services/receitas";
 import { obterVendasUltimas } from "@/services/vendas";
 import { obterDoacoesUltimas } from "@/services/doacoes";
+import { getUltimosPedidosPaes } from "@/services/pedidos-paes";
+import { formatDate } from "@/lib/utils/date";
 
 export default async function TesoureiroPage() {
   const hoje = new Date();
   const mesAtual = hoje.getMonth() + 1;
   const anoAtual = hoje.getFullYear();
 
-  const [totais, meta, taxas, totalInadimplentes, inadimplentes, receita, totalGastosMes, ultimosGastos, resumoReceitas, ultimasVendas, ultimasDoacoes] = await Promise.all([
+  const [totais, meta, taxas, totalInadimplentes, inadimplentes, receita, totalGastosMes, ultimosGastos, resumoReceitas, ultimasVendas, ultimasDoacoes, ultimosPedidosPaes] = await Promise.all([
     calcularTotaisMensalidade(mesAtual, anoAtual),
     calcularMetaMensal(mesAtual, anoAtual),
     calcularTaxaAdesao(mesAtual, anoAtual),
@@ -45,6 +48,7 @@ export default async function TesoureiroPage() {
     calcularReceitasMesAtual(),
     obterVendasUltimas(3),
     obterDoacoesUltimas(3),
+    getUltimosPedidosPaes(3),
   ]);
 
   const formatCurrency = (value: number) =>
@@ -64,9 +68,6 @@ export default async function TesoureiroPage() {
   const totalSaidas = totalGastosMes;
   const saldoMes = totalEntradas - totalSaidas;
   const saldoPositivo = saldoMes >= 0;
-
-  const formatDate = (date: Date) =>
-    new Intl.DateTimeFormat("pt-BR").format(new Date(date));
 
   return (
     <div className="space-y-6">
@@ -119,6 +120,12 @@ export default async function TesoureiroPage() {
                   <span className="text-gray-600">Doações</span>
                   <span className="font-semibold text-green-700">
                     {formatCurrency(resumoReceitas.doacoes.total)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Pães</span>
+                  <span className="font-semibold text-amber-700">
+                    {formatCurrency(resumoReceitas.paes.total)}
                   </span>
                 </div>
               </div>
@@ -449,7 +456,7 @@ export default async function TesoureiroPage() {
         <h2 className="text-xl font-bold text-gray-900 mb-4">Outras Receitas</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Últimas Vendas */}
         <Card>
           <CardHeader>
@@ -540,6 +547,54 @@ export default async function TesoureiroPage() {
                     <div className="text-right">
                       <p className="font-bold text-green-600">
                         {formatCurrency(doacao.valor)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Últimos Pedidos de Pães */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Wheat className="h-5 w-5" />
+                Últimos Pedidos de Pães
+              </CardTitle>
+              <Link href="/admin/financeiro/receitas/paes">
+                <Button variant="ghost" size="sm">
+                  Ver todos
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {ultimosPedidosPaes.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <Wheat className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>Nenhum pedido de pães registrado.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {ultimosPedidosPaes.map((pedido) => (
+                  <div
+                    key={pedido.id}
+                    className="flex items-center justify-between py-2 border-b last:border-0"
+                  >
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {pedido.cliente?.nome || "Sem cliente"}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {pedido.quantidade} pães • {pedido.statusPagamento === "pago" ? "Pago" : "Pendente"}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-amber-600">
+                        {formatCurrency(pedido.valorTotal)}
                       </p>
                     </div>
                   </div>
