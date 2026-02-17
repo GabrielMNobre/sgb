@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "SGB - Sistema de Gestão do Borba",
   description: "Sistema de gestão do Clube de Desbravadores Borba Gato",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({
