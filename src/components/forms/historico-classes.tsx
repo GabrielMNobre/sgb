@@ -17,6 +17,7 @@ import type {
   HistoricoClasseComRelacoes,
   HistoricoClasseFormData,
 } from "@/types/membro";
+import { formatDate } from "@/lib/utils/date";
 
 interface HistoricoClassesProps {
   membroId: string;
@@ -120,12 +121,6 @@ export function HistoricoClasses({
     } finally {
       setRemoveLoading(false);
     }
-  }
-
-  function formatDate(date?: Date | string): string {
-    if (!date) return "-";
-    const d = typeof date === "string" ? new Date(date) : date;
-    return d.toLocaleDateString("pt-BR");
   }
 
   return (

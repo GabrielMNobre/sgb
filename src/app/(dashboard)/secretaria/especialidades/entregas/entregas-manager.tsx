@@ -19,6 +19,7 @@ import {
 import type { EspecialidadePendente } from "@/types/especialidade";
 import type { Unidade } from "@/types/unidade";
 import { marcarEntregaAction, marcarEntregasEmLoteAction } from "../actions";
+import { formatDate } from "@/lib/utils/date";
 
 interface EntregasManagerProps {
   entregas: EspecialidadePendente[];
@@ -93,10 +94,6 @@ export function EntregasManager({ entregas, unidades }: EntregasManagerProps) {
       setLoading(false);
       setLoteDialog({ isOpen: false, dataEntrega: new Date().toISOString().split("T")[0] });
     }
-  };
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("pt-BR");
   };
 
   if (entregas.length === 0) {

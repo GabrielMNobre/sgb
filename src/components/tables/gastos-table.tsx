@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { GastoComEvento } from "@/types/gasto";
 import { Pencil, Trash2, ShoppingCart } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 interface GastosTableProps {
   gastos: GastoComEvento[];
@@ -26,9 +27,6 @@ export function GastosTable({ gastos, onEdit, onDelete }: GastosTableProps) {
       style: "currency",
       currency: "BRL",
     }).format(value);
-
-  const formatDate = (date: Date) =>
-    new Intl.DateTimeFormat("pt-BR").format(new Date(date));
 
   if (gastos.length === 0) {
     return (

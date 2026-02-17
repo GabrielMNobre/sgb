@@ -19,6 +19,7 @@ import {
   CalendarDays,
   ShoppingBag,
   Heart,
+  Wheat,
 } from "lucide-react";
 import { Usuario, PapelUsuario } from "@/types/auth";
 import { LogoutButton } from "./logout-button";
@@ -84,6 +85,7 @@ const adminMenu: MenuSection[] = [
     items: [
       { href: "/admin/financeiro/receitas/vendas", label: "Vendas", icon: ShoppingBag },
       { href: "/admin/financeiro/receitas/doacoes", label: "Doações", icon: Heart },
+      { href: "/admin/financeiro/receitas/paes", label: "Pães", icon: Wheat },
     ],
   },
   {
@@ -121,6 +123,7 @@ const menuItems: Record<PapelUsuario, MenuConfig> = {
       items: [
         { href: "/tesoureiro/receitas/vendas", label: "Vendas", icon: ShoppingBag },
         { href: "/tesoureiro/receitas/doacoes", label: "Doações", icon: Heart },
+        { href: "/tesoureiro/receitas/paes", label: "Pães", icon: Wheat },
       ],
     },
   ],

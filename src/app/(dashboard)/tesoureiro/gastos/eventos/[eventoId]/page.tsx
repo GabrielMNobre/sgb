@@ -16,6 +16,7 @@ import {
   atualizarGastoAction,
   excluirGastoAction,
 } from "../../actions";
+import { formatDate } from "@/lib/utils/date";
 
 export default function EventoDetalhesPage() {
   const params = useParams();
@@ -97,11 +98,6 @@ export default function EventoDetalhesPage() {
       style: "currency",
       currency: "BRL",
     }).format(value);
-
-  const formatDate = (date?: Date) => {
-    if (!date) return "-";
-    return new Intl.DateTimeFormat("pt-BR").format(new Date(date));
-  };
 
   if (loading) {
     return (

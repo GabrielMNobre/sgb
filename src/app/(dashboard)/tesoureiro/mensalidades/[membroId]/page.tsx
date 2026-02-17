@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { getMembroById } from "@/services/membros";
 import { obterHistoricoMembro } from "@/services/mensalidades";
 import { MESES_LABELS } from "@/lib/constants";
+import { formatDate } from "@/lib/utils/date";
 
 export default async function MembroMensalidadesPage({
   params,
@@ -28,11 +29,6 @@ export default async function MembroMensalidadesPage({
       style: "currency",
       currency: "BRL",
     }).format(value);
-
-  const formatDate = (date: Date | undefined) => {
-    if (!date) return "-";
-    return new Intl.DateTimeFormat("pt-BR").format(new Date(date));
-  };
 
   const valorMensalidade =
     membro.tipo === "desbravador" ? "R$ 30,00" : "R$ 50,00";
