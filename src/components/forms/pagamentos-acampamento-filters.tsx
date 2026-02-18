@@ -1,69 +1,47 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SearchInput } from "@/components/ui/search-input";
 import { Button } from "@/components/ui/button";
-import type { FiltrosGasto } from "@/types/gasto";
-import type { Evento } from "@/types/evento";
+import type { FiltrosPagamento } from "@/types/acampamento";
 import { X } from "lucide-react";
 
-interface GastosFiltersProps {
-  eventos: Evento[];
-  filtros: FiltrosGasto;
-  onFiltrosChange: (filtros: FiltrosGasto) => void;
+interface PagamentosAcampamentoFiltersProps {
+  filtros: FiltrosPagamento;
+  onFiltrosChange: (filtros: FiltrosPagamento) => void;
+  participantes?: Array<{ id: string; nome: string }>;
 }
 
-export function GastosFilters({
-  eventos,
+export function PagamentosAcampamentoFilters({
   filtros,
   onFiltrosChange,
-}: GastosFiltersProps) {
-  const [localFiltros, setLocalFiltros] = useState<FiltrosGasto>(filtros);
+  participantes,
+}: PagamentosAcampamentoFiltersProps) {
+  const [localFiltros, setLocalFiltros] = useState<FiltrosPagamento>(filtros);
 
   useEffect(() => {
     setLocalFiltros(filtros);
   }, [filtros]);
 
-  const handleChange = (key: keyof FiltrosGasto, value: string) => {
+  const handleChange = (key: keyof FiltrosPagamento, value: string) => {
     const newFiltros = { ...localFiltros, [key]: value || undefined };
     setLocalFiltros(newFiltros);
     onFiltrosChange(newFiltros);
   };
 
   const handleClear = () => {
-    const emptyFiltros: FiltrosGasto = {};
+    const emptyFiltros: FiltrosPagamento = {};
     setLocalFiltros(emptyFiltros);
     onFiltrosChange(emptyFiltros);
   };
 
   const hasActiveFilters =
-    localFiltros.eventoId ||
     localFiltros.dataInicio ||
     localFiltros.dataFim ||
-    localFiltros.busca;
+    localFiltros.participanteId;
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* Evento */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Evento
-          </label>
-          <select
-            value={localFiltros.eventoId || ""}
-            onChange={(e) => handleChange("eventoId", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option value="">Todos</option>
-            {eventos.map((evento) => (
-              <option key={evento.id} value={evento.id}>
-                {evento.nome}
-              </option>
-            ))}
-          </select>
-        </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Data Início */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -90,16 +68,23 @@ export function GastosFilters({
           />
         </div>
 
-        {/* Busca */}
+        {/* Participante */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Buscar
+            Participante
           </label>
-          <SearchInput
-            value={localFiltros.busca || ""}
-            onChange={(e) => handleChange("busca", e.target.value)}
-            placeholder="Buscar por descrição..."
-          />
+          <select
+            value={localFiltros.participanteId || ""}
+            onChange={(e) => handleChange("participanteId", e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="">Todos</option>
+            {participantes?.map((participante) => (
+              <option key={participante.id} value={participante.id}>
+                {participante.nome}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 

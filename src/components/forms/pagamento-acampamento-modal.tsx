@@ -4,57 +4,54 @@ import { useState, useEffect } from "react";
 import { Modal, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import type { GastoFormData } from "@/types/gasto";
-import type { Evento } from "@/types/evento";
+import type { PagamentoFormData } from "@/types/acampamento";
 
-interface GastoModalProps {
+interface PagamentoAcampamentoModalProps {
   isOpen: boolean;
   onClose: () => void;
-  eventos: Evento[];
-  gastoInicial?: GastoFormData & { id?: string };
-  eventoIdPadrao?: string;
-  onSubmit: (data: GastoFormData, id?: string) => Promise<void>;
+  participantes?: Array<{ id: string; nome: string }>;
+  participanteIdFixo?: string;
+  onSubmit: (data: PagamentoFormData) => Promise<void>;
 }
 
-export function GastoModal({
+export function PagamentoAcampamentoModal({
   isOpen,
   onClose,
-  eventos,
-  gastoInicial,
-  eventoIdPadrao,
+  participantes,
+  participanteIdFixo,
   onSubmit,
-}: GastoModalProps) {
+}: PagamentoAcampamentoModalProps) {
   const hoje = new Date().toISOString().split("T")[0];
-  const [formData, setFormData] = useState<GastoFormData>({
-    eventoId: eventoIdPadrao || "",
+  const [formData, setFormData] = useState<PagamentoFormData>({
+    participanteId: participanteIdFixo || "",
     data: hoje,
-    descricao: "",
     valor: 0,
     observacao: "",
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (gastoInicial) {
-      setFormData(gastoInicial);
-    } else if (eventoIdPadrao) {
-      setFormData((prev) => ({ ...prev, eventoId: eventoIdPadrao }));
-    }
-  }, [gastoInicial, eventoIdPadrao]);
+    setFormData({
+      participanteId: participanteIdFixo || "",
+      data: hoje,
+      valor: 0,
+      observacao: "",
+    });
+  }, [participanteIdFixo, hoje, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.eventoId || !formData.data || !formData.descricao || formData.valor <= 0) {
+    if (!formData.participanteId || !formData.data || formData.valor <= 0) {
       return;
     }
 
     setLoading(true);
     try {
-      await onSubmit(formData, gastoInicial?.id);
+      await onSubmit(formData);
       handleClose();
     } catch (error) {
-      console.error("Erro ao salvar gasto:", error);
+      console.error("Erro ao registrar pagamento:", error);
     } finally {
       setLoading(false);
     }
@@ -62,47 +59,44 @@ export function GastoModal({
 
   const handleClose = () => {
     setFormData({
-      eventoId: eventoIdPadrao || "",
+      participanteId: participanteIdFixo || "",
       data: hoje,
-      descricao: "",
       valor: 0,
       observacao: "",
     });
     onClose();
   };
 
-  const eventosAtivos = eventos.filter((e) => e.ativo);
-
   return (
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={gastoInicial?.id ? "Editar Gasto" : "Novo Gasto"}
+      title="Registrar Pagamento"
       size="lg"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Evento */}
+        {/* Participante */}
         <div>
           <label
-            htmlFor="eventoId"
+            htmlFor="participanteId"
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            Evento <span className="text-red-500">*</span>
+            Participante <span className="text-red-500">*</span>
           </label>
           <select
-            id="eventoId"
-            value={formData.eventoId}
+            id="participanteId"
+            value={formData.participanteId}
             onChange={(e) =>
-              setFormData({ ...formData, eventoId: e.target.value })
+              setFormData({ ...formData, participanteId: e.target.value })
             }
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             required
-            disabled={!!eventoIdPadrao}
+            disabled={!!participanteIdFixo}
           >
-            <option value="">Selecione um evento</option>
-            {eventosAtivos.map((evento) => (
-              <option key={evento.id} value={evento.id}>
-                {evento.nome}
+            <option value="">Selecione um participante</option>
+            {participantes?.map((participante) => (
+              <option key={participante.id} value={participante.id}>
+                {participante.nome}
               </option>
             ))}
           </select>
@@ -122,27 +116,6 @@ export function GastoModal({
             value={formData.data}
             onChange={(e) => setFormData({ ...formData, data: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            required
-          />
-        </div>
-
-        {/* Descrição */}
-        <div>
-          <label
-            htmlFor="descricao"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Descrição <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            id="descricao"
-            value={formData.descricao}
-            onChange={(e) =>
-              setFormData({ ...formData, descricao: e.target.value })
-            }
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            placeholder="Ex: Material de camping"
             required
           />
         </div>
@@ -184,17 +157,17 @@ export function GastoModal({
             onChange={(e) =>
               setFormData({ ...formData, observacao: e.target.value })
             }
-            placeholder="Informações adicionais sobre o gasto..."
+            placeholder="Informações adicionais sobre o pagamento..."
             rows={3}
           />
         </div>
 
-        <ModalFooter>
+        <ModalFooter className="flex-col-reverse sm:flex-row">
           <Button type="button" variant="secondary" onClick={handleClose} className="w-full sm:w-auto">
             Cancelar
           </Button>
           <Button type="submit" variant="primary" disabled={loading} className="w-full sm:w-auto">
-            {loading ? "Salvando..." : gastoInicial?.id ? "Salvar" : "Criar"}
+            {loading ? "Salvando..." : "Registrar"}
           </Button>
         </ModalFooter>
       </form>

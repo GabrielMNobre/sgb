@@ -108,10 +108,11 @@ export function RegistrarPagamentoModal({
             variant="ghost"
             onClick={handleClose}
             disabled={loading}
+            className="w-full sm:w-auto"
           >
             Cancelar
           </Button>
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" disabled={loading} className="w-full sm:w-auto">
             {loading
               ? "Registrando..."
               : quantidadeSelecionada > 1

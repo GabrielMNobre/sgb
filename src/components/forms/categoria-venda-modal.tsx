@@ -111,10 +111,10 @@ export function CategoriaVendaModal({
         </div>
 
         <ModalFooter>
-          <Button type="button" variant="secondary" onClick={handleClose}>
+          <Button type="button" variant="secondary" onClick={handleClose} className="w-full sm:w-auto">
             Cancelar
           </Button>
-          <Button type="submit" variant="primary" disabled={loading}>
+          <Button type="submit" variant="primary" disabled={loading} className="w-full sm:w-auto">
             {loading ? "Salvando..." : categoriaInicial?.id ? "Salvar" : "Criar"}
           </Button>
         </ModalFooter>

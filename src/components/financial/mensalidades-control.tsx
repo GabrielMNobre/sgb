@@ -86,11 +86,11 @@ export function MensalidadesControl({
   const anosOptions = anos.map(a => ({ value: a.toString(), label: a.toString() }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Month/Year Selector */}
       <Card>
-        <div className="p-6">
-          <div className="flex flex-col md:flex-row gap-4 items-end">
+        <div className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-end">
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Mês
@@ -118,7 +118,7 @@ export function MensalidadesControl({
             <Button
               onClick={handleGerar}
               disabled={gerando}
-              className="whitespace-nowrap"
+              className="w-full sm:w-auto whitespace-nowrap"
             >
               <Plus className="h-4 w-4 mr-2" />
               {gerando ? "Gerando..." : "Gerar Mensalidades"}

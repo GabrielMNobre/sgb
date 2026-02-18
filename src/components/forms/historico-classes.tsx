@@ -258,16 +258,17 @@ export function HistoricoClasses({
             />
           </div>
 
-          <ModalFooter>
+          <ModalFooter className="flex-col-reverse sm:flex-row">
             <Button
               type="button"
               variant="ghost"
               onClick={handleCloseModal}
               disabled={loading}
+              className="w-full sm:w-auto"
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading || !classeId}>
+            <Button type="submit" disabled={loading || !classeId} className="w-full sm:w-auto">
               {loading ? "Adicionando..." : "Adicionar"}
             </Button>
           </ModalFooter>

@@ -86,11 +86,11 @@ export function NaoEntregueModal({
           </p>
         </div>
 
-        <ModalFooter>
-          <Button type="button" variant="secondary" onClick={handleClose}>
+        <ModalFooter className="flex-col-reverse sm:flex-row">
+          <Button type="button" variant="secondary" onClick={handleClose} className="w-full sm:w-auto">
             Cancelar
           </Button>
-          <Button type="submit" variant="primary" disabled={loading}>
+          <Button type="submit" variant="primary" disabled={loading} className="w-full sm:w-auto">
             {loading ? "Registrando..." : "Registrar"}
           </Button>
         </ModalFooter>

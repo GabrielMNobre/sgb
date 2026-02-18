@@ -68,7 +68,7 @@ export function EspecialidadeForm({ especialidade, onSubmit, redirectPath = "/se
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 sm:space-y-6">
       <div>
         <label className="label">Nome *</label>
         <Input
@@ -113,16 +113,17 @@ export function EspecialidadeForm({ especialidade, onSubmit, redirectPath = "/se
         </p>
       </div>
 
-      <div className="flex items-center justify-end gap-3 pt-4 border-t">
+      <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-4 border-t">
         <Button
           type="button"
           variant="ghost"
           onClick={() => router.back()}
           disabled={loading}
+          className="w-full sm:w-auto"
         >
           Cancelar
         </Button>
-        <Button type="submit" disabled={loading}>
+        <Button type="submit" disabled={loading} className="w-full sm:w-auto">
           {loading ? "Salvando..." : especialidade ? "Atualizar" : "Criar Especialidade"}
         </Button>
       </div>
