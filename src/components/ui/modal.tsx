@@ -44,7 +44,7 @@ export function Modal({ isOpen, onClose, title, children, size = "md" }: ModalPr
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50 transition-opacity"
@@ -54,14 +54,14 @@ export function Modal({ isOpen, onClose, title, children, size = "md" }: ModalPr
       {/* Modal */}
       <div
         className={cn(
-          "relative w-full mx-4 bg-white rounded-lg shadow-xl",
+          "relative w-full bg-white shadow-xl rounded-t-xl sm:rounded-lg sm:mx-4 max-h-[90vh] flex flex-col",
           sizeClasses[size]
         )}
       >
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 flex-shrink-0">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900">{title}</h2>
             <button
               onClick={onClose}
               className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
@@ -72,7 +72,7 @@ export function Modal({ isOpen, onClose, title, children, size = "md" }: ModalPr
         )}
 
         {/* Content */}
-        <div className="p-6">{children}</div>
+        <div className="p-4 sm:p-6 overflow-y-auto">{children}</div>
       </div>
     </div>
   );
@@ -83,7 +83,7 @@ const ModalFooter = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
     <div
       ref={ref}
       className={cn(
-        "flex items-center justify-end gap-3 pt-4 border-t border-gray-200 mt-4",
+        "flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-4 border-t border-gray-200 mt-4",
         className
       )}
       {...props}
