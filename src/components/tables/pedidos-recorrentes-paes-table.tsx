@@ -46,7 +46,7 @@ export function PedidosRecorrentesPaesTable({
       <TableBody>
         {pedidos.map((pedido) => (
           <TableRow key={pedido.id}>
-            <TableCell className="font-medium">{pedido.cliente?.nome || "—"}</TableCell>
+            <TableCell className="font-medium truncate max-w-[120px] sm:max-w-none">{pedido.cliente?.nome || "—"}</TableCell>
             <TableCell className="text-center">{pedido.quantidadePaes}</TableCell>
             <TableCell className="hidden sm:table-cell text-center">
               {pedido.semanasRestantes}/{pedido.quantidadeSemanas}
@@ -61,7 +61,7 @@ export function PedidosRecorrentesPaesTable({
             </TableCell>
             {onCancelar && (
               <TableCell>
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-1 sm:gap-2">
                   {pedido.ativo && pedido.semanasRestantes > 0 && (
                     <Button
                       variant="ghost"

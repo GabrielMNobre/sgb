@@ -45,7 +45,7 @@ export function ClientesPaesTable({
       <TableBody>
         {clientes.map((cliente) => (
           <TableRow key={cliente.id}>
-            <TableCell className="font-medium">
+            <TableCell className="font-medium truncate max-w-[120px] sm:max-w-none">
               <Link href={`${basePath}/${cliente.id}`} className="hover:underline">
                 {cliente.nome}
               </Link>
@@ -56,7 +56,7 @@ export function ClientesPaesTable({
               </Badge>
             </TableCell>
             <TableCell>
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-1 sm:gap-2">
                 {onEdit && (
                   <Button variant="ghost" size="sm" onClick={() => onEdit(cliente)} title="Editar">
                     <Pencil className="h-4 w-4" />

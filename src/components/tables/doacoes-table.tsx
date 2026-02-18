@@ -42,32 +42,33 @@ export function DoacoesTable({ doacoes, onEdit, onDelete }: DoacoesTableProps) {
     <Table>
       <TableHeader>
         <TableRow>
+          <TableHead>Doador</TableHead>
           <TableHead className="hidden sm:table-cell">Data</TableHead>
           <TableHead>Valor</TableHead>
-          <TableHead className="hidden md:table-cell">Doador</TableHead>
           <TableHead className="text-right">Ações</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {doacoes.map((doacao) => (
           <TableRow key={doacao.id}>
+            <TableCell>
+              <div className="truncate max-w-[120px] sm:max-w-none font-medium">
+                {doacao.doador || (
+                  <span className="text-gray-400 italic">Anônimo</span>
+                )}
+              </div>
+              <div className="text-xs text-gray-500 mt-1 sm:hidden">
+                {formatDate(doacao.data)}
+              </div>
+            </TableCell>
             <TableCell className="hidden sm:table-cell whitespace-nowrap">
               {formatDate(doacao.data)}
             </TableCell>
             <TableCell className="font-semibold text-green-600 whitespace-nowrap">
               {formatCurrency(doacao.valor)}
             </TableCell>
-            <TableCell className="hidden md:table-cell">
-              {doacao.doador || (
-                <span className="text-gray-400 italic">Anônimo</span>
-              )}
-            </TableCell>
             <TableCell>
-              <div className="flex justify-end gap-2">
-                <div className="md:hidden text-xs text-gray-500 mr-2">
-                  {doacao.doador || "Anônimo"}
-                  <div className="sm:hidden">{formatDate(doacao.data)}</div>
-                </div>
+              <div className="flex justify-end gap-1 sm:gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
