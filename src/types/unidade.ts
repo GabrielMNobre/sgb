@@ -30,4 +30,6 @@ export interface ConselheiroVinculo {
     id: string;
     nome: string;
   };
+  temConta?: boolean;
+  usuarioId?: string;
 }

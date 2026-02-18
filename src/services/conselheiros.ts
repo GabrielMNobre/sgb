@@ -29,42 +29,63 @@ export async function getUnidadesComConselheiros(): Promise<UnidadeComConselheir
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
-    .from("unidades")
-    .select(`
-      *,
-      conselheiros_unidades (
-        id,
-        unidade_id,
-        membro_id,
-        principal,
-        membros (
+  const db = supabase as any;
+
+  const [{ data, error }, { data: usuariosConselheiros }] = await Promise.all([
+    db
+      .from("unidades")
+      .select(`
+        *,
+        conselheiros_unidades (
           id,
-          nome
+          unidade_id,
+          membro_id,
+          principal,
+          membros (
+            id,
+            nome
+          )
         )
-      )
-    `)
-    .eq("ativa", true)
-    .order("nome");
+      `)
+      .eq("ativa", true)
+      .order("nome"),
+    db
+      .from("usuarios")
+      .select("id, membro_id")
+      .eq("papel", "conselheiro")
+      .eq("ativo", true)
+      .not("membro_id", "is", null),
+  ]);
 
   if (error) {
     console.error("Erro ao buscar unidades com conselheiros:", error);
     throw new Error("Erro ao buscar unidades com conselheiros");
   }
 
+  // Mapa: membro_id → usuario_id (para saber quem tem conta)
+  const membroComConta = new Map<string, string>();
+  (usuariosConselheiros || []).forEach((u: Record<string, unknown>) => {
+    membroComConta.set(u.membro_id as string, u.id as string);
+  });
+
   return (data || []).map((item: Record<string, unknown>) => {
     const unidade = snakeToCamel<UnidadeComConselheiros>(item);
     const conselheiroUnidade = item.conselheiros_unidades as Array<Record<string, unknown>> || [];
-    const conselheiros = conselheiroUnidade.map((c) => ({
-      id: c.id as string,
-      unidadeId: c.unidade_id as string,
-      membroId: c.membro_id as string,
-      principal: c.principal as boolean,
-      membro: c.membros ? {
-        id: (c.membros as Record<string, unknown>).id as string,
-        nome: (c.membros as Record<string, unknown>).nome as string,
-      } : { id: "", nome: "" },
-    }));
+    const conselheiros = conselheiroUnidade.map((c) => {
+      const membroId = c.membro_id as string;
+      return {
+        id: c.id as string,
+        unidadeId: c.unidade_id as string,
+        membroId,
+        principal: c.principal as boolean,
+        membro: c.membros ? {
+          id: (c.membros as Record<string, unknown>).id as string,
+          nome: (c.membros as Record<string, unknown>).nome as string,
+        } : { id: "", nome: "" },
+        temConta: membroComConta.has(membroId),
+        usuarioId: membroComConta.get(membroId),
+      };
+    });
 
     return { ...unidade, conselheiros };
   });
@@ -208,7 +229,11 @@ export async function getConselheirosVinculados(unidadeId: string): Promise<Cons
   }));
 }
 
-export async function getUnidadeDoConselheiro(membroId: string): Promise<{
+/**
+ * Busca a unidade vinculada a um conselheiro a partir do auth user id.
+ * Resolve user.id → usuarios.membro_id → conselheiros_unidades.
+ */
+export async function getUnidadeDoConselheiro(usuarioId: string): Promise<{
   unidadeId: string;
   unidadeNome: string;
   principal: boolean;
@@ -217,6 +242,21 @@ export async function getUnidadeDoConselheiro(membroId: string): Promise<{
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
 
+  // 1. Buscar o membro_id vinculado a este usuário
+  const { data: usuario, error: usuarioError } = await db
+    .from("usuarios")
+    .select("membro_id")
+    .eq("id", usuarioId)
+    .single();
+
+  if (usuarioError || !usuario || !usuario.membro_id) {
+    if (usuarioError?.code !== "PGRST116") {
+      console.error("Erro ao buscar usuário:", usuarioError);
+    }
+    return null;
+  }
+
+  // 2. Buscar vínculo na tabela conselheiros_unidades usando o membro_id
   const { data, error } = await db
     .from("conselheiros_unidades")
     .select(`
@@ -227,7 +267,7 @@ export async function getUnidadeDoConselheiro(membroId: string): Promise<{
         nome
       )
     `)
-    .eq("membro_id", membroId)
+    .eq("membro_id", usuario.membro_id)
     .order("principal", { ascending: false })
     .limit(1)
     .single();
@@ -257,7 +297,7 @@ export async function countConselheirosAtivos(): Promise<number> {
     .select("*", { count: "exact", head: true });
 
   if (error) {
-    console.error("Erro ao contar membros da diretoria:", error);
+    console.error("Erro ao contar conselheiros ativos:", error);
     return 0;
   }
 
