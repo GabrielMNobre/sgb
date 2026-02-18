@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Star, Trash2, Users } from "lucide-react";
+import Link from "next/link";
+import { Plus, Star, Trash2, Users, AlertTriangle, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
@@ -10,6 +11,7 @@ import { Modal, ModalFooter } from "@/components/ui/modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
+import { Loading } from "@/components/ui/loading";
 import type { UnidadeComConselheiros } from "@/types/unidade";
 import type { ConselheiroDisponivel } from "@/services/conselheiros";
 import {
@@ -158,46 +160,65 @@ export function ConselheirosManager({
                 Nenhum conselheiro vinculado
               </p>
             ) : (
-              <div className="flex flex-wrap gap-2">
+              <div className="space-y-2">
                 {unidade.conselheiros.map((vinculo) => (
                   <div
                     key={vinculo.id}
-                    className="flex items-center gap-2 bg-gray-100 rounded-full pl-3 pr-2 py-1"
+                    className="flex items-center justify-between gap-2 bg-gray-50 rounded-lg px-3 py-2"
                   >
-                    <span className="text-sm">{vinculo.membro.nome}</span>
-                    {vinculo.principal && (
-                      <Badge variant="warning" className="text-xs">
-                        <Star className="h-3 w-3 mr-1" />
-                        Principal
-                      </Badge>
-                    )}
-                    {!vinculo.principal && (
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-sm font-medium truncate">{vinculo.membro.nome}</span>
+                      {vinculo.principal && (
+                        <Badge variant="warning" className="text-xs flex-shrink-0">
+                          <Star className="h-3 w-3 mr-1" />
+                          Principal
+                        </Badge>
+                      )}
+                      {vinculo.temConta ? (
+                        <span className="flex items-center gap-1 text-xs text-green-600 flex-shrink-0" title="Tem conta de acesso ao sistema">
+                          <Check className="h-3 w-3" />
+                          Acesso
+                        </span>
+                      ) : (
+                        <Link
+                          href="/admin/usuarios"
+                          className="flex items-center gap-1 text-xs text-amber-600 hover:text-amber-700 flex-shrink-0"
+                          title="Sem conta de acesso — vincule um usuário a este membro"
+                        >
+                          <AlertTriangle className="h-3 w-3" />
+                          Sem acesso
+                        </Link>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      {!vinculo.principal && (
+                        <button
+                          onClick={() =>
+                            handleSetPrincipal(unidade.id, vinculo.membroId)
+                          }
+                          className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                          title="Definir como principal"
+                          disabled={loading}
+                        >
+                          <Star className="h-3 w-3 text-gray-400" />
+                        </button>
+                      )}
                       <button
                         onClick={() =>
-                          handleSetPrincipal(unidade.id, vinculo.membroId)
+                          setConfirmDelete({
+                            isOpen: true,
+                            unidadeId: unidade.id,
+                            membroId: vinculo.membroId,
+                            nome: vinculo.membro.nome,
+                          })
                         }
-                        className="p-1 hover:bg-gray-200 rounded-full transition-colors"
-                        title="Definir como principal"
+                        className="p-1 hover:bg-red-100 rounded-full transition-colors"
+                        title="Remover vínculo"
                         disabled={loading}
                       >
-                        <Star className="h-3 w-3 text-gray-400" />
+                        <Trash2 className="h-3 w-3 text-red-500" />
                       </button>
-                    )}
-                    <button
-                      onClick={() =>
-                        setConfirmDelete({
-                          isOpen: true,
-                          unidadeId: unidade.id,
-                          membroId: vinculo.membroId,
-                          nome: vinculo.membro.nome,
-                        })
-                      }
-                      className="p-1 hover:bg-red-100 rounded-full transition-colors"
-                      title="Remover vínculo"
-                      disabled={loading}
-                    >
-                      <Trash2 className="h-3 w-3 text-red-500" />
-                    </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -253,7 +274,7 @@ export function ConselheirosManager({
             onClick={handleAddConselheiro}
             disabled={loading || !selectedConselheiro}
           >
-            {loading ? "Adicionando..." : "Adicionar"}
+            {loading ? <><Loading size="sm" className="mr-2" />Adicionando...</> : "Adicionar"}
           </Button>
         </ModalFooter>
       </Modal>

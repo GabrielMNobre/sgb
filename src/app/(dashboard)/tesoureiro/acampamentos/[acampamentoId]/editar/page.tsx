@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Loading } from "@/components/ui/loading";
 import { ArrowLeft } from "lucide-react";
 import type { Acampamento, AcampamentoFormData } from "@/types/acampamento";
 import { atualizarAcampamentoAction } from "../../actions";
@@ -71,8 +72,9 @@ export default function EditarAcampamentoPage({
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">Carregando...</p>
+      <div className="flex flex-col items-center justify-center py-12">
+        <Loading size="lg" />
+        <p className="text-gray-500 mt-3">Carregando...</p>
       </div>
     );
   }

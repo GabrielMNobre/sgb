@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Modal, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { Loading } from "@/components/ui/loading";
 import { Textarea } from "@/components/ui/textarea";
 import type { PagamentoFormData } from "@/types/acampamento";
 
@@ -167,7 +168,7 @@ export function PagamentoAcampamentoModal({
             Cancelar
           </Button>
           <Button type="submit" variant="primary" disabled={loading} className="w-full sm:w-auto">
-            {loading ? "Salvando..." : "Registrar"}
+            {loading ? <><Loading size="sm" className="mr-2" />Salvando...</> : "Registrar"}
           </Button>
         </ModalFooter>
       </form>

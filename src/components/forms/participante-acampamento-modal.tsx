@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Modal, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { Loading } from "@/components/ui/loading";
 import type { ParticipanteFormData } from "@/types/acampamento";
 
 interface ParticipanteAcampamentoModalProps {
@@ -177,7 +178,7 @@ export function ParticipanteAcampamentoModal({
             Cancelar
           </Button>
           <Button type="submit" variant="primary" disabled={loading} className="w-full sm:w-auto">
-            {loading ? "Salvando..." : "Adicionar"}
+            {loading ? <><Loading size="sm" className="mr-2" />Salvando...</> : "Adicionar"}
           </Button>
         </ModalFooter>
       </form>

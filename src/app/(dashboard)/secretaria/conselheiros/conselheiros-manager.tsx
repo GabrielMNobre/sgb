@@ -10,6 +10,7 @@ import { Modal, ModalFooter } from "@/components/ui/modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
+import { Loading } from "@/components/ui/loading";
 import type { UnidadeComConselheiros } from "@/types/unidade";
 import type { ConselheiroDisponivel } from "@/services/conselheiros";
 import {
@@ -253,7 +254,7 @@ export function ConselheirosManager({
             onClick={handleAddConselheiro}
             disabled={loading || !selectedConselheiro}
           >
-            {loading ? "Adicionando..." : "Adicionar"}
+            {loading ? <><Loading size="sm" className="mr-2" />Adicionando...</> : "Adicionar"}
           </Button>
         </ModalFooter>
       </Modal>

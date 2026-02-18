@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { GastosTable } from "@/components/tables/gastos-table";
 import { GastoModal } from "@/components/forms/gasto-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Loading } from "@/components/ui/loading";
 import { ArrowLeft, Plus } from "lucide-react";
 import type { Evento } from "@/types/evento";
 import type { GastoComEvento, GastoFormData } from "@/types/gasto";
@@ -101,8 +102,9 @@ export default function EventoDetalhesPage() {
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">Carregando...</p>
+      <div className="flex flex-col items-center justify-center py-12">
+        <Loading size="lg" />
+        <p className="text-gray-500 mt-3">Carregando...</p>
       </div>
     );
   }

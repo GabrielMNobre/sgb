@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Modal, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { Loading } from "@/components/ui/loading";
 import { Plus } from "lucide-react";
 import { formatDate } from "@/lib/utils/date";
 import type { PedidoPaesFormData, ClientePaes, ClientePaesFormData, SemanaPaes } from "@/types/paes";
@@ -385,7 +386,7 @@ export function PedidoPaesModal({
             Cancelar
           </Button>
           <Button type="submit" variant="primary" disabled={loading} className="w-full sm:w-auto">
-            {loading ? "Salvando..." : isEditing ? "Salvar" : "Criar"}
+            {loading ? <><Loading size="sm" className="mr-2" />Salvando...</> : isEditing ? "Salvar" : "Criar"}
           </Button>
         </ModalFooter>
       </form>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { GastosTable } from "@/components/tables/gastos-table";
 import { GastoModal } from "@/components/forms/gasto-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Loading } from "@/components/ui/loading";
 import { Plus, ArrowLeft, ShoppingCart } from "lucide-react";
 import type { Acampamento } from "@/types/acampamento";
 import type { GastoComEvento, GastoFormData } from "@/types/gasto";
@@ -127,7 +128,7 @@ export default function GastosAcampamentoPage({
       <Card>
         <div className="p-6">
           {loading ? (
-            <div className="text-center py-12"><p className="text-gray-500">Carregando...</p></div>
+            <div className="flex flex-col items-center justify-center py-12"><Loading size="lg" /><p className="text-gray-500 mt-3">Carregando...</p></div>
           ) : (
             <GastosTable gastos={gastos} onEdit={!isFinalizado ? handleEditarGasto : () => {}} onDelete={!isFinalizado ? handleExcluirGasto : () => {}} />
           )}

@@ -10,6 +10,7 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { formatDate } from "@/lib/utils/date";
 import { countUnidadesAtivas, getUnidadesComContagem } from "@/services/unidades";
 import {
   countMembrosAtivos,
@@ -18,6 +19,7 @@ import {
   getDesbravadoresPorClasse,
 } from "@/services/membros";
 import { countConselheirosAtivos } from "@/services/conselheiros";
+import { getProximosEncontros, countEncontrosNoMes } from "@/services/encontros";
 // import { countEspecialidadesAtivas } from "@/services/especialidades"; // Temporariamente oculto
 // import { countConquistasPendentes } from "@/services/membros-especialidades"; // Temporariamente oculto
 
@@ -30,6 +32,8 @@ export default async function AdminPage() {
     totalUnidades,
     unidadesComContagem,
     desbravadoresPorClasse,
+    proximosEncontros,
+    encontrosNoMes,
   ] = await Promise.all([
     countMembrosAtivos(),
     countDesbravadoresAtivos(),
@@ -38,6 +42,8 @@ export default async function AdminPage() {
     countUnidadesAtivas(),
     getUnidadesComContagem(),
     getDesbravadoresPorClasse(),
+    getProximosEncontros(4),
+    countEncontrosNoMes(),
   ]);
 
   // Temporariamente oculto - Especialidades
@@ -175,7 +181,7 @@ export default async function AdminPage() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
-                Próximos Encontros
+                Encontros
               </CardTitle>
               <Link href="/admin/encontros">
                 <Button variant="ghost" size="sm">
@@ -185,14 +191,45 @@ export default async function AdminPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-8 text-gray-500">
-              <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p>Nenhum encontro agendado</p>
-              <Link href="/admin/encontros">
-                <Button variant="outline" size="sm" className="mt-4">
-                  Agendar Encontro
-                </Button>
-              </Link>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                <span className="text-sm text-gray-500">Encontros este mês</span>
+                <Badge variant="default">{encontrosNoMes}</Badge>
+              </div>
+
+              {proximosEncontros.length > 0 ? (
+                <div className="grid grid-cols-2 gap-3">
+                  {proximosEncontros.map((encontro) => (
+                    <Link
+                      key={encontro.id}
+                      href={`/admin/encontros/${encontro.id}`}
+                      className="border rounded-lg p-3 hover:bg-gray-50 transition-colors"
+                    >
+                      <p className="font-medium text-gray-900 text-sm">{formatDate(encontro.data)}</p>
+                      {encontro.descricao && (
+                        <p className="text-xs text-gray-500 mt-1 truncate">{encontro.descricao}</p>
+                      )}
+                      <div className="mt-2">
+                        <Badge
+                          variant={encontro.status === "em_andamento" ? "warning" : "default"}
+                        >
+                          {encontro.status === "em_andamento" ? "Em Andamento" : "Agendado"}
+                        </Badge>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                  <p className="text-sm">Nenhum encontro agendado</p>
+                  <Link href="/admin/encontros">
+                    <Button variant="outline" size="sm" className="mt-3">
+                      Agendar Encontro
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

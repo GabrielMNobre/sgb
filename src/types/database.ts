@@ -16,6 +16,7 @@ export interface Database {
           email: string;
           nome: string;
           papel: "admin" | "secretaria" | "tesoureiro" | "conselheiro";
+          membro_id: string | null;
           ativo: boolean;
           criado_em: string;
           atualizado_em: string;
@@ -25,6 +26,7 @@ export interface Database {
           email: string;
           nome: string;
           papel: "admin" | "secretaria" | "tesoureiro" | "conselheiro";
+          membro_id?: string | null;
           ativo?: boolean;
           criado_em?: string;
           atualizado_em?: string;
@@ -34,6 +36,7 @@ export interface Database {
           email?: string;
           nome?: string;
           papel?: "admin" | "secretaria" | "tesoureiro" | "conselheiro";
+          membro_id?: string | null;
           ativo?: boolean;
           criado_em?: string;
           atualizado_em?: string;
@@ -202,25 +205,25 @@ export interface Database {
           ordem?: number;
         };
       };
-      conselheiro_unidade: {
+      conselheiros_unidades: {
         Row: {
           id: string;
           unidade_id: string;
-          usuario_id: string;
+          membro_id: string;
           principal: boolean;
           criado_em: string;
         };
         Insert: {
           id?: string;
           unidade_id: string;
-          usuario_id: string;
+          membro_id: string;
           principal?: boolean;
           criado_em?: string;
         };
         Update: {
           id?: string;
           unidade_id?: string;
-          usuario_id?: string;
+          membro_id?: string;
           principal?: boolean;
           criado_em?: string;
         };

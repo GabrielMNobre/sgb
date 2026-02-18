@@ -12,6 +12,7 @@ import { Modal, ModalFooter } from "@/components/ui/modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
+import { Loading } from "@/components/ui/loading";
 import type {
   Classe,
   HistoricoClasseComRelacoes,
@@ -269,7 +270,7 @@ export function HistoricoClasses({
               Cancelar
             </Button>
             <Button type="submit" disabled={loading || !classeId} className="w-full sm:w-auto">
-              {loading ? "Adicionando..." : "Adicionar"}
+              {loading ? <><Loading size="sm" className="mr-2" />Adicionando...</> : "Adicionar"}
             </Button>
           </ModalFooter>
         </form>

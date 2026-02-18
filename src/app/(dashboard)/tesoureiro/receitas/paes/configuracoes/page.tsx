@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
+import { Loading } from "@/components/ui/loading";
 import { ConfiguracoesPaesForm } from "@/components/forms/configuracoes-paes-form";
 import type { ConfiguracoesPaes, ConfiguracoesPaesFormData } from "@/types/paes";
 import { atualizarConfiguracoesPaesAction } from "../actions";
@@ -36,8 +37,9 @@ export default function ConfiguracoesPaesPage() {
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">Carregando...</p>
+      <div className="flex flex-col items-center justify-center py-12">
+        <Loading size="lg" />
+        <p className="text-gray-500 mt-3">Carregando...</p>
       </div>
     );
   }

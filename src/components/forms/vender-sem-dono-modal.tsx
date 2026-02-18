@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Modal, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { Loading } from "@/components/ui/loading";
 import { Plus } from "lucide-react";
 import { formatDate } from "@/lib/utils/date";
 import type { PedidoPaesFormData, ClientePaes, ClientePaesFormData, SemanaPaes } from "@/types/paes";
@@ -289,7 +290,7 @@ export function VenderSemDonoModal({
             Cancelar
           </Button>
           <Button type="submit" variant="primary" disabled={loading} className="w-full sm:w-auto">
-            {loading ? "Registrando..." : "Registrar Venda"}
+            {loading ? <><Loading size="sm" className="mr-2" />Registrando...</> : "Registrar Venda"}
           </Button>
         </ModalFooter>
       </form>

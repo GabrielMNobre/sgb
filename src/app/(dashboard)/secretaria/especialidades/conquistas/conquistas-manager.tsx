@@ -13,6 +13,7 @@ import { Modal, ModalFooter } from "@/components/ui/modal";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
+import { Loading } from "@/components/ui/loading";
 import {
   Table,
   TableBody,
@@ -459,7 +460,7 @@ export function ConquistasManager({
             Cancelar
           </Button>
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? "Salvando..." : "Registrar Conquista"}
+            {loading ? <><Loading size="sm" className="mr-2" />Salvando...</> : "Registrar Conquista"}
           </Button>
         </ModalFooter>
       </Modal>

@@ -10,6 +10,7 @@ import { PedidoPaesModal } from "@/components/forms/pedido-paes-modal";
 import { VenderSemDonoModal } from "@/components/forms/vender-sem-dono-modal";
 import { NaoEntregueModal } from "@/components/forms/nao-entregue-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Loading } from "@/components/ui/loading";
 import { ArrowLeft, Plus, ShoppingBag, Lock } from "lucide-react";
 import type {
   SemanaPaesComResumo,
@@ -218,8 +219,9 @@ export default function SemanaDetalhePage() {
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">Carregando...</p>
+      <div className="flex flex-col items-center justify-center py-12">
+        <Loading size="lg" />
+        <p className="text-gray-500 mt-3">Carregando...</p>
       </div>
     );
   }

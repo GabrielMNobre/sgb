@@ -134,6 +134,7 @@ const menuItems: Record<PapelUsuario, MenuConfig> = {
     { href: "/conselheiro", label: "Dashboard", icon: Home },
     { href: "/conselheiro/minha-unidade", label: "Minha Unidade", icon: Users },
     // { href: "/conselheiro/minha-unidade/especialidades", label: "Especialidades", icon: Award }, // Temporariamente oculto
+    { href: "/conselheiro/encontros", label: "Encontros", icon: Calendar },
     { href: "/conselheiro/chamada", label: "Chamada", icon: ClipboardList },
   ],
 };

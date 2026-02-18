@@ -52,7 +52,7 @@ export default async function AdminConselheirosPage() {
           <EmptyState
             icon={AlertTriangle}
             title="Configuração necessária"
-            description="Para vincular conselheiros às unidades, é necessário ter unidades ativas e usuários com papel de conselheiro cadastrados."
+            description="Para vincular conselheiros às unidades, é necessário ter unidades ativas e membros da diretoria cadastrados."
           />
           <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/admin/unidades/nova">
@@ -89,8 +89,8 @@ export default async function AdminConselheirosPage() {
         <Card className="p-6">
           <EmptyState
             icon={Users}
-            title="Nenhum conselheiro disponível"
-            description="É necessário cadastrar usuários com o papel de conselheiro para vincular às unidades"
+            title="Nenhum membro da diretoria disponível"
+            description="É necessário cadastrar membros do tipo diretoria para vincular como conselheiros às unidades"
             action={
               <Link href="/admin/membros/novo">
                 <Button>

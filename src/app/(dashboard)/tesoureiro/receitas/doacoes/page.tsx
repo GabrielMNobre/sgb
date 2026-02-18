@@ -7,6 +7,7 @@ import { DoacoesTable } from "@/components/tables/doacoes-table";
 import { DoacoesFilters } from "@/components/forms/doacoes-filters";
 import { DoacaoModal } from "@/components/forms/doacao-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Loading } from "@/components/ui/loading";
 import { Plus, Heart, TrendingUp } from "lucide-react";
 import type { Doacao, FiltrosDoacao, DoacaoFormData } from "@/types/doacao";
 import {
@@ -201,8 +202,9 @@ export default function DoacoesPage() {
       <Card>
         <div className="p-6">
           {loading ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">Carregando...</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <Loading size="lg" />
+              <p className="text-gray-500 mt-3">Carregando...</p>
             </div>
           ) : (
             <DoacoesTable

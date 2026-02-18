@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Award, Plus, Package, Trash2 } from "lucide-react";
+import { Loading } from "@/components/ui/loading";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Modal } from "@/components/ui/modal";
@@ -178,7 +179,10 @@ export function EspecialidadesMembro({
           </div>
 
           {loadingEspecialidades ? (
-            <div className="text-center py-8 text-gray-500">Carregando...</div>
+            <div className="flex flex-col items-center justify-center py-12">
+              <Loading size="lg" />
+              <p className="text-gray-500 mt-3">Carregando...</p>
+            </div>
           ) : membroEspecialidades.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <Award className="h-12 w-12 mx-auto mb-4 text-gray-300" />

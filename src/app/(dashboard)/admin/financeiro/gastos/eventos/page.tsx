@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { EventosTable } from "@/components/tables/eventos-table";
 import { EventoModal } from "@/components/forms/evento-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Loading } from "@/components/ui/loading";
 import { Plus } from "lucide-react";
 import type { EventoComGastos, EventoFormData } from "@/types/evento";
 import {
@@ -112,8 +113,9 @@ export default function EventosPage() {
       <Card>
         <div className="p-6">
           {loading ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">Carregando...</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <Loading size="lg" />
+              <p className="text-gray-500 mt-3">Carregando...</p>
             </div>
           ) : (
             <EventosTable
