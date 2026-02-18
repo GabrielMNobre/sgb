@@ -22,10 +22,10 @@ export default async function ConselheiroEspecialidadesPage() {
 
   if (!unidadeInfo) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Especialidades</h1>
-          <p className="text-gray-500">Gerencie as especialidades dos membros da sua unidade</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Especialidades</h1>
+          <p className="text-sm sm:text-base text-gray-500">Gerencie as especialidades dos membros da sua unidade</p>
         </div>
 
         <Card>
@@ -47,10 +47,10 @@ export default async function ConselheiroEspecialidadesPage() {
   ]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Especialidades - {unidadeInfo.unidadeNome}</h1>
-        <p className="text-gray-500">Gerencie as especialidades dos membros da sua unidade</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Especialidades - {unidadeInfo.unidadeNome}</h1>
+        <p className="text-sm sm:text-base text-gray-500">Gerencie as especialidades dos membros da sua unidade</p>
       </div>
 
       <Card>

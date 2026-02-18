@@ -60,7 +60,7 @@ export function GastosTable({ gastos, onEdit, onDelete }: GastosTableProps) {
             </TableCell>
             <TableCell className="min-w-[150px]">
               <div>
-                <div className="font-medium">{gasto.descricao}</div>
+                <div className="font-medium truncate max-w-[120px] sm:max-w-none">{gasto.descricao}</div>
                 <div className="text-xs text-gray-500 mt-1 sm:hidden">
                   {formatDate(gasto.data)}
                 </div>
@@ -75,7 +75,7 @@ export function GastosTable({ gastos, onEdit, onDelete }: GastosTableProps) {
               {formatCurrency(gasto.valor)}
             </TableCell>
             <TableCell>
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-1 sm:gap-2">
                 <Button
                   variant="ghost"
                   size="sm"

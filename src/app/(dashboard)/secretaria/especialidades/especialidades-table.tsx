@@ -117,7 +117,7 @@ export function EspecialidadesTable({ especialidades }: EspecialidadesTableProps
           <TableHeader>
             <TableRow>
               <TableHead>Nome</TableHead>
-              <TableHead>Categoria</TableHead>
+              <TableHead className="hidden sm:table-cell">Categoria</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -125,8 +125,10 @@ export function EspecialidadesTable({ especialidades }: EspecialidadesTableProps
           <TableBody>
             {especialidadesFiltradas.map((especialidade) => (
               <TableRow key={especialidade.id}>
-                <TableCell className="font-medium">{especialidade.nome}</TableCell>
-                <TableCell>
+                <TableCell className="font-medium">
+                  <span className="truncate max-w-[120px] sm:max-w-none block">{especialidade.nome}</span>
+                </TableCell>
+                <TableCell className="hidden sm:table-cell">
                   <Badge variant="outline">
                     {especialidade.categoria}
                   </Badge>
@@ -137,7 +139,7 @@ export function EspecialidadesTable({ especialidades }: EspecialidadesTableProps
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-end gap-1 sm:gap-2 flex-shrink-0">
                     <Link href={`/secretaria/especialidades/${especialidade.id}`}>
                       <Button variant="ghost" size="sm">
                         <Edit className="h-4 w-4" />

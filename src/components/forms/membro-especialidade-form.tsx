@@ -122,7 +122,7 @@ export function MembroEspecialidadeForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 sm:space-y-6">
       <div>
         <label className="label">Membro</label>
         <Input value={membroNome} disabled className="bg-gray-50" />
@@ -197,16 +197,17 @@ export function MembroEspecialidadeForm({
         />
       </div>
 
-      <div className="flex items-center justify-end gap-3 pt-4 border-t">
+      <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-4 border-t">
         <Button
           type="button"
           variant="ghost"
           onClick={onCancel}
           disabled={loading}
+          className="w-full sm:w-auto"
         >
           Cancelar
         </Button>
-        <Button type="submit" disabled={loading || especialidadesFiltradas.length === 0}>
+        <Button type="submit" disabled={loading || especialidadesFiltradas.length === 0} className="w-full sm:w-auto">
           {loading ? "Registrando..." : "Registrar Conquista"}
         </Button>
       </div>

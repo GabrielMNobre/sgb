@@ -20,6 +20,7 @@ import {
   ShoppingBag,
   Heart,
   Wheat,
+  Tent,
 } from "lucide-react";
 import { Usuario, PapelUsuario } from "@/types/auth";
 import { LogoutButton } from "./logout-button";
@@ -78,6 +79,7 @@ const adminMenu: MenuSection[] = [
       { href: "/admin/financeiro/mensalidades", label: "Mensalidades", icon: DollarSign },
       { href: "/admin/financeiro/gastos", label: "Gastos", icon: ShoppingCart },
       { href: "/admin/financeiro/gastos/eventos", label: "Eventos", icon: CalendarDays },
+      { href: "/admin/financeiro/acampamentos", label: "Acampamentos", icon: Tent },
     ],
   },
   {
@@ -116,6 +118,7 @@ const menuItems: Record<PapelUsuario, MenuConfig> = {
         { href: "/tesoureiro/mensalidades", label: "Mensalidades", icon: DollarSign },
         { href: "/tesoureiro/gastos", label: "Gastos", icon: ShoppingCart },
         { href: "/tesoureiro/gastos/eventos", label: "Eventos", icon: CalendarDays },
+        { href: "/tesoureiro/acampamentos", label: "Acampamentos", icon: Tent },
       ],
     },
     {

@@ -69,7 +69,7 @@ export function SemanasPaesTable({ semanas, basePath }: SemanasPaesTableProps) {
               </Badge>
             </TableCell>
             <TableCell>
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-1 sm:gap-2">
                 <Link href={`${basePath}/${semana.id}`}>
                   <Button variant="ghost" size="sm" title="Ver detalhes">
                     <Eye className="h-4 w-4" />

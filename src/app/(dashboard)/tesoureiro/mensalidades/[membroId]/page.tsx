@@ -39,7 +39,7 @@ export default async function MembroMensalidadesPage({
     : "Em dia";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header with back button */}
       <div className="flex items-center gap-4">
         <Link href="/tesoureiro/mensalidades">
@@ -49,10 +49,10 @@ export default async function MembroMensalidadesPage({
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
             Histórico de Mensalidades
           </h1>
-          <p className="text-gray-500">Pagamentos de {membro.nome}</p>
+          <p className="text-sm sm:text-base text-gray-500">Pagamentos de {membro.nome}</p>
         </div>
       </div>
 
@@ -63,7 +63,7 @@ export default async function MembroMensalidadesPage({
             <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
               <User className="h-8 w-8 text-primary" />
             </div>
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <p className="text-sm font-medium text-gray-500">Nome</p>
                 <p className="text-base font-semibold text-gray-900">
@@ -202,7 +202,7 @@ export default async function MembroMensalidadesPage({
               </div>
 
               {/* Year summary */}
-              <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
                   <p className="text-sm font-medium text-gray-500">
                     Total Pago

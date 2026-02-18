@@ -321,13 +321,13 @@ export function MensalidadesTable({
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Membro
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden md:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Tipo
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Unidade
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Mês/Ano
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -336,7 +336,7 @@ export function MensalidadesTable({
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Data Pagamento
                 </th>
                 {!readonly && (
@@ -366,18 +366,26 @@ export function MensalidadesTable({
                     </td>
                   )}
                   <td className="px-4 py-3 text-sm text-gray-900">
-                    {mensalidade.membro.nome}
+                    <div className="truncate max-w-[120px] sm:max-w-none font-medium">
+                      {mensalidade.membro.nome}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 sm:hidden">
+                      {formatMonthYear(mensalidade.mes, mensalidade.ano)}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 md:hidden capitalize">
+                      {mensalidade.membro.tipo}
+                    </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-500 capitalize">
+                  <td className="hidden md:table-cell px-4 py-3 text-sm text-gray-500 capitalize">
                     {mensalidade.membro.tipo}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-500">
+                  <td className="hidden lg:table-cell px-4 py-3 text-sm text-gray-500">
                     {mensalidade.membro.unidade?.nome || "Diretoria"}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-500">
+                  <td className="hidden sm:table-cell px-4 py-3 text-sm text-gray-500">
                     {formatMonthYear(mensalidade.mes, mensalidade.ano)}
                   </td>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900 whitespace-nowrap">
                     {formatCurrency(mensalidade.valor)}
                   </td>
                   <td className="px-4 py-3">
@@ -398,12 +406,12 @@ export function MensalidadesTable({
                       )}
                     </Badge>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-500">
+                  <td className="hidden sm:table-cell px-4 py-3 text-sm text-gray-500">
                     {formatDate(mensalidade.dataPagamento)}
                   </td>
                   {!readonly && (
                     <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-1 sm:gap-2">
                         {/* View history */}
                         <Link href={`${basePath}/${mensalidade.membroId}`}>
                           <Button

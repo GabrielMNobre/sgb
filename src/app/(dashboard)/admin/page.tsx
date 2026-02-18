@@ -45,10 +45,10 @@ export default async function AdminPage() {
   // const conquistasPendentes = await countConquistasPendentes();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard - Administrador</h1>
-        <p className="text-gray-500">Visão consolidada do clube</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Dashboard - Administrador</h1>
+        <p className="text-sm sm:text-base text-gray-500">Visão consolidada do clube</p>
       </div>
 
       {/* Linha 1 - Membros */}
@@ -56,13 +56,13 @@ export default async function AdminPage() {
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
           Membros
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Membros Ativos</p>
-                  <p className="text-3xl font-bold text-primary">{totalMembros}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-primary">{totalMembros}</p>
                 </div>
                 <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
                   <Users className="h-6 w-6 text-primary" />
@@ -76,7 +76,7 @@ export default async function AdminPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Desbravadores</p>
-                  <p className="text-3xl font-bold text-blue-600">{totalDesbravadores}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-blue-600">{totalDesbravadores}</p>
                 </div>
                 <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
                   <Users className="h-6 w-6 text-blue-600" />
@@ -90,7 +90,7 @@ export default async function AdminPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Diretoria</p>
-                  <p className="text-3xl font-bold text-green-600">{totalDiretoria}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-green-600">{totalDiretoria}</p>
                 </div>
                 <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
                   <Users className="h-6 w-6 text-green-600" />
@@ -104,7 +104,7 @@ export default async function AdminPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Conselheiros</p>
-                  <p className="text-3xl font-bold text-purple-600">{totalConselheiros}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-purple-600">{totalConselheiros}</p>
                 </div>
                 <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
                   <UserCog className="h-6 w-6 text-purple-600" />
@@ -120,13 +120,13 @@ export default async function AdminPage() {
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
           Estrutura
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Unidades Ativas</p>
-                  <p className="text-3xl font-bold text-primary">{totalUnidades}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-primary">{totalUnidades}</p>
                 </div>
                 <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
                   <Building2 className="h-6 w-6 text-primary" />
@@ -168,7 +168,7 @@ export default async function AdminPage() {
       </div>
 
       {/* Seções do Dashboard */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Próximos Encontros */}
         <Card>
           <CardHeader>
@@ -294,7 +294,7 @@ export default async function AdminPage() {
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
           Atalhos Rápidos
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <Link href="/admin/membros/novo">
             <Card className="hover:bg-gray-50 transition-colors cursor-pointer h-full">
               <CardContent className="pt-6">

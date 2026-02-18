@@ -26,7 +26,7 @@ export function DashboardShell({ user, children }: DashboardShellProps) {
       <div className="lg:pl-64">
         <Header user={user} onMenuClick={() => setSidebarOpen(true)} />
 
-        <main className="p-6">{children}</main>
+        <main className="p-3 sm:p-6">{children}</main>
       </div>
     </div>
   );

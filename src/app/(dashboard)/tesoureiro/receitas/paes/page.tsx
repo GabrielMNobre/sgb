@@ -209,25 +209,25 @@ export default function PaesPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Paes</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Paes</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">
             Gestao de producao e venda de paes
           </p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline" onClick={handleNovaSemana}>
+        <div className="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
+          <Button variant="outline" onClick={handleNovaSemana} className="w-full sm:w-auto">
             <Wheat className="w-4 h-4 mr-2" />
             Nova Semana
           </Button>
-          <Button variant="secondary" onClick={handleVenderSemDono}>
+          <Button variant="secondary" onClick={handleVenderSemDono} className="w-full sm:w-auto">
             <ShoppingBag className="w-4 h-4 mr-2" />
             Vender Sem Dono
           </Button>
-          <Button variant="primary" onClick={handleNovoPedido}>
+          <Button variant="primary" onClick={handleNovoPedido} className="w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             Novo Pedido
           </Button>
@@ -235,11 +235,11 @@ export default function PaesPage() {
       </div>
 
       {/* Resumo */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Total Arrecadado</p>
-            <p className="text-3xl font-bold text-green-600 mt-1">
+            <p className="text-2xl sm:text-3xl font-bold text-green-600 mt-1">
               {formatCurrency(totalPago)}
             </p>
           </div>
@@ -247,7 +247,7 @@ export default function PaesPage() {
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Pendente</p>
-            <p className={`text-3xl font-bold mt-1 ${totalPendente > 0 ? "text-amber-600" : "text-gray-400"}`}>
+            <p className={`text-2xl sm:text-3xl font-bold mt-1 ${totalPendente > 0 ? "text-amber-600" : "text-gray-400"}`}>
               {formatCurrency(totalPendente)}
             </p>
           </div>
@@ -255,7 +255,7 @@ export default function PaesPage() {
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Total Pedidos</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
               {totalPedidos}
             </p>
           </div>
@@ -263,7 +263,7 @@ export default function PaesPage() {
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Total Paes</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
               {totalPaes}
             </p>
           </div>
@@ -271,7 +271,7 @@ export default function PaesPage() {
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Fornadas</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
               {totalFornadas}
             </p>
           </div>

@@ -43,10 +43,10 @@ export default function ConfiguracoesPaesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Configurações de Pães</h1>
-        <p className="text-gray-600 mt-1">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Configurações de Pães</h1>
+        <p className="text-sm sm:text-base text-gray-600 mt-1">
           Configure os valores padrão para o módulo de pães
         </p>
       </div>

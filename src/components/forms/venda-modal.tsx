@@ -153,7 +153,7 @@ export function VendaModal({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {/* Quantidade */}
           <div>
             <label
@@ -232,10 +232,10 @@ export function VendaModal({
         </div>
 
         <ModalFooter>
-          <Button type="button" variant="secondary" onClick={handleClose}>
+          <Button type="button" variant="secondary" onClick={handleClose} className="w-full sm:w-auto">
             Cancelar
           </Button>
-          <Button type="submit" variant="primary" disabled={loading}>
+          <Button type="submit" variant="primary" disabled={loading} className="w-full sm:w-auto">
             {loading ? "Salvando..." : vendaInicial?.id ? "Salvar" : "Criar"}
           </Button>
         </ModalFooter>

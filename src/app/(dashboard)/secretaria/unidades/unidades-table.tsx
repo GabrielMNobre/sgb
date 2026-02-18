@@ -99,7 +99,7 @@ export function UnidadesTable({ unidades }: UnidadesTableProps) {
           <TableHeader>
             <TableRow>
               <TableHead>Nome</TableHead>
-              <TableHead>Cores</TableHead>
+              <TableHead className="hidden sm:table-cell">Cores</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -108,7 +108,7 @@ export function UnidadesTable({ unidades }: UnidadesTableProps) {
             {unidadesFiltradas.map((unidade) => (
               <TableRow key={unidade.id}>
                 <TableCell className="font-medium">{unidade.nome}</TableCell>
-                <TableCell>
+                <TableCell className="hidden sm:table-cell">
                   <div className="flex items-center gap-2">
                     <div
                       className="h-6 w-6 rounded-full border border-gray-200"
@@ -128,7 +128,7 @@ export function UnidadesTable({ unidades }: UnidadesTableProps) {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-end gap-1 sm:gap-2">
                     <Link href={`/secretaria/unidades/${unidade.id}`}>
                       <Button variant="ghost" size="sm">
                         <Edit className="h-4 w-4" />

@@ -26,16 +26,16 @@ export default async function EditUsuarioPage({ params }: PageProps) {
   const membrosDiretoria = membros.filter((m) => m.tipo === "diretoria" && m.ativo);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Editar Usuário</h1>
-          <p className="text-gray-500">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Editar Usuário</h1>
+          <p className="text-sm sm:text-base text-gray-500">
             Atualize as informações do usuário
           </p>
         </div>
-        <Link href="/admin/usuarios">
-          <Button variant="outline">
+        <Link href="/admin/usuarios" className="w-full sm:w-auto">
+          <Button variant="outline" className="w-full sm:w-auto">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
           </Button>

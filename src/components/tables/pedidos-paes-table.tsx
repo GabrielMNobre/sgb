@@ -50,7 +50,7 @@ export function PedidosPaesTable({
           <TableHead className="text-center">Qtd</TableHead>
           <TableHead className="hidden sm:table-cell text-right">Valor</TableHead>
           <TableHead className="hidden md:table-cell text-right">Crédito</TableHead>
-          <TableHead className="text-center">Pago</TableHead>
+          <TableHead className="hidden sm:table-cell text-center">Pago</TableHead>
           <TableHead className="text-center">Status</TableHead>
           {showActions && <TableHead className="text-right">Ações</TableHead>}
         </TableRow>
@@ -84,7 +84,7 @@ export function PedidosPaesTable({
                 </div>
               </TableCell>
             )}
-            <TableCell className="font-medium">
+            <TableCell className="font-medium truncate max-w-[120px] sm:max-w-none">
               {pedido.cliente?.nome || "—"}
             </TableCell>
             <TableCell className="text-center">{pedido.quantidade}</TableCell>
@@ -94,7 +94,7 @@ export function PedidosPaesTable({
             <TableCell className="hidden md:table-cell text-right whitespace-nowrap">
               {pedido.creditoAplicado > 0 ? formatCurrency(pedido.creditoAplicado) : "—"}
             </TableCell>
-            <TableCell className="text-center">
+            <TableCell className="hidden sm:table-cell text-center">
               {showActions && onMarcarPago ? (
                 <button
                   type="button"
@@ -133,7 +133,7 @@ export function PedidosPaesTable({
             </TableCell>
             {showActions && (
               <TableCell>
-                <div className="flex justify-end gap-1">
+                <div className="flex justify-end gap-1 sm:gap-2">
                   {onEdit && (
                     <Button
                       variant="ghost"

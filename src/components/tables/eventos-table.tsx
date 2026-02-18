@@ -60,7 +60,17 @@ export function EventosTable({
       <TableBody>
         {eventos.map((evento) => (
           <TableRow key={evento.id}>
-            <TableCell className="font-medium min-w-[150px]">{evento.nome}</TableCell>
+            <TableCell className="font-medium min-w-[150px]">
+              <div className="truncate max-w-[120px] sm:max-w-none">{evento.nome}</div>
+              <div className="text-xs text-gray-500 mt-1 md:hidden whitespace-nowrap">
+                {formatDate(evento.data)}
+              </div>
+              <div className="text-xs text-gray-500 mt-1 lg:hidden">
+                <Badge variant={evento.ativo ? "success" : "secondary"} className="text-[10px]">
+                  {evento.ativo ? "Ativo" : "Inativo"}
+                </Badge>
+              </div>
+            </TableCell>
             <TableCell className="hidden md:table-cell whitespace-nowrap">
               {formatDate(evento.data)}
             </TableCell>
@@ -76,7 +86,7 @@ export function EventosTable({
               </Badge>
             </TableCell>
             <TableCell>
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-1 sm:gap-2">
                 <Link href={`${basePath}/${evento.id}`}>
                   <Button variant="ghost" size="sm" title="Ver detalhes">
                     <Eye className="h-4 w-4" />

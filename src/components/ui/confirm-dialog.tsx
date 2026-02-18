@@ -46,14 +46,15 @@ export function ConfirmDialog({
         <div className="text-sm text-gray-500">{message}</div>
       </div>
 
-      <ModalFooter>
-        <Button variant="ghost" onClick={onClose} disabled={loading}>
+      <ModalFooter className="flex-col-reverse sm:flex-row">
+        <Button variant="ghost" onClick={onClose} disabled={loading} className="w-full sm:w-auto">
           {cancelText}
         </Button>
         <Button
           variant={variant === "danger" ? "danger" : "primary"}
           onClick={onConfirm}
           disabled={loading}
+          className="w-full sm:w-auto"
         >
           {loading ? "Aguarde..." : confirmText}
         </Button>

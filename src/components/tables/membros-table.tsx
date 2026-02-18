@@ -215,9 +215,9 @@ export function MembrosTable({
           <TableHeader>
             <TableRow>
               <TableHead>Nome</TableHead>
-              <TableHead>Tipo</TableHead>
+              <TableHead className="hidden sm:table-cell">Tipo</TableHead>
               <TableHead>Unidade</TableHead>
-              <TableHead>Classe</TableHead>
+              <TableHead className="hidden sm:table-cell">Classe</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -225,8 +225,10 @@ export function MembrosTable({
           <TableBody>
             {membrosFiltrados.map((membro) => (
               <TableRow key={membro.id}>
-                <TableCell className="font-medium">{membro.nome}</TableCell>
-                <TableCell>
+                <TableCell className="font-medium">
+                  <span className="truncate max-w-[120px] sm:max-w-none block">{membro.nome}</span>
+                </TableCell>
+                <TableCell className="hidden sm:table-cell">
                   <Badge variant={membro.tipo === "desbravador" ? "default" : "outline"}>
                     {membro.tipo === "desbravador" ? "Desbravador" : "Diretoria"}
                   </Badge>
@@ -238,13 +240,13 @@ export function MembrosTable({
                         className="h-3 w-3 rounded-full"
                         style={{ backgroundColor: membro.unidade.corPrimaria }}
                       />
-                      {membro.unidade.nome}
+                      <span className="truncate max-w-[80px] sm:max-w-none block">{membro.unidade.nome}</span>
                     </div>
                   ) : (
                     <span className="text-gray-400">-</span>
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden sm:table-cell">
                   {membro.classe?.nome || (
                     <span className="text-gray-400">-</span>
                   )}
@@ -255,7 +257,7 @@ export function MembrosTable({
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-end gap-1 sm:gap-2 flex-shrink-0">
                     <Button
                       variant="ghost"
                       size="sm"

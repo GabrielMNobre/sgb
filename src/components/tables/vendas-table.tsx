@@ -68,7 +68,7 @@ export function VendasTable({ vendas, onEdit, onDelete }: VendasTableProps) {
             </TableCell>
             <TableCell className="min-w-[150px]">
               <div>
-                <div className="font-medium">{venda.descricao}</div>
+                <div className="font-medium truncate max-w-[120px] sm:max-w-none">{venda.descricao}</div>
                 <div className="text-xs text-gray-500 mt-1 sm:hidden">
                   {formatDate(venda.data)}
                 </div>
@@ -95,7 +95,7 @@ export function VendasTable({ vendas, onEdit, onDelete }: VendasTableProps) {
               {formatCurrency(venda.valorTotal)}
             </TableCell>
             <TableCell>
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-1 sm:gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
