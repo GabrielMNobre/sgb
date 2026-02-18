@@ -138,7 +138,7 @@ export function MembrosTable({ membros, unidades, classes, historicos }: Membros
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             onClear={() => setBusca("")}
-            className="w-full md:w-64"
+            className="w-full sm:w-64"
           />
 
           <Select
@@ -149,7 +149,7 @@ export function MembrosTable({ membros, unidades, classes, historicos }: Membros
               { value: "desbravador", label: "Desbravador" },
               { value: "diretoria", label: "Diretoria" },
             ]}
-            className="w-full md:w-40"
+            className="w-full sm:w-40"
           />
 
           <Select
@@ -159,7 +159,7 @@ export function MembrosTable({ membros, unidades, classes, historicos }: Membros
               { value: "", label: "Todas as unidades" },
               ...unidades.map((u) => ({ value: u.id, label: u.nome })),
             ]}
-            className="w-full md:w-48"
+            className="w-full sm:w-48"
           />
 
           <Select
@@ -169,7 +169,7 @@ export function MembrosTable({ membros, unidades, classes, historicos }: Membros
               { value: "", label: "Todas as classes" },
               ...classes.map((c) => ({ value: c.id, label: c.nome })),
             ]}
-            className="w-full md:w-40"
+            className="w-full sm:w-40"
           />
 
           <Select
@@ -180,7 +180,7 @@ export function MembrosTable({ membros, unidades, classes, historicos }: Membros
               { value: "ativo", label: "Ativos" },
               { value: "inativo", label: "Inativos" },
             ]}
-            className="w-full md:w-36"
+            className="w-full sm:w-36"
           />
         </div>
 
@@ -206,9 +206,9 @@ export function MembrosTable({ membros, unidades, classes, historicos }: Membros
           <TableHeader>
             <TableRow>
               <TableHead>Nome</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Unidade</TableHead>
-              <TableHead>Classe</TableHead>
+              <TableHead className="hidden sm:table-cell">Tipo</TableHead>
+              <TableHead className="hidden md:table-cell">Unidade</TableHead>
+              <TableHead className="hidden md:table-cell">Classe</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -218,22 +218,22 @@ export function MembrosTable({ membros, unidades, classes, historicos }: Membros
               <TableRow key={membro.id}>
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
-                    {membro.nome.toUpperCase()}
+                    <span className="truncate max-w-[140px] sm:max-w-none">{membro.nome.toUpperCase()}</span>
                     {membro.isentoMensalidade && (
                       <Badge variant="warning" className="text-xs">Isento</Badge>
                     )}
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden sm:table-cell">
                   <Badge variant={membro.tipo === "desbravador" ? "default" : "outline"}>
                     {membro.tipo === "desbravador" ? "Desbravador" : "Diretoria"}
                   </Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden md:table-cell">
                   {membro.unidade ? (
                     <div className="flex items-center gap-2">
                       <div
-                        className="h-3 w-3 rounded-full"
+                        className="h-3 w-3 rounded-full flex-shrink-0"
                         style={{ backgroundColor: membro.unidade.corPrimaria }}
                       />
                       {membro.unidade.nome}
@@ -242,7 +242,7 @@ export function MembrosTable({ membros, unidades, classes, historicos }: Membros
                     <span className="text-gray-400">-</span>
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden md:table-cell">
                   {membro.classe?.nome || (
                     <span className="text-gray-400">-</span>
                   )}
@@ -253,7 +253,7 @@ export function MembrosTable({ membros, unidades, classes, historicos }: Membros
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-end gap-1 sm:gap-2">
                     <Button
                       variant="ghost"
                       size="sm"

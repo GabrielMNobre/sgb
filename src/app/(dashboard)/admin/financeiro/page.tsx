@@ -70,12 +70,12 @@ export default async function TesoureiroPage() {
   const saldoPositivo = saldoMes >= 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
           Dashboard - Financeiro
         </h1>
-        <p className="text-gray-500">Controle financeiro do clube</p>
+        <p className="text-sm sm:text-base text-gray-500">Controle financeiro do clube</p>
       </div>
 
       {/* Resumo Financeiro Consolidado */}
@@ -87,15 +87,15 @@ export default async function TesoureiroPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
             {/* Total de Entradas */}
-            <div className="p-6 bg-green-50 rounded-lg">
+            <div className="p-4 sm:p-6 bg-green-50 rounded-lg">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-sm font-medium text-gray-600">
                     Total de Entradas
                   </p>
-                  <p className="text-3xl font-bold text-green-700">
+                  <p className="text-2xl sm:text-3xl font-bold text-green-700">
                     {formatCurrency(totalEntradas)}
                   </p>
                 </div>
@@ -132,13 +132,13 @@ export default async function TesoureiroPage() {
             </div>
 
             {/* Total de Saídas */}
-            <div className="p-6 bg-red-50 rounded-lg">
+            <div className="p-4 sm:p-6 bg-red-50 rounded-lg">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-sm font-medium text-gray-600">
                     Total de Saídas
                   </p>
-                  <p className="text-3xl font-bold text-red-700">
+                  <p className="text-2xl sm:text-3xl font-bold text-red-700">
                     {formatCurrency(totalSaidas)}
                   </p>
                 </div>
@@ -157,13 +157,13 @@ export default async function TesoureiroPage() {
             </div>
 
             {/* Saldo */}
-            <div className={`p-6 ${saldoPositivo ? "bg-blue-50" : "bg-orange-50"} rounded-lg`}>
+            <div className={`p-4 sm:p-6 ${saldoPositivo ? "bg-blue-50" : "bg-orange-50"} rounded-lg`}>
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-sm font-medium text-gray-600">
                     Saldo do Mês
                   </p>
-                  <p className={`text-3xl font-bold ${saldoPositivo ? "text-blue-700" : "text-orange-700"}`}>
+                  <p className={`text-2xl sm:text-3xl font-bold ${saldoPositivo ? "text-blue-700" : "text-orange-700"}`}>
                     {formatCurrency(saldoMes)}
                   </p>
                 </div>
@@ -217,7 +217,7 @@ export default async function TesoureiroPage() {
       </div>
 
       {/* Revenue summary cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -225,7 +225,7 @@ export default async function TesoureiroPage() {
                 <p className="text-sm font-medium text-gray-500">
                   Total Arrecadado
                 </p>
-                <p className="text-3xl font-bold text-success">
+                <p className="text-2xl sm:text-3xl font-bold text-success">
                   {formatCurrency(totais.totalPago)}
                 </p>
                 <p className="text-xs text-gray-500 mt-2">
@@ -246,7 +246,7 @@ export default async function TesoureiroPage() {
                 <p className="text-sm font-medium text-gray-500">
                   Total Pendente
                 </p>
-                <p className="text-3xl font-bold text-warning">
+                <p className="text-2xl sm:text-3xl font-bold text-warning">
                   {formatCurrency(totais.totalPendente)}
                 </p>
                 <p className="text-xs text-gray-500 mt-2">
@@ -267,7 +267,7 @@ export default async function TesoureiroPage() {
                 <p className="text-sm font-medium text-gray-500">
                   Inadimplentes
                 </p>
-                <p className="text-3xl font-bold text-error">
+                <p className="text-2xl sm:text-3xl font-bold text-error">
                   {totalInadimplentes}
                 </p>
                 <p className="text-xs text-gray-500 mt-2">membros em atraso</p>
@@ -290,22 +290,22 @@ export default async function TesoureiroPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4">
               <div>
-                <p className="text-sm text-gray-500">Arrecadado</p>
-                <p className="text-2xl font-bold text-primary">
+                <p className="text-xs sm:text-sm text-gray-500">Arrecadado</p>
+                <p className="text-lg sm:text-2xl font-bold text-primary">
                   {formatCurrency(meta.valorArrecadado)}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Meta (80%)</p>
-                <p className="text-2xl font-bold text-gray-700">
+                <p className="text-xs sm:text-sm text-gray-500">Meta (80%)</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-700">
                   {formatCurrency(meta.valorMeta)}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Possível (100%)</p>
-                <p className="text-2xl font-bold text-gray-400">
+                <p className="text-xs sm:text-sm text-gray-500">Possível (100%)</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-400">
                   {formatCurrency(meta.valorPossivel)}
                 </p>
               </div>
@@ -336,7 +336,7 @@ export default async function TesoureiroPage() {
       </Card>
 
       {/* Adhesion rates */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {taxas.map((taxa) => (
           <Card key={taxa.tipo}>
             <CardHeader>
@@ -347,7 +347,7 @@ export default async function TesoureiroPage() {
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-4xl font-bold text-primary">
+                  <p className="text-3xl sm:text-4xl font-bold text-primary">
                     {taxa.percentualAdesao.toFixed(0)}%
                   </p>
                   <p className="text-sm text-gray-500 mt-2">
@@ -456,7 +456,7 @@ export default async function TesoureiroPage() {
         <h2 className="text-xl font-bold text-gray-900 mb-4">Outras Receitas</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         {/* Últimas Vendas */}
         <Card>
           <CardHeader>

@@ -27,8 +27,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-xl p-8">
-      <h1 className="text-2xl font-bold text-primary text-center mb-2">
+    <div className="bg-white rounded-lg shadow-xl p-6 sm:p-8">
+      <h1 className="text-xl sm:text-2xl font-bold text-primary text-center mb-2">
         Entrar no SGB
       </h1>
       <p className="text-gray-500 text-center text-sm mb-6">

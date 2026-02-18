@@ -133,21 +133,21 @@ export default function VendasPage() {
     }).format(value);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Vendas</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Vendas</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">
             Controle de vendas e receitas do clube
           </p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="secondary" onClick={handleGerenciarCategorias}>
+        <div className="flex gap-3 w-full sm:w-auto">
+          <Button variant="secondary" onClick={handleGerenciarCategorias} className="w-full sm:w-auto">
             <Tags className="w-4 h-4 mr-2" />
             Categorias
           </Button>
-          <Button variant="primary" onClick={handleNovaVenda}>
+          <Button variant="primary" onClick={handleNovaVenda} className="w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             Nova Venda
           </Button>
@@ -155,11 +155,11 @@ export default function VendasPage() {
       </div>
 
       {/* Resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Total de Vendas</p>
-            <p className="text-3xl font-bold text-green-600 mt-1">
+            <p className="text-2xl sm:text-3xl font-bold text-green-600 mt-1">
               {formatCurrency(totalVendas)}
             </p>
           </div>
@@ -167,7 +167,7 @@ export default function VendasPage() {
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Quantidade de Itens</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
               {quantidadeTotal}
             </p>
           </div>
@@ -175,7 +175,7 @@ export default function VendasPage() {
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Número de Vendas</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
               {vendas.length}
             </p>
           </div>

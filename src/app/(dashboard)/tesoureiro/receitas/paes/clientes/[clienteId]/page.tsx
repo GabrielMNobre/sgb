@@ -118,9 +118,9 @@ export default function ClientePaesDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <Button
           variant="ghost"
           size="sm"
@@ -130,7 +130,7 @@ export default function ClientePaesDetailPage() {
           Voltar para Clientes
         </Button>
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-900">{cliente.nome}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{cliente.nome}</h1>
           <Badge variant={cliente.ativo ? "success" : "secondary"}>
             {cliente.ativo ? "Ativo" : "Inativo"}
           </Badge>
@@ -138,11 +138,11 @@ export default function ClientePaesDetailPage() {
       </div>
 
       {/* Resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Total Pedidos</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
               {totalPedidos}
             </p>
           </div>
@@ -150,7 +150,7 @@ export default function ClientePaesDetailPage() {
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Total Gasto</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
               {formatCurrency(totalGasto)}
             </p>
           </div>
@@ -158,7 +158,7 @@ export default function ClientePaesDetailPage() {
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Créditos Disponíveis</p>
-            <p className="text-3xl font-bold text-green-600 mt-1">
+            <p className="text-2xl sm:text-3xl font-bold text-green-600 mt-1">
               {creditosDisponiveis}
             </p>
           </div>

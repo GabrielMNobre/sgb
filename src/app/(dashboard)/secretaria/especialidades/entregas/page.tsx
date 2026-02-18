@@ -13,16 +13,16 @@ export default async function EntregasPage() {
   ]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Entregas Pendentes</h1>
-          <p className="text-gray-500">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Entregas Pendentes</h1>
+          <p className="text-sm sm:text-base text-gray-500">
             {entregas.length} especialidade(s) aguardando entrega
           </p>
         </div>
         <Link href="/secretaria/especialidades">
-          <Button variant="outline">
+          <Button variant="outline" className="w-full sm:w-auto">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
           </Button>

@@ -99,9 +99,9 @@ export function UsuariosTable({ usuarios }: UsuariosTableProps) {
           <TableHeader>
             <TableRow>
               <TableHead>Nome</TableHead>
-              <TableHead>Email</TableHead>
+              <TableHead className="hidden sm:table-cell">Email</TableHead>
               <TableHead>Papel</TableHead>
-              <TableHead>Membro Vinculado</TableHead>
+              <TableHead className="hidden sm:table-cell">Membro Vinculado</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -109,14 +109,16 @@ export function UsuariosTable({ usuarios }: UsuariosTableProps) {
           <TableBody>
             {usuariosFiltrados.map((usuario) => (
               <TableRow key={usuario.id}>
-                <TableCell className="font-medium">{usuario.nome}</TableCell>
-                <TableCell className="text-gray-500">{usuario.email}</TableCell>
+                <TableCell className="font-medium">
+                  <span className="truncate max-w-[120px] sm:max-w-none block">{usuario.nome}</span>
+                </TableCell>
+                <TableCell className="hidden sm:table-cell text-gray-500">{usuario.email}</TableCell>
                 <TableCell>
                   <Badge variant={getPapelVariant(usuario.papel)}>
                     {getPapelLabel(usuario.papel)}
                   </Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden sm:table-cell">
                   {usuario.membroNome || <span className="text-gray-400 italic">-</span>}
                 </TableCell>
                 <TableCell>
@@ -125,12 +127,14 @@ export function UsuariosTable({ usuarios }: UsuariosTableProps) {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Link href={`/secretaria/usuarios/${usuario.id}`}>
-                    <Button variant="ghost" size="sm">
-                      <Edit className="h-4 w-4 mr-2" />
-                      Editar
-                    </Button>
-                  </Link>
+                  <div className="flex items-center justify-end gap-1 sm:gap-2 flex-shrink-0">
+                    <Link href={`/secretaria/usuarios/${usuario.id}`}>
+                      <Button variant="ghost" size="sm">
+                        <Edit className="h-4 w-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Editar</span>
+                      </Button>
+                    </Link>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

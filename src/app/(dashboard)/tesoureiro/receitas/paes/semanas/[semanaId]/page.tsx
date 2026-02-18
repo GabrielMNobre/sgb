@@ -236,7 +236,7 @@ export default function SemanaDetalhePage() {
   const isAberta = semana.status === "aberta";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Back button */}
       <Button
         variant="ghost"
@@ -247,9 +247,9 @@ export default function SemanaDetalhePage() {
       </Button>
 
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
             Semana de {formatDate(semana.dataProducao)}
           </h1>
           <Badge variant={isAberta ? "success" : "secondary"}>
@@ -261,7 +261,7 @@ export default function SemanaDetalhePage() {
       {/* Info */}
       <Card>
         <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <p className="text-sm text-gray-600">Data Produção</p>
               <p className="text-lg font-semibold text-gray-900">
@@ -325,7 +325,7 @@ export default function SemanaDetalhePage() {
       </Card>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         <Card>
           <div className="p-4">
             <p className="text-sm text-gray-600">Total Pedidos</p>

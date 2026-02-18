@@ -101,29 +101,29 @@ export default function DoacoesPage() {
     }).format(value);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Doações</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Doações</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">
             Controle de doações recebidas pelo clube
           </p>
         </div>
-        <Button variant="primary" onClick={handleNovaDoacao}>
+        <Button variant="primary" onClick={handleNovaDoacao} className="w-full sm:w-auto">
           <Plus className="w-4 h-4 mr-2" />
           Nova Doação
         </Button>
       </div>
 
       {/* Resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <Card>
           <div className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total de Doações</p>
-                <p className="text-3xl font-bold text-green-600 mt-1">
+                <p className="text-2xl sm:text-3xl font-bold text-green-600 mt-1">
                   {formatCurrency(totalDoacoes)}
                 </p>
               </div>
@@ -136,7 +136,7 @@ export default function DoacoesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Número de Doações</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
                   {doacoes.length}
                 </p>
               </div>
@@ -149,7 +149,7 @@ export default function DoacoesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Ticket Médio</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
                   {doacoes.length > 0 ? formatCurrency(totalDoacoes / doacoes.length) : "R$ 0,00"}
                 </p>
               </div>

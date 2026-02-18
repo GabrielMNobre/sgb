@@ -116,7 +116,7 @@ export default function EventoDetalhesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
         <Button
@@ -129,16 +129,16 @@ export default function EventoDetalhesPage() {
           Voltar para Eventos
         </Button>
 
-        <div className="flex justify-between items-start">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-0">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">{evento.nome}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{evento.nome}</h1>
               <Badge variant={evento.ativo ? "success" : "secondary"}>
                 {evento.ativo ? "Ativo" : "Inativo"}
               </Badge>
             </div>
             {evento.descricao && (
-              <p className="text-gray-600 mt-2">{evento.descricao}</p>
+              <p className="text-sm sm:text-base text-gray-600 mt-2">{evento.descricao}</p>
             )}
             {evento.data && (
               <p className="text-sm text-gray-500 mt-1">
@@ -146,7 +146,7 @@ export default function EventoDetalhesPage() {
               </p>
             )}
           </div>
-          <Button variant="primary" onClick={handleNovoGasto}>
+          <Button variant="primary" onClick={handleNovoGasto} className="w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             Adicionar Gasto
           </Button>
@@ -154,11 +154,11 @@ export default function EventoDetalhesPage() {
       </div>
 
       {/* Resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Total Gasto</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
               {formatCurrency(totalGasto)}
             </p>
           </div>
@@ -167,7 +167,7 @@ export default function EventoDetalhesPage() {
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Quantidade de Gastos</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
               {gastos.length}
             </p>
           </div>
