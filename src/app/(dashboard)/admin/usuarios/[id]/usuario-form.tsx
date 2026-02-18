@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
+import { Loading } from "@/components/ui/loading";
 import type { UsuarioComMembro, UsuarioFormData } from "@/services/usuarios";
 import type { Membro } from "@/types/membro";
 import { updateUsuarioAction } from "../actions";
@@ -168,7 +169,7 @@ export function UsuarioForm({ usuario, membrosDiretoria }: UsuarioFormProps) {
           Cancelar
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? "Salvando..." : "Salvar Alterações"}
+          {loading ? <><Loading size="sm" className="mr-2" />Salvando...</> : "Salvar Alterações"}
         </Button>
       </div>
     </form>

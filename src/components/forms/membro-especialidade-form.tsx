@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
+import { Loading } from "@/components/ui/loading";
 import type { Especialidade, MembroEspecialidadeFormData } from "@/types/especialidade";
 
 const membroEspecialidadeSchema = z.object({
@@ -208,7 +209,7 @@ export function MembroEspecialidadeForm({
           Cancelar
         </Button>
         <Button type="submit" disabled={loading || especialidadesFiltradas.length === 0} className="w-full sm:w-auto">
-          {loading ? "Registrando..." : "Registrar Conquista"}
+          {loading ? <><Loading size="sm" className="mr-2" />Registrando...</> : "Registrar Conquista"}
         </Button>
       </div>
     </form>

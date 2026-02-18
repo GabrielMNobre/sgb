@@ -7,6 +7,7 @@ import { GastosTable } from "@/components/tables/gastos-table";
 import { GastosFilters } from "@/components/forms/gastos-filters";
 import { GastoModal } from "@/components/forms/gasto-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Loading } from "@/components/ui/loading";
 import { Plus } from "lucide-react";
 import type { GastoComEvento, FiltrosGasto, GastoFormData } from "@/types/gasto";
 import type { Evento } from "@/types/evento";
@@ -148,8 +149,9 @@ export default function GastosPage() {
       <Card>
         <div className="p-6">
           {loading ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">Carregando...</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <Loading size="lg" />
+              <p className="text-gray-500 mt-3">Carregando...</p>
             </div>
           ) : (
             <GastosTable

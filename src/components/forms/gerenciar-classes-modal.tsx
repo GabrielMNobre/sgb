@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, GraduationCap } from "lucide-react";
+import { Loading } from "@/components/ui/loading";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -284,7 +285,7 @@ export function GerenciarClassesModal({
               Cancelar
             </Button>
             <Button type="submit" disabled={loading || !classeId} className="w-full sm:w-auto">
-              {loading ? "Adicionando..." : "Adicionar"}
+              {loading ? <><Loading size="sm" className="mr-2" />Adicionando...</> : "Adicionar"}
             </Button>
           </ModalFooter>
         </form>

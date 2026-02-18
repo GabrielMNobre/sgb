@@ -8,7 +8,8 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EncontrosTable } from "@/components/tables/encontros-table";
 import { EncontrosFilters } from "@/components/forms/encontros-filters";
 import { EncontroModal } from "@/components/forms/encontro-modal";
-import { Plus, Calendar } from "lucide-react";
+import { Plus } from "lucide-react";
+import { Loading } from "@/components/ui/loading";
 import type { Encontro, FiltrosEncontro, EncontroFormData } from "@/types/encontro";
 import {
   criarEncontroAction,
@@ -175,9 +176,9 @@ export default function AdminEncontrosPage() {
       <Card>
         <div className="p-4 sm:p-6">
           {loading ? (
-            <div className="text-center py-12">
-              <Calendar className="h-8 w-8 mx-auto text-gray-300 mb-2" />
-              <p className="text-gray-500">Carregando...</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <Loading size="lg" />
+              <p className="text-gray-500 mt-3">Carregando...</p>
             </div>
           ) : (
             <EncontrosTable

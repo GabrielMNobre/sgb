@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SemanasPaesTable } from "@/components/tables/semanas-paes-table";
 import { SemanaPaesModal } from "@/components/forms/semana-paes-modal";
+import { Loading } from "@/components/ui/loading";
 import { Plus } from "lucide-react";
 import type { SemanaPaesComResumo, SemanaPaesFormData } from "@/types/paes";
 import { criarSemanaPaesAction } from "../actions";
@@ -100,8 +101,9 @@ export default function SemanasPaesPage() {
       <Card>
         <div className="p-6">
           {loading ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">Carregando...</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <Loading size="lg" />
+              <p className="text-gray-500 mt-3">Carregando...</p>
             </div>
           ) : (
             <SemanasPaesTable

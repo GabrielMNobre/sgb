@@ -8,6 +8,7 @@ import { VendasFilters } from "@/components/forms/vendas-filters";
 import { VendaModal } from "@/components/forms/venda-modal";
 import { CategoriaVendaModal } from "@/components/forms/categoria-venda-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Loading } from "@/components/ui/loading";
 import { Plus, Tags } from "lucide-react";
 import type {
   VendaComCategoria,
@@ -197,8 +198,9 @@ export default function AdminVendasPage() {
       <Card>
         <div className="p-6">
           {loading ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">Carregando...</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <Loading size="lg" />
+              <p className="text-gray-500 mt-3">Carregando...</p>
             </div>
           ) : (
             <VendasTable

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/toast";
+import { Loading } from "@/components/ui/loading";
 import type { Especialidade, EspecialidadeFormData } from "@/types/especialidade";
 
 const especialidadeSchema = z.object({
@@ -124,7 +125,7 @@ export function EspecialidadeForm({ especialidade, onSubmit, redirectPath = "/se
           Cancelar
         </Button>
         <Button type="submit" disabled={loading} className="w-full sm:w-auto">
-          {loading ? "Salvando..." : especialidade ? "Atualizar" : "Criar Especialidade"}
+          {loading ? <><Loading size="sm" className="mr-2" />Salvando...</> : especialidade ? "Atualizar" : "Criar Especialidade"}
         </Button>
       </div>
     </form>

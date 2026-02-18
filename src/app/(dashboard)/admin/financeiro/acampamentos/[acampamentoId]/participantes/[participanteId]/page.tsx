@@ -9,6 +9,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PagamentoAcampamentoModal } from "@/components/forms/pagamento-acampamento-modal";
 import { CancelarInscricaoModal } from "@/components/forms/cancelar-inscricao-modal";
 import { PagamentosAcampamentoTable } from "@/components/tables/pagamentos-acampamento-table";
+import { Loading } from "@/components/ui/loading";
 import { ArrowLeft, Plus, XCircle, CheckCircle } from "lucide-react";
 import type {
   Acampamento,
@@ -106,7 +107,7 @@ export default function ParticipanteDetalhePage({
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
-  if (loading) return <div className="text-center py-12"><p className="text-gray-500">Carregando...</p></div>;
+  if (loading) return <div className="flex flex-col items-center justify-center py-12"><Loading size="lg" /><p className="text-gray-500 mt-3">Carregando...</p></div>;
   if (!participante) return <div className="text-center py-12"><p className="text-gray-500">Participante não encontrado</p></div>;
 
   const isFinalizado = acampamento?.status === "finalizado";

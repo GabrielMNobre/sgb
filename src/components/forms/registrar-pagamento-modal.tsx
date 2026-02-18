@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Modal, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { Loading } from "@/components/ui/loading";
 import type { RegistrarPagamentoFormData } from "@/types/mensalidade";
 
 interface RegistrarPagamentoModalProps {
@@ -114,7 +115,7 @@ export function RegistrarPagamentoModal({
           </Button>
           <Button type="submit" disabled={loading} className="w-full sm:w-auto">
             {loading
-              ? "Registrando..."
+              ? <><Loading size="sm" className="mr-2" />Registrando...</>
               : quantidadeSelecionada > 1
               ? "Registrar Pagamentos"
               : "Registrar Pagamento"}

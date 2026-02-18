@@ -8,6 +8,7 @@ import { Modal, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Loading } from "@/components/ui/loading";
 import { useToast } from "@/components/ui/toast";
 import type { EncontroFormData } from "@/types/encontro";
 
@@ -123,7 +124,7 @@ export function EncontroModal({
             Cancelar
           </Button>
           <Button type="submit" disabled={loading} className="w-full sm:w-auto">
-            {loading ? "Salvando..." : isEdit ? "Atualizar" : "Criar Encontro"}
+            {loading ? <><Loading size="sm" className="mr-2" />Salvando...</> : isEdit ? "Atualizar" : "Criar Encontro"}
           </Button>
         </ModalFooter>
       </form>

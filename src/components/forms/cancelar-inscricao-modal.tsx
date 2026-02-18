@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Modal, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { Loading } from "@/components/ui/loading";
 
 interface CancelarInscricaoModalProps {
   isOpen: boolean;
@@ -101,7 +102,7 @@ export function CancelarInscricaoModal({
             className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto"
             disabled={loading}
           >
-            {loading ? "Cancelando..." : "Confirmar Cancelamento"}
+            {loading ? <><Loading size="sm" className="mr-2" />Cancelando...</> : "Confirmar Cancelamento"}
           </Button>
         </ModalFooter>
       </form>

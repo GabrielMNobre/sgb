@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
+import { Loading } from "@/components/ui/loading";
 import type { MembroComRelacoes, MembroFormData, Classe } from "@/types/membro";
 import type { Unidade } from "@/types/unidade";
 
@@ -350,7 +351,7 @@ export function MembroForm({ membro, unidades, classes, onSubmit, redirectPath =
           Cancelar
         </Button>
         <Button type="submit" disabled={loading} className="w-full sm:w-auto">
-          {loading ? "Salvando..." : membro ? "Atualizar" : "Cadastrar Membro"}
+          {loading ? <><Loading size="sm" className="mr-2" />Salvando...</> : membro ? "Atualizar" : "Cadastrar Membro"}
         </Button>
       </div>
     </form>

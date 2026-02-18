@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, Calendar } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { Loading } from "@/components/ui/loading";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -46,9 +47,9 @@ export default function ChamadaUnidadePage() {
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <Calendar className="h-8 w-8 mx-auto text-gray-300 mb-2" />
-        <p className="text-gray-500">Carregando...</p>
+      <div className="flex flex-col items-center justify-center py-12">
+        <Loading size="lg" />
+        <p className="text-gray-500 mt-3">Carregando...</p>
       </div>
     );
   }

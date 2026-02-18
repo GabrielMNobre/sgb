@@ -6,6 +6,7 @@ import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/toast";
 import { CheckCheck, XCircle, Save } from "lucide-react";
+import { Loading } from "@/components/ui/loading";
 import type { PresencaComMembro, PresencaFormItem, StatusPresenca } from "@/types/encontro";
 
 interface ChamadaFormProps {
@@ -203,7 +204,7 @@ export function ChamadaForm({
       {editavel && (
         <div className="flex justify-end pt-4 border-t">
           <Button onClick={handleSave} disabled={loading} className="w-full sm:w-auto">
-            <Save className="h-4 w-4 mr-2" />
+            {loading ? <Loading size="sm" className="mr-2" /> : <Save className="h-4 w-4 mr-2" />}
             {loading ? "Salvando..." : "Salvar Chamada"}
           </Button>
         </div>

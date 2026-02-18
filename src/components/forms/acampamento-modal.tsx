@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Modal, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { Loading } from "@/components/ui/loading";
 import { Textarea } from "@/components/ui/textarea";
 import type { AcampamentoFormData } from "@/types/acampamento";
 
@@ -187,7 +188,7 @@ export function AcampamentoModal({
             Cancelar
           </Button>
           <Button type="submit" variant="primary" disabled={loading} className="w-full sm:w-auto">
-            {loading ? "Salvando..." : acampamentoInicial?.id ? "Salvar" : "Criar"}
+            {loading ? <><Loading size="sm" className="mr-2" />Salvando...</> : acampamentoInicial?.id ? "Salvar" : "Criar"}
           </Button>
         </ModalFooter>
       </form>

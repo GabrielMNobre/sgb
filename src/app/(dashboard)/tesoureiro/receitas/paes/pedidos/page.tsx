@@ -8,6 +8,7 @@ import { PedidosPaesFilters } from "@/components/forms/pedidos-paes-filters";
 import { PedidoPaesModal } from "@/components/forms/pedido-paes-modal";
 import { NaoEntregueModal } from "@/components/forms/nao-entregue-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Loading } from "@/components/ui/loading";
 import { Plus } from "lucide-react";
 import type {
   PedidoPaesComCliente,
@@ -218,8 +219,9 @@ export default function PedidosPaesPage() {
       <Card>
         <div className="p-6">
           {loading ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">Carregando...</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <Loading size="lg" />
+              <p className="text-gray-500 mt-3">Carregando...</p>
             </div>
           ) : (
             <PedidosPaesTable

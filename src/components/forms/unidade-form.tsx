@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ColorPicker } from "@/components/ui/color-picker";
 import { useToast } from "@/components/ui/toast";
+import { Loading } from "@/components/ui/loading";
 import type { Unidade, UnidadeFormData } from "@/types/unidade";
 
 const unidadeSchema = z.object({
@@ -151,7 +152,7 @@ export function UnidadeForm({ unidade, onSubmit, redirectPath = "/secretaria/uni
           Cancelar
         </Button>
         <Button type="submit" disabled={loading} className="w-full sm:w-auto">
-          {loading ? "Salvando..." : unidade ? "Atualizar" : "Criar Unidade"}
+          {loading ? <><Loading size="sm" className="mr-2" />Salvando...</> : unidade ? "Atualizar" : "Criar Unidade"}
         </Button>
       </div>
     </form>

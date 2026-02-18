@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ParticipantesAcampamentoTable } from "@/components/tables/participantes-acampamento-table";
 import { ParticipantesAcampamentoFilters } from "@/components/forms/participantes-acampamento-filters";
 import { ParticipanteAcampamentoModal } from "@/components/forms/participante-acampamento-modal";
+import { Loading } from "@/components/ui/loading";
 import { Plus, ArrowLeft } from "lucide-react";
 import type {
   Acampamento,
@@ -122,8 +123,9 @@ export default function ParticipantesPage({
       <Card>
         <div className="p-6">
           {loading ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">Carregando...</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <Loading size="lg" />
+              <p className="text-gray-500 mt-3">Carregando...</p>
             </div>
           ) : (
             <ParticipantesAcampamentoTable

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Loading } from "@/components/ui/loading";
 import type { ConfiguracoesPaes, ConfiguracoesPaesFormData } from "@/types/paes";
 
 interface ConfiguracoesPaesFormProps {
@@ -103,7 +104,7 @@ export function ConfiguracoesPaesForm({
 
       <div className="flex items-center gap-4">
         <Button type="submit" variant="primary" disabled={loading}>
-          {loading ? "Salvando..." : "Salvar"}
+          {loading ? <><Loading size="sm" className="mr-2" />Salvando...</> : "Salvar"}
         </Button>
 
         {sucesso && (

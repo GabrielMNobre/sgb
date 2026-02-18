@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Modal, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { Loading } from "@/components/ui/loading";
 import type { ClientePaesFormData } from "@/types/paes";
 
 interface ClientePaesModalProps {
@@ -86,7 +87,7 @@ export function ClientePaesModal({
             Cancelar
           </Button>
           <Button type="submit" variant="primary" disabled={loading} className="w-full sm:w-auto">
-            {loading ? "Salvando..." : clienteInicial?.id ? "Salvar" : "Criar"}
+            {loading ? <><Loading size="sm" className="mr-2" />Salvando...</> : clienteInicial?.id ? "Salvar" : "Criar"}
           </Button>
         </ModalFooter>
       </form>

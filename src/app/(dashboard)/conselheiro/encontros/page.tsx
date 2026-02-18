@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Calendar, ClipboardList } from "lucide-react";
+import { ClipboardList } from "lucide-react";
+import { Loading } from "@/components/ui/loading";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EncontrosFilters } from "@/components/forms/encontros-filters";
@@ -98,9 +99,9 @@ export default function ConselheiroEncontrosPage() {
       {loading ? (
         <Card>
           <CardContent className="py-12">
-            <div className="text-center">
-              <Calendar className="h-8 w-8 mx-auto text-gray-300 mb-2" />
-              <p className="text-gray-500">Carregando...</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <Loading size="lg" />
+              <p className="text-gray-500 mt-3">Carregando...</p>
             </div>
           </CardContent>
         </Card>
