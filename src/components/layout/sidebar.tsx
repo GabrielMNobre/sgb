@@ -131,11 +131,30 @@ const menuItems: Record<PapelUsuario, MenuConfig> = {
     },
   ],
   conselheiro: [
-    { href: "/conselheiro", label: "Dashboard", icon: Home },
-    { href: "/conselheiro/minha-unidade", label: "Minha Unidade", icon: Users },
-    // { href: "/conselheiro/minha-unidade/especialidades", label: "Especialidades", icon: Award }, // Temporariamente oculto
-    { href: "/conselheiro/encontros", label: "Encontros", icon: Calendar },
-    { href: "/conselheiro/chamada", label: "Chamada", icon: ClipboardList },
+    {
+      section: null,
+      items: [{ href: "/conselheiro", label: "Dashboard", icon: Home }],
+    },
+    {
+      section: "Minha Unidade",
+      items: [
+        { href: "/conselheiro/minha-unidade/membros", label: "Membros", icon: Users },
+        { href: "/conselheiro/minha-unidade/historico", label: "Histórico", icon: BarChart3 },
+      ],
+    },
+    {
+      section: "Encontros",
+      items: [
+        { href: "/conselheiro/encontros", label: "Encontros", icon: Calendar },
+        { href: "/conselheiro/chamada", label: "Chamada", icon: ClipboardList },
+      ],
+    },
+    {
+      section: "Financeiro",
+      items: [
+        { href: "/conselheiro/mensalidades", label: "Mensalidades", icon: DollarSign },
+      ],
+    },
   ],
 };
 
