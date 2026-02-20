@@ -13,6 +13,8 @@ interface ChamadaFormProps {
   encontroId: string;
   membrosComPresenca: PresencaComMembro[];
   editavel: boolean;
+  /** When "conselheiro", status is readonly (admin fills it); material/uniforme are editable */
+  role?: "admin" | "conselheiro";
   onSave: (presencas: PresencaFormItem[]) => Promise<{ success: boolean; error?: string }>;
 }
 
@@ -27,8 +29,13 @@ export function ChamadaForm({
   encontroId,
   membrosComPresenca,
   editavel,
+  role = "admin",
   onSave,
 }: ChamadaFormProps) {
+  const isConselheiro = role === "conselheiro";
+  // Conselheiro can edit material/uniforme even when status is readonly
+  const canEditExtras = editavel || (isConselheiro && editavel);
+  const canEditStatus = editavel && !isConselheiro;
   const [presencas, setPresencas] = useState<PresencaFormItem[]>(
     membrosComPresenca.map((m) => ({
       membroId: m.membroId,
@@ -81,8 +88,8 @@ export function ChamadaForm({
 
   return (
     <div className="space-y-4">
-      {/* Ações em batch */}
-      {editavel && (
+      {/* Ações em batch - only for admin */}
+      {canEditStatus && (
         <div className="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-lg">
           <Button
             variant="outline"
@@ -143,7 +150,7 @@ export function ChamadaForm({
                     updatePresenca(index, "status", e.target.value)
                   }
                   options={statusOptions}
-                  disabled={!editavel}
+                  disabled={!canEditStatus}
                 />
               </div>
 
