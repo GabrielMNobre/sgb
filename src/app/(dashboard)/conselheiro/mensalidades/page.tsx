@@ -71,7 +71,7 @@ export default function MensalidadesConselheiroPage() {
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
           Mensalidades
         </h1>
-        <p className="text-sm sm:text-base text-gray-500">
+        <p className="text-sm sm:text-base font-medium" style={{ color: "var(--unit-primary)" }}>
           Acompanhamento de mensalidades da unidade (somente leitura)
         </p>
       </div>
@@ -123,7 +123,7 @@ export default function MensalidadesConselheiroPage() {
         <Card>
           <CardContent className="pt-4 pb-4">
             <p className="text-xs sm:text-sm text-gray-500">Total</p>
-            <p className="text-xl sm:text-2xl font-bold">
+            <p className="text-xl sm:text-2xl font-bold" style={{ color: "var(--unit-primary)" }}>
               {mensalidades.length + isentos.length}
             </p>
           </CardContent>

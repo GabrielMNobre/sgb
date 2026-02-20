@@ -146,7 +146,7 @@ export default function MembroDetalhePage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold">{membro.nome}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold" style={{ color: "var(--unit-primary)" }}>{membro.nome}</h1>
           <p className="text-sm text-gray-500">
             {membro.classe?.nome || "Sem classe"}
           </p>

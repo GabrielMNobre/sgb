@@ -78,7 +78,7 @@ export default function MembrosPage() {
     <div className="space-y-4 sm:space-y-6">
       <div>
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Membros</h1>
-        <p className="text-sm sm:text-base text-gray-500">
+        <p className="text-sm sm:text-base font-medium" style={{ color: "var(--unit-primary)" }}>
           Membros da sua unidade
         </p>
       </div>
@@ -129,7 +129,7 @@ export default function MembrosPage() {
         <Card>
           <CardContent className="pt-4 pb-4">
             <p className="text-xs sm:text-sm text-gray-500">Total</p>
-            <p className="text-xl sm:text-2xl font-bold">{membros.length}</p>
+            <p className="text-xl sm:text-2xl font-bold" style={{ color: "var(--unit-primary)" }}>{membros.length}</p>
           </CardContent>
         </Card>
         <Card>

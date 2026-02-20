@@ -88,7 +88,7 @@ export default function HistoricoPage() {
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
           Histórico de Presenças
         </h1>
-        <p className="text-sm sm:text-base text-gray-500">
+        <p className="text-sm sm:text-base font-medium" style={{ color: "var(--unit-primary)" }}>
           Acompanhamento de presenças da unidade
         </p>
       </div>
@@ -138,7 +138,7 @@ export default function HistoricoPage() {
               <p className="text-xs sm:text-sm text-gray-500">
                 Total Encontros
               </p>
-              <p className="text-xl sm:text-2xl font-bold">
+              <p className="text-xl sm:text-2xl font-bold" style={{ color: "var(--unit-primary)" }}>
                 {data.resumo.totalEncontros}
               </p>
             </CardContent>
