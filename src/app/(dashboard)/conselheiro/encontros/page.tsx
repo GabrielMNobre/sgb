@@ -44,7 +44,7 @@ export default function ConselheiroEncontrosPage() {
     <div className="space-y-4 sm:space-y-6">
       <div>
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Encontros</h1>
-        <p className="text-sm sm:text-base text-gray-500">Visualize os encontros do clube</p>
+        <p className="text-sm sm:text-base font-medium" style={{ color: "var(--unit-primary)" }}>Visualize os encontros do clube</p>
       </div>
 
       {emAndamento.length > 0 && (
@@ -67,7 +67,7 @@ export default function ConselheiroEncontrosPage() {
         <Card>
           <CardContent className="pt-4 pb-4 sm:pt-6 sm:pb-6">
             <p className="text-xs sm:text-sm text-gray-500">Total</p>
-            <p className="text-xl sm:text-2xl font-bold">{encontros.length}</p>
+            <p className="text-xl sm:text-2xl font-bold" style={{ color: "var(--unit-primary)" }}>{encontros.length}</p>
           </CardContent>
         </Card>
         <Card>

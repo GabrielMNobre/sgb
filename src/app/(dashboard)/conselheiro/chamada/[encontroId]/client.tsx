@@ -83,7 +83,7 @@ export function ChamadaConselheiroClient({
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-              Chamada - {unidadeNome}
+              Chamada - <span style={{ color: "var(--unit-primary)" }}>{unidadeNome}</span>
             </h1>
             <Badge variant={editavel ? "warning" : "success"}>
               {editavel ? "Em Andamento" : encontro.status === "agendado" ? "Agendado" : "Finalizado"}
@@ -106,6 +106,14 @@ export function ChamadaConselheiroClient({
         </div>
       )}
 
+      {editavel && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="text-sm text-blue-800">
+            A presença é preenchida pelo administrador. Você pode preencher os campos de <strong>material</strong> e <strong>uniforme</strong>.
+          </p>
+        </div>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle>Membros ({membros.length})</CardTitle>
@@ -115,6 +123,7 @@ export function ChamadaConselheiroClient({
             encontroId={encontroId}
             membrosComPresenca={membros}
             editavel={editavel}
+            role="conselheiro"
             onSave={async (presencas) => {
               return await salvarChamadaConselheiroAction(encontroId, presencas);
             }}
