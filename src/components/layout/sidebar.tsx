@@ -21,6 +21,7 @@ import {
   Heart,
   Wheat,
   Tent,
+  CheckCircle2,
 } from "lucide-react";
 import { Usuario, PapelUsuario } from "@/types/auth";
 import { LogoutButton } from "./logout-button";
@@ -70,6 +71,7 @@ const adminMenu: MenuSection[] = [
     items: [
       { href: "/admin/encontros", label: "Encontros", icon: Calendar },
       { href: "/admin/chamada", label: "Chamada", icon: ClipboardList },
+      { href: "/admin/presencas", label: "Presenças", icon: CheckCircle2 },
     ],
   },
   {
@@ -111,6 +113,12 @@ const menuItems: Record<PapelUsuario, MenuConfig> = {
     {
       section: null,
       items: [{ href: "/tesoureiro", label: "Dashboard", icon: Home }],
+    },
+    {
+      section: "Encontros",
+      items: [
+        { href: "/tesoureiro/presencas", label: "Presenças", icon: CheckCircle2 },
+      ],
     },
     {
       section: "Financeiro",
