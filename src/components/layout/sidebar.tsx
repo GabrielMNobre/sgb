@@ -21,6 +21,9 @@ import {
   Heart,
   Wheat,
   Tent,
+  Trophy,
+  AlertTriangle,
+  BookOpen,
 } from "lucide-react";
 import { Usuario, PapelUsuario } from "@/types/auth";
 import { LogoutButton } from "./logout-button";
@@ -91,6 +94,16 @@ const adminMenu: MenuSection[] = [
     ],
   },
   {
+    section: "Campeonato 2026",
+    items: [
+      { href: "/admin/campeonato", label: "Dashboard", icon: Trophy },
+      { href: "/admin/campeonato/ranking", label: "Ranking", icon: Award },
+      { href: "/admin/campeonato/registrar-avaliacao", label: "Avaliações", icon: ClipboardList },
+      { href: "/admin/campeonato/registrar-demeritos", label: "Deméritos", icon: AlertTriangle },
+      { href: "/admin/campeonato/classes", label: "Classes", icon: BookOpen },
+    ],
+  },
+  {
     section: "Relatórios",
     items: [{ href: "/admin/relatorios", label: "Relatórios", icon: BarChart3 }],
   },
@@ -153,6 +166,12 @@ const menuItems: Record<PapelUsuario, MenuConfig> = {
       section: "Financeiro",
       items: [
         { href: "/conselheiro/mensalidades", label: "Mensalidades", icon: DollarSign },
+      ],
+    },
+    {
+      section: "Campeonato 2026",
+      items: [
+        { href: "/conselheiro/campeonato", label: "Minha Pontuação", icon: Trophy },
       ],
     },
   ],
