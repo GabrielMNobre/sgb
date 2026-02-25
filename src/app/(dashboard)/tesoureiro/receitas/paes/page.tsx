@@ -116,6 +116,10 @@ export default function PaesPage() {
   const totalPaes = semanas.reduce((sum, s) => sum + s.totalPaes, 0);
   const totalFornadas = semanas.reduce((sum, s) => sum + s.fornadas, 0);
 
+  const paesEntregues = pedidos.filter((p) => p.statusEntrega === "entregue").reduce((sum, p) => sum + p.quantidade, 0);
+  const paesPendentesEntrega = pedidos.filter((p) => p.statusEntrega === "pendente").reduce((sum, p) => sum + p.quantidade, 0);
+  const paesSemDono = semanaAtual?.paesSemDono || 0;
+
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -236,7 +240,7 @@ export default function PaesPage() {
       </div>
 
       {/* Resumo */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Total Arrecadado</p>
@@ -263,14 +267,6 @@ export default function PaesPage() {
         </Card>
         <Card>
           <div className="p-6">
-            <p className="text-sm text-gray-600">Total Paes</p>
-            <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
-              {totalPaes}
-            </p>
-          </div>
-        </Card>
-        <Card>
-          <div className="p-6">
             <p className="text-sm text-gray-600">Fornadas</p>
             <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
               {totalFornadas}
@@ -278,6 +274,39 @@ export default function PaesPage() {
           </div>
         </Card>
       </div>
+
+      {/* Entregas da Semana */}
+      {semanaAtual && (
+        <div className="grid grid-cols-3 gap-4">
+          <Card>
+            <div className="p-6">
+              <p className="text-sm text-gray-600">Entregues</p>
+              <p className="text-2xl sm:text-3xl font-bold text-green-600 mt-1">
+                {paesEntregues}
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">pães</p>
+            </div>
+          </Card>
+          <Card>
+            <div className="p-6">
+              <p className="text-sm text-gray-600">Entregas Pendentes</p>
+              <p className={`text-2xl sm:text-3xl font-bold mt-1 ${paesPendentesEntrega > 0 ? "text-amber-600" : "text-gray-400"}`}>
+                {paesPendentesEntrega}
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">pães</p>
+            </div>
+          </Card>
+          <Card>
+            <div className="p-6">
+              <p className="text-sm text-gray-600">Sem Dono</p>
+              <p className={`text-2xl sm:text-3xl font-bold mt-1 ${paesSemDono > 0 ? "text-amber-600" : "text-gray-400"}`}>
+                {paesSemDono}
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">pães</p>
+            </div>
+          </Card>
+        </div>
+      )}
 
       {/* Semana Atual */}
       <Card>
