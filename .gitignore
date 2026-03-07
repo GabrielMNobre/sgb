@@ -36,7 +36,7 @@ yarn-error.log*
 .env*
 !.env.example
 
-.package-lock.json
+package-lock.json
 yarn.lock
 
 # vercel
