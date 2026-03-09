@@ -1,0 +1,35 @@
+---
+description: Visão geral do SGB - stack, papéis e estrutura
+alwaysApply: true
+---
+
+# SGB - Sistema de Gestão do Borba
+
+## Contexto
+Sistema para Clube de Desbravadores Borba Gato (IASD Santo Amaro). Domínios: Unidades, Membros, Presenças, Especialidades, Mensalidades, Vendas, Doações, Gastos, Acampamentos, Pães.
+
+## Stack
+Next.js 16 (App Router) + React 19 + Supabase + Tailwind 4 + TypeScript + React Hook Form + Zod + date-fns + lucide-react.
+
+## Papéis e rotas
+| Papel | URL | Escopo |
+|-------|-----|--------|
+| admin | `/admin` | Acesso total |
+| secretaria | `/secretaria` | Membros, unidades, conselheiros, usuários |
+| tesoureiro | `/tesoureiro` | Financeiro, presenças, receitas, pães |
+| conselheiro | `/conselheiro` | Minha unidade, encontros, chamada |
+
+## Estrutura
+- `src/app/(dashboard)/[papel]/` – páginas por papel
+- `src/services/` – lógica de negócio (usa Supabase)
+- `src/components/forms/`, `tables/` – formulários e tabelas
+- `src/lib/utils/case-converter` – snake_case ↔ camelCase
+- `src/lib/constants.ts` – ROLES, PRESENCE_STATUS, MENSALIDADE_*, etc.
+- Path alias: `@/*` → `./src/*`
+
+## Nova feature (ordem)
+1. Service em `src/services/`
+2. Actions em `**[feature]/actions.ts` ou API em `app/api/`
+3. Página em `app/(dashboard)/[papel]/[feature]/page.tsx`
+4. Form/Table em `components/forms/` e `components/tables/`
+5. Item no menu em `src/components/layout/sidebar.tsx`
