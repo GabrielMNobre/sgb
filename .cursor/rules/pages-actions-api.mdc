@@ -1,0 +1,36 @@
+---
+description: Padrões para pages, server actions e API routes
+globs: src/app/**/*.ts, src/app/**/*.tsx
+alwaysApply: false
+---
+
+# Pages, Actions e API - Padrões SGB
+
+## Pages (Server Components)
+- Async por padrão; buscar dados com services (`getMembros()`, etc.)
+- Importar actions do mesmo diretório: `from "./actions"`
+- Passar callbacks/actions como props para tabelas e forms
+- Layout: título + descrição + Card com Table ou Form
+
+## Server Actions
+```typescript
+"use server";
+import { revalidatePath } from "next/cache";
+// Chamar service e revalidar path
+export async function createXxxAction(data: XxxFormData) {
+  await createXxx(data);
+  revalidatePath("/admin/xxx");
+}
+```
+- Um arquivo `actions.ts` por feature, no mesmo dir da página
+- Receber dados em camelCase; passar para services
+
+## API Routes
+- Para uso externo ou client-side fetch
+- GET: `request.nextUrl.searchParams` para filtros
+- Retornar `NextResponse.json(data)` ou erro com status 500
+- Usar `export const dynamic = 'force-dynamic'` quando necessário
+
+## Rotas
+- Páginas em `app/(dashboard)/[admin|secretaria|tesoureiro|conselheiro]/[feature]/`
+- Rotas dinâmicas: `[id]`, `[membroId]`, `[encontroId]`, etc.

@@ -1,0 +1,22 @@
+---
+description: Nomenclatura e conversão snake_case ↔ camelCase
+globs: "**/*.ts,**/*.tsx"
+alwaysApply: false
+---
+
+# Nomenclatura e Case Converter
+
+## Regras
+| Contexto | Convenção | Exemplo |
+|----------|-----------|---------|
+| Banco de dados | snake_case | `data_nascimento`, `unidade_id` |
+| TypeScript/JSON | camelCase | `dataNascimento`, `unidadeId` |
+| Arquivos | kebab-case | `use-auth.ts`, `case-converter.ts` |
+| Componentes | PascalCase | `VendaModal`, `MembrosTable` |
+
+## Case Converter
+Importar de `@/lib/utils/case-converter`:
+- `snakeToCamel<T>(obj)` – dados vindo do banco
+- `camelToSnake(obj)` – dados indo para o banco
+
+**Sempre usar**: ao ler do Supabase → snakeToCamel; ao escrever → camelToSnake. O banco usa snake_case; o código usa camelCase.

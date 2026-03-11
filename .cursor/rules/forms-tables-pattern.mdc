@@ -1,0 +1,27 @@
+---
+description: Padrões para formulários e tabelas - React Hook Form, Zod
+globs: src/components/forms/**/*.tsx, src/components/tables/**/*.tsx
+alwaysApply: false
+---
+
+# Forms e Tables - Padrões SGB
+
+## Formulários
+- `"use client"` no topo
+- React Hook Form + Zod: `useForm({ resolver: zodResolver(schema) })`
+- Schema Zod em camelCase; validar com mensagens em português
+- Componentes UI: `@/components/ui/` (Button, Input, Select, Modal)
+- Toast: `useToast()` de `@/components/ui/toast`
+- Props `onSubmit` recebem dados em camelCase (`MembroFormData`, etc.)
+- Nomenclatura: `{entidade}-form.tsx` ou `{entidade}-modal.tsx` (PascalCase)
+
+## Tabelas
+- `"use client"` no topo
+- Lucide icons: `Edit`, `Trash2`, `ToggleLeft`, etc.
+- Filtros locais com useState; SearchInput, Select para filtros
+- ConfirmDialog para ações destrutivas
+- Props: dados + callbacks (onToggleStatus, onSubmit, etc.)
+- Nomenclatura: `{entidade}-table.tsx` (ex: `MembrosTable`, `VendasTable`)
+
+## Tipos
+Usar tipos de `@/types/` (MembroComRelacoes, MembroFormData, Unidade, etc.). Dados sempre em camelCase no código.
