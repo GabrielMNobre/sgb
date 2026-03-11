@@ -64,11 +64,6 @@ export default function ResultadosPage() {
     );
   }
 
-  const margemLucro =
-    resultados.totalArrecadado > 0
-      ? (resultados.lucroTotal / resultados.totalArrecadado) * 100
-      : 0;
-
   const ticketMedio =
     resultados.totalPedidos > 0
       ? resultados.totalArrecadado / resultados.totalPedidos
@@ -104,7 +99,7 @@ export default function ResultadosPage() {
         </Card>
         <Card>
           <div className="p-5">
-            <p className="text-sm text-gray-600">Lucro Total</p>
+            <p className="text-sm text-gray-600">Saldo</p>
             <p className={`text-2xl font-bold mt-1 ${resultados.lucroTotal >= 0 ? "text-green-600" : "text-red-600"}`}>
               {formatCurrency(resultados.lucroTotal)}
             </p>
@@ -138,11 +133,11 @@ export default function ResultadosPage() {
         </Card>
         <Card>
           <div className="p-5">
-            <p className="text-sm text-gray-600">Margem / Ticket Médio</p>
-            <p className="text-lg font-bold text-gray-900 mt-1">
-              {margemLucro.toFixed(1)}%
+            <p className="text-sm text-gray-600">Ticket Médio</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">
+              {formatCurrency(ticketMedio)}
             </p>
-            <p className="text-xs text-gray-400">{formatCurrency(ticketMedio)} / pedido</p>
+            <p className="text-xs text-gray-400">por pedido</p>
           </div>
         </Card>
       </div>
@@ -191,16 +186,6 @@ export default function ResultadosPage() {
                       {formatCurrency(semana.totalPendente)}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-gray-500">Custo</p>
-                    <p className="font-medium text-red-500">{formatCurrency(semana.custoProducao)}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Lucro</p>
-                    <p className={`font-medium ${semana.lucro >= 0 ? "text-green-600" : "text-red-600"}`}>
-                      {formatCurrency(semana.lucro)}
-                    </p>
-                  </div>
                 </div>
               </div>
             ))}
@@ -216,9 +201,7 @@ export default function ResultadosPage() {
                   <th className="text-right py-2 pr-4 font-medium text-gray-600">Pães</th>
                   <th className="text-right py-2 pr-4 font-medium text-gray-600">Pedidos</th>
                   <th className="text-right py-2 pr-4 font-medium text-gray-600">Arrecadado</th>
-                  <th className="text-right py-2 pr-4 font-medium text-gray-600">Pendente</th>
-                  <th className="text-right py-2 pr-4 font-medium text-gray-600">Custo</th>
-                  <th className="text-right py-2 font-medium text-gray-600">Lucro</th>
+                  <th className="text-right py-2 font-medium text-gray-600">Pendente</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -235,14 +218,8 @@ export default function ResultadosPage() {
                     <td className="py-2 pr-4 text-right font-medium text-green-600">
                       {formatCurrency(semana.totalPago)}
                     </td>
-                    <td className={`py-2 pr-4 text-right font-medium ${semana.totalPendente > 0 ? "text-amber-600" : "text-gray-400"}`}>
+                    <td className={`py-2 text-right font-medium ${semana.totalPendente > 0 ? "text-amber-600" : "text-gray-400"}`}>
                       {formatCurrency(semana.totalPendente)}
-                    </td>
-                    <td className="py-2 pr-4 text-right text-red-500">
-                      {formatCurrency(semana.custoProducao)}
-                    </td>
-                    <td className={`py-2 text-right font-semibold ${semana.lucro >= 0 ? "text-green-600" : "text-red-600"}`}>
-                      {formatCurrency(semana.lucro)}
                     </td>
                   </tr>
                 ))}
@@ -256,14 +233,8 @@ export default function ResultadosPage() {
                   <td className="py-2 pr-4 text-right font-semibold text-green-600">
                     {formatCurrency(resultados.totalArrecadado)}
                   </td>
-                  <td className={`py-2 pr-4 text-right font-semibold ${resultados.totalPendente > 0 ? "text-amber-600" : "text-gray-400"}`}>
+                  <td className={`py-2 text-right font-semibold ${resultados.totalPendente > 0 ? "text-amber-600" : "text-gray-400"}`}>
                     {formatCurrency(resultados.totalPendente)}
-                  </td>
-                  <td className="py-2 pr-4 text-right font-semibold text-red-500">
-                    {formatCurrency(resultados.custoTotal)}
-                  </td>
-                  <td className={`py-2 text-right font-bold ${resultados.lucroTotal >= 0 ? "text-green-600" : "text-red-600"}`}>
-                    {formatCurrency(resultados.lucroTotal)}
                   </td>
                 </tr>
               </tfoot>
