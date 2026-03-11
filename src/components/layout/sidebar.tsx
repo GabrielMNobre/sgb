@@ -22,6 +22,12 @@ import {
   Wheat,
   Tent,
   CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  AlertCircle,
+  TrendingUp,
+  ListOrdered,
+  Settings,
 } from "lucide-react";
 import { Usuario, PapelUsuario } from "@/types/auth";
 import { LogoutButton } from "./logout-button";
@@ -38,6 +44,7 @@ interface MenuItem {
   href: string;
   label: string;
   icon: typeof Home;
+  children?: MenuItem[];
 }
 
 interface MenuSection {
@@ -89,7 +96,20 @@ const adminMenu: MenuSection[] = [
     items: [
       { href: "/admin/financeiro/receitas/vendas", label: "Vendas", icon: ShoppingBag },
       { href: "/admin/financeiro/receitas/doacoes", label: "Doações", icon: Heart },
-      { href: "/admin/financeiro/receitas/paes", label: "Pães", icon: Wheat },
+      {
+        href: "/admin/financeiro/receitas/paes",
+        label: "Pães",
+        icon: Wheat,
+        children: [
+          { href: "/admin/financeiro/receitas/paes", label: "Visão Geral", icon: Home },
+          { href: "/admin/financeiro/receitas/paes/semanas", label: "Semanas", icon: Calendar },
+          { href: "/admin/financeiro/receitas/paes/pedidos", label: "Pedidos", icon: ListOrdered },
+          { href: "/admin/financeiro/receitas/paes/clientes", label: "Clientes", icon: Users },
+          { href: "/admin/financeiro/receitas/paes/inadimplentes", label: "Inadimplentes", icon: AlertCircle },
+          { href: "/admin/financeiro/receitas/paes/resultados", label: "Resultados", icon: TrendingUp },
+          { href: "/admin/financeiro/receitas/paes/configuracoes", label: "Configurações", icon: Settings },
+        ],
+      },
     ],
   },
   {
@@ -134,7 +154,20 @@ const menuItems: Record<PapelUsuario, MenuConfig> = {
       items: [
         { href: "/tesoureiro/receitas/vendas", label: "Vendas", icon: ShoppingBag },
         { href: "/tesoureiro/receitas/doacoes", label: "Doações", icon: Heart },
-        { href: "/tesoureiro/receitas/paes", label: "Pães", icon: Wheat },
+        {
+          href: "/tesoureiro/receitas/paes",
+          label: "Pães",
+          icon: Wheat,
+          children: [
+            { href: "/tesoureiro/receitas/paes", label: "Visão Geral", icon: Home },
+            { href: "/tesoureiro/receitas/paes/semanas", label: "Semanas", icon: Calendar },
+            { href: "/tesoureiro/receitas/paes/pedidos", label: "Pedidos", icon: ListOrdered },
+            { href: "/tesoureiro/receitas/paes/clientes", label: "Clientes", icon: Users },
+            { href: "/tesoureiro/receitas/paes/inadimplentes", label: "Inadimplentes", icon: AlertCircle },
+            { href: "/tesoureiro/receitas/paes/resultados", label: "Resultados", icon: TrendingUp },
+            { href: "/tesoureiro/receitas/paes/configuracoes", label: "Configurações", icon: Settings },
+          ],
+        },
       ],
     },
   ],
@@ -193,9 +226,93 @@ function MenuItemLink({
   );
 }
 
+function MenuItemWithChildren({
+  item,
+  pathname,
+  onClose,
+}: {
+  item: MenuItem;
+  pathname: string;
+  onClose?: () => void;
+}) {
+  const Icon = item.icon;
+  const isExpanded = pathname === item.href || pathname.startsWith(item.href + "/");
+
+  return (
+    <div>
+      <Link
+        href={item.href}
+        onClick={onClose}
+        className={cn(
+          "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
+          isExpanded
+            ? "bg-secondary text-primary font-medium"
+            : "text-gray-200 hover:bg-white/10"
+        )}
+      >
+        <Icon className="h-5 w-5" />
+        <span className="flex-1">{item.label}</span>
+        {isExpanded ? (
+          <ChevronDown className="h-4 w-4 opacity-70" />
+        ) : (
+          <ChevronRight className="h-4 w-4 opacity-70" />
+        )}
+      </Link>
+      {isExpanded && item.children && (
+        <div className="mt-1 ml-4 pl-3 border-l border-white/20 space-y-0.5">
+          {item.children.map((child) => {
+            const isChildActive =
+              child.href === item.href
+                ? pathname === child.href
+                : pathname === child.href || pathname.startsWith(child.href + "/");
+            const ChildIcon = child.icon;
+            return (
+              <Link
+                key={child.href}
+                href={child.href}
+                onClick={onClose}
+                className={cn(
+                  "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-colors",
+                  isChildActive
+                    ? "bg-secondary text-primary font-medium"
+                    : "text-gray-300 hover:bg-white/10"
+                )}
+              >
+                <ChildIcon className="h-4 w-4" />
+                {child.label}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Sidebar({ user, isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const config = menuItems[user.papel] || [];
+
+  const renderItem = (item: MenuItem) => {
+    if (item.children && item.children.length > 0) {
+      return (
+        <MenuItemWithChildren
+          key={item.href}
+          item={item}
+          pathname={pathname}
+          onClose={onClose}
+        />
+      );
+    }
+    return (
+      <MenuItemLink
+        key={item.href}
+        item={item}
+        isActive={pathname === item.href || pathname.startsWith(item.href + "/")}
+        onClose={onClose}
+      />
+    );
+  };
 
   const renderMenu = () => {
     if (isMenuSections(config)) {
@@ -207,27 +324,13 @@ export function Sidebar({ user, isOpen, onClose }: SidebarProps) {
             </div>
           )}
           <div className="space-y-1">
-            {section.items.map((item) => (
-              <MenuItemLink
-                key={item.href}
-                item={item}
-                isActive={pathname === item.href || pathname.startsWith(item.href + "/")}
-                onClose={onClose}
-              />
-            ))}
+            {section.items.map((item) => renderItem(item))}
           </div>
         </div>
       ));
     }
 
-    return config.map((item) => (
-      <MenuItemLink
-        key={item.href}
-        item={item}
-        isActive={pathname === item.href || pathname.startsWith(item.href + "/")}
-        onClose={onClose}
-      />
-    ));
+    return config.map((item) => renderItem(item));
   };
 
   return (
