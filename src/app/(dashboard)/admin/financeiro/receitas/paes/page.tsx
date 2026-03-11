@@ -10,9 +10,10 @@ import { PedidoPaesModal } from "@/components/forms/pedido-paes-modal";
 import { VenderSemDonoModal } from "@/components/forms/vender-sem-dono-modal";
 import { SemanaPaesModal } from "@/components/forms/semana-paes-modal";
 import { NaoEntregueModal } from "@/components/forms/nao-entregue-modal";
+import { GastoModal } from "@/components/forms/gasto-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Loading } from "@/components/ui/loading";
-import { Plus, ShoppingBag, Wheat } from "lucide-react";
+import { Plus, ShoppingBag, Wheat, Receipt } from "lucide-react";
 import type {
   PedidoPaesComCliente,
   PedidoPaesFormData,
@@ -32,7 +33,17 @@ import {
   criarPedidoSemDonoAction,
   criarSemanaPaesAction,
   criarClientePaesAction,
+  criarGastoPaesAction,
 } from "./actions";
+import type { GastoFormData } from "@/types/gasto";
+
+const EVENTO_PAES_MOCK = {
+  id: "b422fa7c-da84-4b38-9ecd-ad9213557003",
+  nome: "Pães",
+  ativo: true,
+  criadoEm: new Date(),
+  atualizadoEm: new Date(),
+};
 import { formatDate } from "@/lib/utils/date";
 
 export default function PaesPage() {
@@ -48,6 +59,7 @@ export default function PaesPage() {
   const [vendaSemDonoModalOpen, setVendaSemDonoModalOpen] = useState(false);
   const [semanaModalOpen, setSemanaModalOpen] = useState(false);
   const [naoEntregueModalOpen, setNaoEntregueModalOpen] = useState(false);
+  const [gastoModalOpen, setGastoModalOpen] = useState(false);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [pedidoParaExcluir, setPedidoParaExcluir] = useState<string | null>(
@@ -147,6 +159,16 @@ export default function PaesPage() {
 
   const handleNovaSemana = () => {
     setSemanaModalOpen(true);
+  };
+
+  const handleAdicionarCusto = () => {
+    setGastoModalOpen(true);
+  };
+
+  const handleSalvarGasto = async (data: GastoFormData) => {
+    const { eventoId: _eventoId, ...resto } = data;
+    await criarGastoPaesAction(resto);
+    setGastoModalOpen(false);
   };
 
   const handleSalvarPedido = async (data: PedidoPaesFormData, id?: string) => {
@@ -362,6 +384,12 @@ export default function PaesPage() {
                   {semanaAtual.paesSemDono} paes sem dono nesta semana
                 </p>
               )}
+              <div className="pt-2">
+                <Button variant="outline" size="sm" onClick={handleAdicionarCusto}>
+                  <Receipt className="w-4 h-4 mr-2" />
+                  Registrar Custo
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="text-center py-8">
@@ -489,6 +517,15 @@ export default function PaesPage() {
         message="Tem certeza que deseja excluir este pedido? Esta acao nao pode ser desfeita."
         confirmText="Excluir"
         variant="danger"
+      />
+
+      {/* Modal Registrar Custo */}
+      <GastoModal
+        isOpen={gastoModalOpen}
+        onClose={() => setGastoModalOpen(false)}
+        eventos={[EVENTO_PAES_MOCK]}
+        eventoIdPadrao={EVENTO_PAES_MOCK.id}
+        onSubmit={handleSalvarGasto}
       />
     </div>
   );

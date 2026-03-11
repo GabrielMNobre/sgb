@@ -10,9 +10,10 @@ import { PedidoPaesModal } from "@/components/forms/pedido-paes-modal";
 import { VenderSemDonoModal } from "@/components/forms/vender-sem-dono-modal";
 import { SemanaPaesModal } from "@/components/forms/semana-paes-modal";
 import { NaoEntregueModal } from "@/components/forms/nao-entregue-modal";
+import { GastoModal } from "@/components/forms/gasto-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Loading } from "@/components/ui/loading";
-import { Plus, ShoppingBag, Wheat } from "lucide-react";
+import { Plus, ShoppingBag, Wheat, Receipt } from "lucide-react";
 import type {
   PedidoPaesComCliente,
   PedidoPaesFormData,
@@ -32,7 +33,9 @@ import {
   criarPedidoSemDonoAction,
   criarSemanaPaesAction,
   criarClientePaesAction,
+  criarGastoPaesAction,
 } from "./actions";
+import type { GastoFormData } from "@/types/gasto";
 import { formatDate } from "@/lib/utils/date";
 
 export default function PaesPage() {
@@ -57,6 +60,15 @@ export default function PaesPage() {
     useState<PedidoPaesComCliente | null>(null);
   const [pedidoParaEditar, setPedidoParaEditar] =
     useState<PedidoPaesComCliente | null>(null);
+  const [gastoModalOpen, setGastoModalOpen] = useState(false);
+
+  const EVENTO_PAES_MOCK = {
+    id: "b422fa7c-da84-4b38-9ecd-ad9213557003",
+    nome: "Pães",
+    ativo: true,
+    criadoEm: new Date(),
+    atualizadoEm: new Date(),
+  };
 
   useEffect(() => {
     carregarDados();
@@ -202,6 +214,15 @@ export default function PaesPage() {
     setNaoEntregueModalOpen(true);
   };
 
+  const handleAdicionarCusto = () => {
+    setGastoModalOpen(true);
+  };
+
+  const handleSalvarGasto = async (data: Omit<GastoFormData, "eventoId">) => {
+    await criarGastoPaesAction(data);
+    setGastoModalOpen(false);
+  };
+
   const handleConfirmarNaoEntregue = async (
     pedidoId: string,
     motivo: string
@@ -314,9 +335,17 @@ export default function PaesPage() {
       {/* Semana Atual */}
       <Card>
         <div className="p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Semana Atual
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Semana Atual
+            </h2>
+            {semanaAtual && (
+              <Button variant="outline" size="sm" onClick={handleAdicionarCusto}>
+                <Receipt className="w-4 h-4 mr-2" />
+                Registrar Custo
+              </Button>
+            )}
+          </div>
           {semanaAtual ? (
             <div className="space-y-4">
               <div className="flex items-center gap-3">
@@ -490,6 +519,15 @@ export default function PaesPage() {
         message="Tem certeza que deseja excluir este pedido? Esta acao nao pode ser desfeita."
         confirmText="Excluir"
         variant="danger"
+      />
+
+      {/* Modal Registrar Custo */}
+      <GastoModal
+        isOpen={gastoModalOpen}
+        onClose={() => setGastoModalOpen(false)}
+        eventos={[EVENTO_PAES_MOCK]}
+        eventoIdPadrao={EVENTO_PAES_MOCK.id}
+        onSubmit={handleSalvarGasto}
       />
     </div>
   );
