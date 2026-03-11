@@ -410,11 +410,11 @@ export default function SemanaDetalhePage() {
           ) : (
             <PedidosPaesTable
               pedidos={pedidos}
-              onEdit={handleEditarPedido}
               onMarcarPago={handleMarcarPago}
-              onMarcarEntregue={handleMarcarEntregue}
-              onMarcarNaoEntregue={handleMarcarNaoEntregue}
-              onDelete={handleExcluirPedido}
+              onEdit={isAberta ? handleEditarPedido : undefined}
+              onMarcarEntregue={isAberta ? handleMarcarEntregue : undefined}
+              onMarcarNaoEntregue={isAberta ? handleMarcarNaoEntregue : undefined}
+              onDelete={isAberta ? handleExcluirPedido : undefined}
               showActions={isAberta}
             />
           )}

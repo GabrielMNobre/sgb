@@ -6,6 +6,9 @@ import type {
   PedidoPaesComClienteESemana,
   PedidoPaesFormData,
   FiltrosPedidoPaes,
+  InadimplentePaes,
+  ResultadosGeraisPaes,
+  ResultadoSemanaPaes,
 } from "@/types/paes";
 import { aplicarCreditos, gerarCredito } from "./creditos-paes";
 
@@ -383,6 +386,133 @@ export async function calcularTotalPaesMesAtual(): Promise<number> {
   if (!pedidos) return 0;
 
   return pedidos.reduce((sum: number, p: any) => sum + (p.valor_pago || 0), 0);
+}
+
+export async function getInadimplentes(): Promise<InadimplentePaes[]> {
+  const supabase = await createClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+
+  const { data, error } = await db
+    .from("pedidos_paes")
+    .select(`
+      id,
+      cliente_id,
+      semana_id,
+      quantidade,
+      valor_total,
+      valor_pago,
+      semanas_paes (id, data_producao, data_entrega, status),
+      clientes_paes (id, nome, ativo)
+    `)
+    .eq("status_pagamento", "pendente")
+    .order("criado_em", { ascending: false });
+
+  if (error) {
+    console.error("Erro ao buscar inadimplentes:", error);
+    throw new Error("Erro ao buscar inadimplentes");
+  }
+
+  const agrupado = new Map<string, InadimplentePaes>();
+
+  for (const row of data || []) {
+    const clienteId: string = row.cliente_id;
+    const clienteNome: string = row.clientes_paes?.nome || "Desconhecido";
+    const semana = row.semanas_paes;
+    const valorPendente = (row.valor_total || 0) - (row.valor_pago || 0);
+
+    if (!agrupado.has(clienteId)) {
+      agrupado.set(clienteId, {
+        clienteId,
+        clienteNome,
+        totalPendente: 0,
+        totalPaes: 0,
+        pedidos: [],
+      });
+    }
+
+    const entry = agrupado.get(clienteId)!;
+    entry.totalPendente += valorPendente;
+    entry.totalPaes += row.quantidade || 0;
+    entry.pedidos.push({
+      pedidoId: row.id,
+      semanaId: row.semana_id,
+      dataProducao: semana?.data_producao,
+      dataEntrega: semana?.data_entrega,
+      statusSemana: semana?.status,
+      quantidade: row.quantidade,
+      valorTotal: row.valor_total,
+      valorPago: row.valor_pago,
+      valorPendente,
+    });
+  }
+
+  return Array.from(agrupado.values()).sort((a, b) => b.totalPendente - a.totalPendente);
+}
+
+export async function getResultadosGerais(): Promise<ResultadosGeraisPaes> {
+  const supabase = await createClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+
+  const { data: semanasData, error: semanasError } = await db
+    .from("semanas_paes")
+    .select("id, data_producao, data_entrega, custo_producao, status")
+    .order("data_producao", { ascending: false });
+
+  if (semanasError) throw new Error("Erro ao buscar semanas para resultados");
+
+  const { data: pedidosData, error: pedidosError } = await db
+    .from("pedidos_paes")
+    .select("semana_id, quantidade, valor_total, valor_pago, status_pagamento");
+
+  if (pedidosError) throw new Error("Erro ao buscar pedidos para resultados");
+
+  const pedidosPorSemana = new Map<string, typeof pedidosData>();
+  for (const p of pedidosData || []) {
+    if (!pedidosPorSemana.has(p.semana_id)) pedidosPorSemana.set(p.semana_id, []);
+    pedidosPorSemana.get(p.semana_id)!.push(p);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: configData } = await db
+    .from("configuracoes_paes")
+    .select("paes_por_fornada")
+    .single();
+  const paesPorFornada: number = configData?.paes_por_fornada || 10;
+
+  const semanas: ResultadoSemanaPaes[] = (semanasData || []).map((s: any) => {
+    const pedidos = pedidosPorSemana.get(s.id) || [];
+    const totalPaes = pedidos.reduce((sum: number, p: any) => sum + (p.quantidade || 0), 0);
+    const totalValor = pedidos.reduce((sum: number, p: any) => sum + (p.valor_total || 0), 0);
+    const totalPago = pedidos.reduce((sum: number, p: any) => sum + (p.valor_pago || 0), 0);
+    const custoProducao = s.custo_producao || 0;
+    return {
+      semanaId: s.id,
+      dataProducao: s.data_producao,
+      dataEntrega: s.data_entrega,
+      status: s.status,
+      totalPaes,
+      totalPedidos: pedidos.length,
+      totalValor,
+      totalPago,
+      totalPendente: totalValor - totalPago,
+      custoProducao,
+      lucro: totalPago - custoProducao,
+      fornadas: paesPorFornada > 0 ? Math.ceil(totalPaes / paesPorFornada) : 0,
+    };
+  });
+
+  return {
+    totalArrecadado: semanas.reduce((sum, s) => sum + s.totalPago, 0),
+    totalPendente: semanas.reduce((sum, s) => sum + s.totalPendente, 0),
+    totalPaes: semanas.reduce((sum, s) => sum + s.totalPaes, 0),
+    totalPedidos: semanas.reduce((sum, s) => sum + s.totalPedidos, 0),
+    totalFornadas: semanas.reduce((sum, s) => sum + s.fornadas, 0),
+    custoTotal: semanas.reduce((sum, s) => sum + s.custoProducao, 0),
+    lucroTotal: semanas.reduce((sum, s) => sum + s.lucro, 0),
+    semanas,
+  };
 }
 
 export async function getUltimosPedidosPaes(limite: number = 5): Promise<PedidoPaesComCliente[]> {
