@@ -11,6 +11,9 @@ import type {
   ResultadoSemanaPaes,
 } from "@/types/paes";
 import { aplicarCreditos, gerarCredito } from "./creditos-paes";
+import { calcularTotalPorEvento } from "./gastos";
+
+const EVENTO_ID_PAES = "b422fa7c-da84-4b38-9ecd-ad9213557003";
 
 export async function getPedidosPaes(
   filtros?: FiltrosPedidoPaes
@@ -503,14 +506,17 @@ export async function getResultadosGerais(): Promise<ResultadosGeraisPaes> {
     };
   });
 
+  const totalArrecadado = semanas.reduce((sum, s) => sum + s.totalPago, 0);
+  const custoTotal = await calcularTotalPorEvento(EVENTO_ID_PAES);
+
   return {
-    totalArrecadado: semanas.reduce((sum, s) => sum + s.totalPago, 0),
+    totalArrecadado,
     totalPendente: semanas.reduce((sum, s) => sum + s.totalPendente, 0),
     totalPaes: semanas.reduce((sum, s) => sum + s.totalPaes, 0),
     totalPedidos: semanas.reduce((sum, s) => sum + s.totalPedidos, 0),
     totalFornadas: semanas.reduce((sum, s) => sum + s.fornadas, 0),
-    custoTotal: semanas.reduce((sum, s) => sum + s.custoProducao, 0),
-    lucroTotal: semanas.reduce((sum, s) => sum + s.lucro, 0),
+    custoTotal,
+    lucroTotal: totalArrecadado - custoTotal,
     semanas,
   };
 }
