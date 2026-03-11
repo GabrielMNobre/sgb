@@ -101,9 +101,9 @@ export function PedidosPaesTable({
               </p>
             )}
 
-            {showActions && (
+            {(showActions || onMarcarPago) && (
               <div className="mt-3 pt-3 border-t border-gray-100 space-y-2">
-                {pedido.statusEntrega === "pendente" && (onMarcarEntregue || onMarcarNaoEntregue) && (
+                {showActions && pedido.statusEntrega === "pendente" && (onMarcarEntregue || onMarcarNaoEntregue) && (
                   <div className="flex gap-2">
                     {onMarcarEntregue && (
                       <Button
@@ -141,7 +141,7 @@ export function PedidosPaesTable({
                       <DollarSign className="h-4 w-4 text-gray-600" />
                     </Button>
                   )}
-                  {onEdit && (
+                  {showActions && onEdit && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -152,7 +152,7 @@ export function PedidosPaesTable({
                       <Pencil className="h-4 w-4 text-gray-600" />
                     </Button>
                   )}
-                  {onDelete && (
+                  {showActions && onDelete && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -225,7 +225,7 @@ export function PedidosPaesTable({
                   {pedido.creditoAplicado > 0 ? formatCurrency(pedido.creditoAplicado) : "—"}
                 </TableCell>
                 <TableCell className="text-center">
-                  {showActions && onMarcarPago ? (
+                  {onMarcarPago ? (
                     <button
                       type="button"
                       onClick={() => onMarcarPago(pedido.id)}

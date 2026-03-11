@@ -109,12 +109,11 @@ export default function PaesPage() {
 
   const semanaAtual = semanas.find((s) => s.status === "aberta") || null;
 
-  const totalArrecadado = semanas.reduce((sum, s) => sum + s.totalValor, 0);
-  const totalPago = semanas.reduce((sum, s) => sum + s.totalPago, 0);
-  const totalPendente = totalArrecadado - totalPago;
-  const totalPedidos = semanas.reduce((sum, s) => sum + s.totalPedidos, 0);
-  const totalPaes = semanas.reduce((sum, s) => sum + s.totalPaes, 0);
-  const totalFornadas = semanas.reduce((sum, s) => sum + s.fornadas, 0);
+  // Stats da semana atual (aberta) apenas
+  const totalPago = semanaAtual?.totalPago ?? 0;
+  const totalPendente = (semanaAtual?.totalValor ?? 0) - totalPago;
+  const totalPedidos = semanaAtual?.totalPedidos ?? 0;
+  const totalFornadas = semanaAtual?.fornadas ?? 0;
 
   const paesEntregues = pedidos.filter((p) => p.statusEntrega === "entregue").reduce((sum, p) => sum + p.quantidade, 0);
   const paesPendentesEntrega = pedidos.filter((p) => p.statusEntrega === "pendente").reduce((sum, p) => sum + p.quantidade, 0);
@@ -239,38 +238,42 @@ export default function PaesPage() {
         </div>
       </div>
 
-      {/* Resumo */}
+      {/* Resumo da semana atual */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         <Card>
           <div className="p-6">
-            <p className="text-sm text-gray-600">Total Arrecadado</p>
+            <p className="text-sm text-gray-600">Arrecadado</p>
             <p className="text-2xl sm:text-3xl font-bold text-green-600 mt-1">
-              {formatCurrency(totalPago)}
+              {semanaAtual ? formatCurrency(totalPago) : "—"}
             </p>
+            <p className="text-xs text-gray-400 mt-0.5">semana atual</p>
           </div>
         </Card>
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Pendente</p>
-            <p className={`text-2xl sm:text-3xl font-bold mt-1 ${totalPendente > 0 ? "text-amber-600" : "text-gray-400"}`}>
-              {formatCurrency(totalPendente)}
+            <p className={`text-2xl sm:text-3xl font-bold mt-1 ${semanaAtual && totalPendente > 0 ? "text-amber-600" : "text-gray-400"}`}>
+              {semanaAtual ? formatCurrency(totalPendente) : "—"}
             </p>
+            <p className="text-xs text-gray-400 mt-0.5">semana atual</p>
           </div>
         </Card>
         <Card>
           <div className="p-6">
-            <p className="text-sm text-gray-600">Total Pedidos</p>
+            <p className="text-sm text-gray-600">Pedidos</p>
             <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
-              {totalPedidos}
+              {semanaAtual ? totalPedidos : "—"}
             </p>
+            <p className="text-xs text-gray-400 mt-0.5">semana atual</p>
           </div>
         </Card>
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Fornadas</p>
             <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
-              {totalFornadas}
+              {semanaAtual ? totalFornadas : "—"}
             </p>
+            <p className="text-xs text-gray-400 mt-0.5">semana atual</p>
           </div>
         </Card>
       </div>
