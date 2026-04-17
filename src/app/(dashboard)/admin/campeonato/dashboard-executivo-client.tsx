@@ -17,7 +17,7 @@ import type {
   StatusClasseItem,
   Campeonato,
 } from "@/types/campeonato";
-import { ClipboardList, AlertTriangle, Building2, Calendar, Trophy, Play, CheckCircle, XCircle } from "lucide-react";
+import { ClipboardList, AlertTriangle, Building2, Calendar, Trophy, Play, CheckCircle, XCircle, RotateCcw } from "lucide-react";
 
 interface Props {
   dashboard: DashboardExecutivo;
@@ -49,10 +49,31 @@ export function DashboardExecutivoClient({
   statusClasses,
 }: Props) {
   const [inicializando, setInicializando] = useState(false);
+  const [sincronizando, setSincronizando] = useState(false);
   const [feedbackInit, setFeedbackInit] = useState<{
     tipo: "sucesso" | "erro";
     msg: string;
   } | null>(null);
+
+  async function handleSincronizar() {
+    setSincronizando(true);
+    setFeedbackInit(null);
+    try {
+      const res = await fetch("/api/admin/campeonato/sincronizar-ranking", {
+        method: "POST",
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setFeedbackInit({ tipo: "erro", msg: json.error || "Erro ao sincronizar" });
+      } else {
+        setFeedbackInit({ tipo: "sucesso", msg: "Pontos sincronizados com sucesso!" });
+      }
+    } catch {
+      setFeedbackInit({ tipo: "erro", msg: "Erro ao sincronizar pontos" });
+    } finally {
+      setSincronizando(false);
+    }
+  }
 
   async function handleInicializar() {
     if (
@@ -132,14 +153,24 @@ export function DashboardExecutivoClient({
             Período: 01/02/2026 a 30/11/2026
           </p>
         </div>
-        <button
-          onClick={handleInicializar}
-          disabled={inicializando}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-        >
-          <Play className="h-4 w-4" />
-          {inicializando ? "Inicializando..." : "Inicializar Campeonato"}
-        </button>
+        <div className="flex gap-2 shrink-0">
+          <button
+            onClick={handleSincronizar}
+            disabled={sincronizando || inicializando}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <RotateCcw className={`h-4 w-4 ${sincronizando ? "animate-spin" : ""}`} />
+            {sincronizando ? "Sincronizando..." : "Sincronizar Pontos"}
+          </button>
+          <button
+            onClick={handleInicializar}
+            disabled={inicializando || sincronizando}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Play className="h-4 w-4" />
+            {inicializando ? "Inicializando..." : "Inicializar"}
+          </button>
+        </div>
       </div>
 
       {/* Feedback inicialização */}

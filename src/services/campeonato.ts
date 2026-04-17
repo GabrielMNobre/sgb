@@ -71,53 +71,74 @@ export async function getDashboardConselheiro(
 
   const hoje = new Date().toISOString().split("T")[0];
 
-  // Ranking da unidade para total de pontos
-  const { data: ranking } = await db
-    .from("ranking_campeonatos")
-    .select("pontos_totais")
-    .eq("campeonato_id", campeonatoId)
-    .eq("unidade_id", unidadeId)
-    .single();
+  const [
+    { data: avaliacoesAll },
+    { data: demeritosAll },
+    { data: classes },
+    { data: unidade },
+  ] = await Promise.all([
+    db
+      .from("avaliacoes_campeonatos")
+      .select("pontos, data_avaliacao")
+      .eq("campeonato_id", campeonatoId)
+      .eq("unidade_id", unidadeId),
+    db
+      .from("demeritos_campeonatos")
+      .select("pontos_perdidos, data_ocorrencia")
+      .eq("campeonato_id", campeonatoId)
+      .eq("unidade_id", unidadeId),
+    db
+      .from("acompanhamento_classes_campeonato")
+      .select("classe_regular_completada, classe_avancada_completada, classe_biblica_em_dia, total_especialidades")
+      .eq("campeonato_id", campeonatoId)
+      .eq("unidade_id", unidadeId)
+      .single(),
+    db
+      .from("unidades")
+      .select("nome, cor_primaria")
+      .eq("id", unidadeId)
+      .single(),
+  ]);
 
-  // Avaliações do dia
-  const { data: avaliacoesDia } = await db
-    .from("avaliacoes_campeonatos")
-    .select("pontos")
-    .eq("campeonato_id", campeonatoId)
-    .eq("unidade_id", unidadeId)
-    .eq("data_avaliacao", hoje);
-
-  // Deméritos do dia
-  const { data: demeritosDia } = await db
-    .from("demeritos_campeonatos")
-    .select("pontos_perdidos")
-    .eq("campeonato_id", campeonatoId)
-    .eq("unidade_id", unidadeId)
-    .eq("data_ocorrencia", hoje);
-
-  // Nome e cor da unidade
-  const { data: unidade } = await db
-    .from("unidades")
-    .select("nome, cor_primaria")
-    .eq("id", unidadeId)
-    .single();
-
-  const pontosDia = (avaliacoesDia || []).reduce(
+  // Total de avaliações (todas as datas)
+  const totalAvaliacoes = (avaliacoesAll || []).reduce(
     (sum: number, a: any) => sum + (a.pontos || 0),
     0
   );
-  const demeritosPontos = (demeritosDia || []).reduce(
-    (sum: number, d: any) => sum + Math.abs(d.pontos_perdidos || 0),
+
+  // Total de deméritos (todas as datas) - pontos_perdidos já é negativo
+  const totalDemeritos = (demeritosAll || []).reduce(
+    (sum: number, d: any) => sum + (d.pontos_perdidos || 0),
     0
   );
+
+  // Pontos de classes
+  let pontosClasses = 0;
+  if (classes) {
+    if (classes.classe_regular_completada) pontosClasses += 200;
+    if (classes.classe_avancada_completada) pontosClasses += 300;
+    if (classes.classe_biblica_em_dia) pontosClasses += 200;
+    pontosClasses += Math.min(classes.total_especialidades || 0, 20) * 100;
+  }
+
+  const totalPontos = Math.max(0, totalAvaliacoes + totalDemeritos + pontosClasses);
+
+  // Pontos do dia (hoje)
+  const pontosDia = (avaliacoesAll || [])
+    .filter((a: any) => a.data_avaliacao === hoje)
+    .reduce((sum: number, a: any) => sum + (a.pontos || 0), 0);
+
+  const demeritosDia = (demeritosAll || [])
+    .filter((d: any) => d.data_ocorrencia === hoje)
+    .reduce((sum: number, d: any) => sum + Math.abs(d.pontos_perdidos || 0), 0);
 
   return {
     unidadeNome: unidade?.nome || "",
     unidadeCor: unidade?.cor_primaria || "#1a2b5f",
-    totalPontos: ranking?.pontos_totais || 0,
+    totalPontos,
     pontosDia,
-    demeritosDia: demeritosPontos,
-    saldoDia: pontosDia - demeritosPontos,
+    demeritosDia,
+    saldoDia: pontosDia - demeritosDia,
   };
 }
 
@@ -168,24 +189,18 @@ export async function getHistorico30Dias(
   const supabase = await createClient();
   const db = supabase as any;
 
-  const trintaDiasAtras = new Date();
-  trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
-  const dataInicio = trintaDiasAtras.toISOString().split("T")[0];
-
   const [{ data: avaliacoes }, { data: demeritos }] = await Promise.all([
     db
       .from("avaliacoes_campeonatos")
-      .select("data_avaliacao, categoria, tipo_avaliacao, cor, pontos")
+      .select("data_avaliacao, categoria, tipo_avaliacao, cor, pontos, descricao")
       .eq("campeonato_id", campeonatoId)
       .eq("unidade_id", unidadeId)
-      .gte("data_avaliacao", dataInicio)
       .order("data_avaliacao", { ascending: false }),
     db
       .from("demeritos_campeonatos")
-      .select("data_ocorrencia, tipo_demeritos, pontos_perdidos")
+      .select("data_ocorrencia, tipo_demeritos, pontos_perdidos, descricao")
       .eq("campeonato_id", campeonatoId)
       .eq("unidade_id", unidadeId)
-      .gte("data_ocorrencia", dataInicio)
       .order("data_ocorrencia", { ascending: false }),
   ]);
 
@@ -209,6 +224,8 @@ export async function getHistorico30Dias(
       tipoRegistro: "avaliacao",
       categoria: a.categoria,
       tipo: a.tipo_avaliacao,
+      tipoAvaliacao: a.tipo_avaliacao,
+      descricao: a.descricao || undefined,
       cor: a.cor,
       pontosGanhos: a.pontos || 0,
       pontosPerdidos: 0,
@@ -221,6 +238,7 @@ export async function getHistorico30Dias(
       dataRegistro: d.data_ocorrencia,
       tipoRegistro: "demeritos",
       tipo: d.tipo_demeritos,
+      descricao: d.descricao || undefined,
       pontosGanhos: 0,
       pontosPerdidos: Math.abs(d.pontos_perdidos || 0),
       totalDia: totaisPorData[d.data_ocorrencia] || 0,
@@ -604,40 +622,103 @@ export async function getRankingCompleto(
   const supabase = await createClient();
   const db = supabase as any;
 
-  const { data, error } = await db
-    .from("ranking_campeonatos")
-    .select(`
-      *,
-      unidades (
-        id,
-        nome,
-        cor_primaria
-      )
-    `)
-    .eq("campeonato_id", campeonatoId)
-    .order("pontos_totais", { ascending: false });
+  // Busca tudo em paralelo: unidades ativas, avaliações, deméritos, classes
+  const [
+    { data: unidades },
+    { data: avaliacoes },
+    { data: demeritos },
+    { data: classes },
+  ] = await Promise.all([
+    db.from("unidades").select("id, nome, cor_primaria").eq("ativa", true).order("nome"),
+    db
+      .from("avaliacoes_campeonatos")
+      .select("unidade_id, categoria, tipo_avaliacao, pontos")
+      .eq("campeonato_id", campeonatoId),
+    db
+      .from("demeritos_campeonatos")
+      .select("unidade_id, pontos_perdidos")
+      .eq("campeonato_id", campeonatoId),
+    db
+      .from("acompanhamento_classes_campeonato")
+      .select("unidade_id, classe_regular_completada, classe_avancada_completada, classe_biblica_em_dia, total_especialidades")
+      .eq("campeonato_id", campeonatoId),
+  ]);
 
-  if (error) {
-    console.error("Erro ao buscar ranking:", error);
-    return [];
+  if (!unidades?.length) return [];
+
+  // Agrega avaliações por unidade, categoria e tipo especial
+  const avPorUnidade: Record<string, Record<string, number>> = {};
+  const dinPorUnidade: Record<string, number> = {};
+  const mensPorUnidade: Record<string, number> = {};
+  for (const a of avaliacoes || []) {
+    if (!avPorUnidade[a.unidade_id]) {
+      avPorUnidade[a.unidade_id] = { compromisso: 0, vida_unidade: 0, identidade: 0, formacao: 0, social: 0 };
+    }
+    const pts = a.pontos || 0;
+    if (a.tipo_avaliacao === "dinamicas") {
+      dinPorUnidade[a.unidade_id] = (dinPorUnidade[a.unidade_id] || 0) + pts;
+    } else if (a.tipo_avaliacao === "mensalidade") {
+      mensPorUnidade[a.unidade_id] = (mensPorUnidade[a.unidade_id] || 0) + pts;
+    }
+    // Sempre soma na categoria para o total geral
+    const cat = a.categoria as string;
+    avPorUnidade[a.unidade_id][cat] = (avPorUnidade[a.unidade_id][cat] || 0) + pts;
   }
 
-  type RankingRow = { unidade_id: string; pontos_totais: number; unidades: { nome: string; cor_primaria: string } | null };
+  // Agrega deméritos por unidade
+  const demPorUnidade: Record<string, number> = {};
+  for (const d of demeritos || []) {
+    demPorUnidade[d.unidade_id] = (demPorUnidade[d.unidade_id] || 0) + Math.abs(d.pontos_perdidos || 0);
+  }
 
-  let items: RankingItem[] = (data || []).map((row: RankingRow, index: number) => {
-    const unidade = row.unidades;
-    const posicao = index + 1;
-    const badge =
-      posicao === 1 ? "🥇" : posicao === 2 ? "🥈" : posicao === 3 ? "🥉" : "";
+  // Classes por unidade
+  const classesPorUnidade: Record<string, number> = {};
+  for (const c of classes || []) {
+    let pts = 0;
+    if (c.classe_regular_completada) pts += 200;
+    if (c.classe_avancada_completada) pts += 300;
+    if (c.classe_biblica_em_dia) pts += 200;
+    pts += Math.min(c.total_especialidades || 0, 20) * 100;
+    classesPorUnidade[c.unidade_id] = pts;
+  }
+
+  // Monta ranking
+  let items: RankingItem[] = (unidades as { id: string; nome: string; cor_primaria: string }[]).map((u) => {
+    const av = avPorUnidade[u.id] || { compromisso: 0, vida_unidade: 0, identidade: 0, formacao: 0, social: 0 };
+    const dem = demPorUnidade[u.id] || 0;
+    const cls = classesPorUnidade[u.id] || 0;
+    const din = dinPorUnidade[u.id] || 0;
+    const mens = mensPorUnidade[u.id] || 0;
+
+    const totalAvaliacoes = av.compromisso + av.vida_unidade + av.identidade + av.formacao + av.social;
+    const total = Math.max(0, totalAvaliacoes - dem + cls);
 
     return {
-      posicao,
-      unidadeId: row.unidade_id,
-      unidadeNome: unidade?.nome || "",
-      unidadeCor: unidade?.cor_primaria || "#1a2b5f",
-      total: row.pontos_totais || 0,
-      badge: badge as "🥇" | "🥈" | "🥉" | "",
+      posicao: 0,
+      unidadeId: u.id,
+      unidadeNome: u.nome,
+      unidadeCor: u.cor_primaria || "#1a2b5f",
+      compromisso: av.compromisso - din - mens, // Chamada pura (sem dinâmicas/mensalidades)
+      dinamicas: din,
+      mensalidades: mens,
+      vidaUnidade: av.vida_unidade,
+      identidade: av.identidade,
+      formacao: av.formacao + cls,
+      social: av.social,
+      demeritos: dem,
+      classes: cls,
+      total,
+      badge: "" as "🥇" | "🥈" | "🥉" | "",
     };
+  });
+
+  // Ordena por total DESC
+  items.sort((a, b) => b.total - a.total);
+
+  // Atribui posição e badge
+  items.forEach((item, i) => {
+    item.posicao = i + 1;
+    item.badge = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "";
   });
 
   if (filtroNome) {
@@ -1110,4 +1191,361 @@ export async function sincronizarRanking(campeonatoId: string): Promise<void> {
   if (erros.length > 0) {
     throw new Error(`Erros ao atualizar ranking: ${erros.join("; ")}`);
   }
+}
+
+// ─── Mensalidades → Pontuação ────────────────────────────────────────────────
+
+export interface ResultadoMensalidade {
+  unidadeId: string;
+  unidadeNome: string;
+  totalMembros: number;
+  pagos: number;
+  percentual: number;
+  cor: "verde" | "amarelo" | "vermelho";
+  pontos: number;
+  jaRegistrado: boolean;
+}
+
+export interface ResultadoCalculoMensalidades {
+  mes: number;
+  ano: number;
+  unidades: ResultadoMensalidade[];
+  registradas: number;
+  ignoradas: number;
+}
+
+function corMensalidade(percentual: number): { cor: "verde" | "amarelo" | "vermelho"; pontos: number } {
+  if (percentual >= 100) return { cor: "verde", pontos: 50 };
+  if (percentual >= 70) return { cor: "amarelo", pontos: 30 };
+  return { cor: "vermelho", pontos: 10 };
+}
+
+export async function calcularPontuacaoMensalidades(
+  campeonatoId: string,
+  mes: number,
+  ano: number,
+  criadaPor: string
+): Promise<ResultadoCalculoMensalidades> {
+  const supabase = await createClient();
+  const db = supabase as any;
+
+  // 1. Busca todas as unidades ativas
+  const { data: unidades } = await db
+    .from("unidades")
+    .select("id, nome")
+    .eq("ativa", true)
+    .order("nome");
+
+  if (!unidades?.length) {
+    return { mes, ano, unidades: [], registradas: 0, ignoradas: 0 };
+  }
+
+  // 2. Data de referência: último dia do mês
+  const dataAvaliacao = `${ano}-${String(mes).padStart(2, "0")}-01`;
+
+  // 3. Verifica avaliações já registradas neste mês
+  const { data: existentes } = await db
+    .from("avaliacoes_campeonatos")
+    .select("unidade_id")
+    .eq("campeonato_id", campeonatoId)
+    .eq("tipo_avaliacao", "mensalidade")
+    .eq("data_avaliacao", dataAvaliacao);
+
+  const jaRegistrados = new Set(
+    (existentes || []).map((e: any) => e.unidade_id)
+  );
+
+  // 4. Para cada unidade, calcula percentual de adimplência
+  const resultados: ResultadoMensalidade[] = [];
+  const inserts: any[] = [];
+
+  for (const unidade of unidades as { id: string; nome: string }[]) {
+    // Busca desbravadores da unidade (não isentos, ativos)
+    const { data: desbravadores } = await db
+      .from("membros")
+      .select("id, isento_mensalidade")
+      .eq("unidade_id", unidade.id)
+      .eq("tipo", "desbravador")
+      .eq("ativo", true);
+
+    // Busca conselheiros da unidade
+    const { data: conselheirosData } = await db
+      .from("conselheiros_unidades")
+      .select("membro_id, membros (id, isento_mensalidade, ativo)")
+      .eq("unidade_id", unidade.id);
+
+    const conselheiros = ((conselheirosData || []) as any[])
+      .map((c) => c.membros)
+      .filter((m: any) => m && m.ativo === true);
+
+    // Filtra não-isentos
+    const membrosNaoIsentos = [
+      ...(desbravadores || []).filter((m: any) => !m.isento_mensalidade),
+      ...conselheiros.filter((m: any) => !m.isento_mensalidade),
+    ];
+
+    const totalMembros = membrosNaoIsentos.length;
+
+    if (totalMembros === 0) {
+      resultados.push({
+        unidadeId: unidade.id,
+        unidadeNome: unidade.nome,
+        totalMembros: 0,
+        pagos: 0,
+        percentual: 100,
+        cor: "verde",
+        pontos: 50,
+        jaRegistrado: jaRegistrados.has(unidade.id),
+      });
+      continue;
+    }
+
+    const membroIds = membrosNaoIsentos.map((m: any) => m.id);
+
+    // Busca mensalidades pagas do mês
+    const { data: mensalidades } = await db
+      .from("mensalidades")
+      .select("membro_id, status")
+      .eq("mes", mes)
+      .eq("ano", ano)
+      .in("membro_id", membroIds);
+
+    const pagos = (mensalidades || []).filter(
+      (m: any) => m.status === "pago"
+    ).length;
+
+    const percentual = Math.round((pagos / totalMembros) * 100);
+    const { cor, pontos } = corMensalidade(percentual);
+
+    const jaRegistrado = jaRegistrados.has(unidade.id);
+
+    resultados.push({
+      unidadeId: unidade.id,
+      unidadeNome: unidade.nome,
+      totalMembros,
+      pagos,
+      percentual,
+      cor,
+      pontos,
+      jaRegistrado,
+    });
+
+    // Só insere se ainda não foi registrado
+    if (!jaRegistrado) {
+      inserts.push({
+        campeonato_id: campeonatoId,
+        unidade_id: unidade.id,
+        data_avaliacao: dataAvaliacao,
+        categoria: "compromisso",
+        tipo_avaliacao: "mensalidade",
+        cor,
+        pontos,
+        descricao: `Mensalidade ${String(mes).padStart(2, "0")}/${ano} — ${percentual}% adimplência (${pagos}/${totalMembros})`,
+        criada_por: criadaPor,
+      });
+    }
+  }
+
+  // 5. Insere avaliações novas
+  let registradas = 0;
+  if (inserts.length > 0) {
+    const { error } = await db
+      .from("avaliacoes_campeonatos")
+      .insert(inserts);
+
+    if (error) {
+      console.error("Erro ao registrar pontuação de mensalidades:", error);
+      throw new Error("Erro ao registrar pontuação de mensalidades");
+    }
+    registradas = inserts.length;
+    await sincronizarRanking(campeonatoId);
+  }
+
+  return {
+    mes,
+    ano,
+    unidades: resultados,
+    registradas,
+    ignoradas: jaRegistrados.size,
+  };
+}
+
+export async function removerPontuacaoMensalidades(
+  campeonatoId: string,
+  mes: number,
+  ano: number
+): Promise<void> {
+  const supabase = await createClient();
+  const db = supabase as any;
+
+  const dataAvaliacao = `${ano}-${String(mes).padStart(2, "0")}-01`;
+
+  const { error } = await db
+    .from("avaliacoes_campeonatos")
+    .delete()
+    .eq("campeonato_id", campeonatoId)
+    .eq("tipo_avaliacao", "mensalidade")
+    .eq("data_avaliacao", dataAvaliacao);
+
+  if (error) {
+    console.error("Erro ao remover pontuação de mensalidades:", error);
+    throw new Error("Erro ao remover pontuação de mensalidades");
+  }
+
+  await sincronizarRanking(campeonatoId);
+}
+
+// ─── Dinâmicas ───────────────────────────────────────────────────────────────
+
+export interface DinamicaResultado {
+  unidadeId: string;
+  colocacao: 1 | 2 | 3 | null; // null = participou
+}
+
+export interface DinamicaRegistrada {
+  nome: string;
+  tipo: "colocacao" | "para_todos";
+  avaliacoes: AvaliacaoCampeonato[];
+}
+
+function pontosDinamica(colocacao: number | null): { pontos: number; cor: "verde" | "amarelo" | "vermelho" } {
+  switch (colocacao) {
+    case 1: return { pontos: 50, cor: "verde" };
+    case 2: return { pontos: 40, cor: "amarelo" };
+    case 3: return { pontos: 30, cor: "vermelho" };
+    default: return { pontos: 20, cor: "vermelho" };
+  }
+}
+
+function descricaoDinamica(nome: string, colocacao: number | null, tipo: "colocacao" | "para_todos"): string {
+  if (tipo === "para_todos") {
+    return `Dinâmica: ${nome} - Participou`;
+  }
+  const label = colocacao ? `${colocacao}º Lugar` : "Participou";
+  return `Dinâmica: ${nome} - Colocação: ${label}`;
+}
+
+export async function getDinamicasEncontro(
+  campeonatoId: string,
+  encontroData: string
+): Promise<DinamicaRegistrada[]> {
+  const supabase = await createClient();
+  const db = supabase as any;
+
+  const { data: avaliacoes, error } = await db
+    .from("avaliacoes_campeonatos")
+    .select("*")
+    .eq("campeonato_id", campeonatoId)
+    .eq("data_avaliacao", encontroData)
+    .eq("tipo_avaliacao", "dinamicas")
+    .order("criado_em", { ascending: true });
+
+  if (error) {
+    console.error("Erro ao buscar dinâmicas:", error);
+    return [];
+  }
+
+  // Agrupa por nome da dinâmica (extraído da descrição)
+  const grupos: Record<string, AvaliacaoCampeonato[]> = {};
+  for (const av of (avaliacoes || []).map((a: any) => snakeToCamel<AvaliacaoCampeonato>(a))) {
+    const desc = av.descricao || "";
+    const match = desc.match(/^Dinâmica: (.+?) - /);
+    const nome = match ? match[1] : "Sem nome";
+    if (!grupos[nome]) grupos[nome] = [];
+    grupos[nome].push(av);
+  }
+
+  return Object.entries(grupos).map(([nome, avs]) => {
+    // Se todas têm 50 pts e cor verde → para_todos
+    const todasVerdes = avs.every((a) => a.cor === "verde" && a.pontos === 50);
+    const tipo: "colocacao" | "para_todos" = todasVerdes && avs.length > 1 ? "para_todos" : "colocacao";
+    return { nome, tipo, avaliacoes: avs };
+  });
+}
+
+export async function createDinamica(
+  campeonatoId: string,
+  encontroData: string,
+  nome: string,
+  tipo: "colocacao" | "para_todos",
+  resultados: DinamicaResultado[],
+  criadaPor: string
+): Promise<AvaliacaoCampeonato[]> {
+  const supabase = await createClient();
+  const db = supabase as any;
+
+  if (!nome.trim()) {
+    throw new Error("Nome da dinâmica é obrigatório");
+  }
+  if (resultados.length === 0) {
+    throw new Error("Selecione pelo menos uma unidade");
+  }
+
+  // Validação de colocação: máximo 1 unidade por posição
+  if (tipo === "colocacao") {
+    for (const pos of [1, 2, 3]) {
+      const count = resultados.filter((r) => r.colocacao === pos).length;
+      if (count > 1) {
+        throw new Error(`Máximo 1 unidade por colocação (${pos}º lugar tem ${count})`);
+      }
+    }
+  }
+
+  const inserts = resultados.map((r) => {
+    const { pontos, cor } = tipo === "para_todos"
+      ? { pontos: 50, cor: "verde" as const }
+      : pontosDinamica(r.colocacao);
+
+    return {
+      campeonato_id: campeonatoId,
+      unidade_id: r.unidadeId,
+      data_avaliacao: encontroData,
+      categoria: "compromisso",
+      tipo_avaliacao: "dinamicas",
+      cor,
+      pontos,
+      descricao: descricaoDinamica(nome, tipo === "para_todos" ? null : r.colocacao, tipo),
+      criada_por: criadaPor,
+    };
+  });
+
+  const { data, error } = await db
+    .from("avaliacoes_campeonatos")
+    .insert(inserts)
+    .select();
+
+  if (error) {
+    console.error("Erro ao criar dinâmica:", error);
+    throw new Error("Erro ao registrar dinâmica");
+  }
+
+  await sincronizarRanking(campeonatoId);
+
+  return (data || []).map((a: any) => snakeToCamel<AvaliacaoCampeonato>(a));
+}
+
+export async function deleteDinamica(
+  campeonatoId: string,
+  encontroData: string,
+  nomeDinamica: string
+): Promise<void> {
+  const supabase = await createClient();
+  const db = supabase as any;
+
+  const pattern = `Dinâmica: ${nomeDinamica} - %`;
+
+  const { error } = await db
+    .from("avaliacoes_campeonatos")
+    .delete()
+    .eq("campeonato_id", campeonatoId)
+    .eq("data_avaliacao", encontroData)
+    .eq("tipo_avaliacao", "dinamicas")
+    .like("descricao", pattern);
+
+  if (error) {
+    console.error("Erro ao deletar dinâmica:", error);
+    throw new Error("Erro ao deletar dinâmica");
+  }
+
+  await sincronizarRanking(campeonatoId);
 }

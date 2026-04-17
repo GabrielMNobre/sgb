@@ -101,6 +101,7 @@ const adminMenu: MenuSection[] = [
       { href: "/admin/campeonato/registrar-avaliacao", label: "Avaliações", icon: ClipboardList },
       { href: "/admin/campeonato/registrar-demeritos", label: "Deméritos", icon: AlertTriangle },
       { href: "/admin/campeonato/classes", label: "Classes", icon: BookOpen },
+      { href: "/admin/campeonato/mensalidades", label: "Mensalidades", icon: DollarSign },
     ],
   },
   {
@@ -171,7 +172,8 @@ const menuItems: Record<PapelUsuario, MenuConfig> = {
     {
       section: "Campeonato 2026",
       items: [
-        { href: "/conselheiro/campeonato", label: "Minha Pontuação", icon: Trophy },
+        { href: "/conselheiro/campeonato", label: "Pontuação do Dia", icon: Trophy },
+        { href: "/conselheiro/campeonato/historico", label: "Histórico", icon: BarChart3 },
       ],
     },
   ],

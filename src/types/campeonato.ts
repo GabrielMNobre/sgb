@@ -15,6 +15,7 @@ export type TipoAvaliacaoCampeonato =
   | "uniforme"
   | "postura"
   | "dinamicas"
+  | "mensalidade"
   // Vida da Unidade
   | "diversificacao_atividades"
   | "realizacao_especialidades"
@@ -200,6 +201,8 @@ export interface HistoricoItem {
   tipoRegistro: "avaliacao" | "demeritos";
   categoria?: string;
   tipo: string;
+  tipoAvaliacao?: string;
+  descricao?: string;
   cor?: string;
   pontosGanhos: number;
   pontosPerdidos: number;
@@ -226,6 +229,15 @@ export interface RankingItem {
   unidadeNome: string;
   unidadeCor: string;
   total: number;
+  compromisso: number;
+  dinamicas: number;
+  mensalidades: number;
+  vidaUnidade: number;
+  identidade: number;
+  formacao: number;
+  social: number;
+  demeritos: number;
+  classes: number;
   badge: "🥇" | "🥈" | "🥉" | "";
 }
 

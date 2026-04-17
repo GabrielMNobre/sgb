@@ -4,12 +4,13 @@ import { getUnidadeDoConselheiro } from "@/services/conselheiros";
 import {
   getCampeonatoAtivo,
   getDashboardConselheiro,
-  getDetalhesdia,
+  getHistorico30Dias,
+  getMetas,
+  getEvolucaoAnual,
 } from "@/services/campeonato";
-import { getEncontroEmAndamento } from "@/services/encontros";
-import { DashboardConselheiroClient } from "./dashboard-client";
+import { HistoricoClient } from "./historico-client";
 
-export default async function CampeonatoConselheiroPage() {
+export default async function HistoricoPage() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -32,10 +33,7 @@ export default async function CampeonatoConselheiroPage() {
     );
   }
 
-  const [campeonato, encontroAtivo] = await Promise.all([
-    getCampeonatoAtivo(),
-    getEncontroEmAndamento(),
-  ]);
+  const campeonato = await getCampeonatoAtivo();
 
   if (!campeonato) {
     return (
@@ -47,31 +45,19 @@ export default async function CampeonatoConselheiroPage() {
     );
   }
 
-  if (!encontroAtivo) {
-    const dashboard = await getDashboardConselheiro(
-      campeonato.id,
-      unidadeInfo.unidadeId
-    );
-
-    return (
-      <DashboardConselheiroClient
-        dashboard={dashboard}
-        detalhesEncontro={null}
-        encontroData={null}
-      />
-    );
-  }
-
-  const [dashboard, detalhesEncontro] = await Promise.all([
+  const [dashboard, historico, metas, evolucao] = await Promise.all([
     getDashboardConselheiro(campeonato.id, unidadeInfo.unidadeId),
-    getDetalhesdia(campeonato.id, unidadeInfo.unidadeId, encontroAtivo.data),
+    getHistorico30Dias(campeonato.id, unidadeInfo.unidadeId),
+    getMetas(campeonato.id, unidadeInfo.unidadeId),
+    getEvolucaoAnual(campeonato.id, unidadeInfo.unidadeId),
   ]);
 
   return (
-    <DashboardConselheiroClient
+    <HistoricoClient
       dashboard={dashboard}
-      detalhesEncontro={detalhesEncontro}
-      encontroData={encontroAtivo.data}
+      historico={historico}
+      metas={metas}
+      evolucao={evolucao}
     />
   );
 }

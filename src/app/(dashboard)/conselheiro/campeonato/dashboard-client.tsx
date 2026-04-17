@@ -1,45 +1,66 @@
 "use client";
 
-import { useState } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
 import type {
   DashboardConselheiro,
-  HistoricoItem,
-  MetaCampeonato,
+  AvaliacaoCampeonato,
 } from "@/types/campeonato";
-import type { DetalhesDia, EvolucaoMensal } from "@/services/campeonato";
+import type { DetalhesDia } from "@/services/campeonato";
 import {
-  CATEGORIAS_LABELS,
-  CATEGORIAS_CORES,
   DEMERITOS_CONFIG,
   NIVEL_CORES,
+  CATEGORIAS_LABELS,
 } from "@/types/campeonato";
-import { Trophy, TrendingUp, AlertTriangle, Calendar, Target, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Trophy,
+  Calendar,
+  ClipboardList,
+  Gamepad2,
+  Star,
+  ShieldAlert,
+} from "lucide-react";
 
 interface Props {
   dashboard: DashboardConselheiro;
-  detalhesHoje: DetalhesDia;
-  historico: HistoricoItem[];
-  metas: MetaCampeonato[];
-  evolucao: EvolucaoMensal[];
-  hoje: string;
+  detalhesEncontro: DetalhesDia | null;
+  encontroData: string | null;
 }
 
-const COR_AVALIACAO: Record<string, { bg: string; text: string; border: string }> = {
-  verde: { bg: "bg-green-50", text: "text-green-700", border: "border-green-200" },
-  amarelo: { bg: "bg-yellow-50", text: "text-yellow-700", border: "border-yellow-200" },
-  vermelho: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200" },
+const COR_AVALIACAO: Record<
+  string,
+  { bg: string; text: string; border: string }
+> = {
+  verde: {
+    bg: "bg-green-50",
+    text: "text-green-700",
+    border: "border-green-200",
+  },
+  amarelo: {
+    bg: "bg-yellow-50",
+    text: "text-yellow-700",
+    border: "border-yellow-200",
+  },
+  vermelho: {
+    bg: "bg-red-50",
+    text: "text-red-700",
+    border: "border-red-200",
+  },
 };
 
-function formatarData(dataStr: string): string {
+const TIPOS_CHAMADA = new Set([
+  "presenca",
+  "pontualidade",
+  "materiais",
+  "uniforme",
+]);
+
+const LABELS_CHAMADA: Record<string, string> = {
+  presenca: "Presença",
+  pontualidade: "Pontualidade",
+  materiais: "Materiais",
+  uniforme: "Uniforme",
+};
+
+function formatarDataCompleta(dataStr: string): string {
   const [ano, mes, dia] = dataStr.split("-");
   return `${dia}/${mes}/${ano}`;
 }
@@ -49,370 +70,342 @@ function getNivelDemerito(tipo: string): string {
 }
 
 function getLabelDemerito(tipo: string): string {
-  const config = DEMERITOS_CONFIG.find((d) => d.value === tipo as any);
+  const config = DEMERITOS_CONFIG.find((d) => d.value === (tipo as any));
   return config?.label || tipo;
+}
+
+function extrairNomeDinamica(descricao?: string): string {
+  if (!descricao) return "Dinâmica";
+  const match = descricao.match(/^Dinâmica: (.+?) - /);
+  return match ? match[1] : "Dinâmica";
+}
+
+function extrairColocacaoDinamica(descricao?: string): string {
+  if (!descricao) return "";
+  const match = descricao.match(/Colocação: (.+)$/);
+  if (match) return match[1];
+  if (descricao.includes("Participou")) return "Participou";
+  return "";
+}
+
+function agruparAvaliacoes(avaliacoes: AvaliacaoCampeonato[]) {
+  const chamada: AvaliacaoCampeonato[] = [];
+  const dinamicas: AvaliacaoCampeonato[] = [];
+  const extras: AvaliacaoCampeonato[] = [];
+
+  for (const av of avaliacoes) {
+    if (TIPOS_CHAMADA.has(av.tipoAvaliacao)) {
+      chamada.push(av);
+    } else if (av.tipoAvaliacao === "dinamicas") {
+      dinamicas.push(av);
+    } else {
+      extras.push(av);
+    }
+  }
+
+  return { chamada, dinamicas, extras };
+}
+
+function AvaliacaoItem({
+  av,
+  label,
+}: {
+  av: AvaliacaoCampeonato;
+  label: string;
+}) {
+  const cores = COR_AVALIACAO[av.cor] || COR_AVALIACAO.vermelho;
+  return (
+    <div
+      className={`flex items-start sm:items-center justify-between gap-2 px-3 py-2.5 rounded-lg border ${cores.bg} ${cores.border}`}
+    >
+      <span className={`text-sm leading-tight ${cores.text} min-w-0`}>
+        {label}
+      </span>
+      <span
+        className={`text-sm font-bold ${cores.text} shrink-0`}
+      >
+        +{av.pontos}
+      </span>
+    </div>
+  );
+}
+
+function SubtotalRow({
+  label,
+  pontos,
+  tipo,
+}: {
+  label: string;
+  pontos: number;
+  tipo: "positivo" | "negativo";
+}) {
+  return (
+    <div
+      className={`flex justify-between px-3 py-1.5 text-sm font-semibold ${
+        tipo === "positivo" ? "text-green-700" : "text-red-700"
+      }`}
+    >
+      <span>{label}</span>
+      <span>
+        {tipo === "positivo" ? "+" : "-"}
+        {pontos} pts
+      </span>
+    </div>
+  );
 }
 
 export function DashboardConselheiroClient({
   dashboard,
-  detalhesHoje,
-  historico,
-  metas,
-  evolucao,
-  hoje,
+  detalhesEncontro,
+  encontroData,
 }: Props) {
-  const [mostrarHistorico, setMostrarHistorico] = useState(true);
+  const encontroFormatado = encontroData
+    ? formatarDataCompleta(encontroData)
+    : null;
 
-  const hojeFormatado = formatarData(hoje);
-  const totalAvaliacoesDia = detalhesHoje.avaliacoes.length;
-  const totalDemeritosDia = detalhesHoje.demeritos.length;
-  const temAtividadeHoje = totalAvaliacoesDia > 0 || totalDemeritosDia > 0;
+  const temAtividade =
+    detalhesEncontro !== null &&
+    (detalhesEncontro.avaliacoes.length > 0 ||
+      detalhesEncontro.demeritos.length > 0);
+
+  const { chamada, dinamicas, extras } = detalhesEncontro
+    ? agruparAvaliacoes(detalhesEncontro.avaliacoes)
+    : { chamada: [], dinamicas: [], extras: [] };
+
+  const pontosChamada = chamada.reduce((s, a) => s + a.pontos, 0);
+  const pontosDinamicas = dinamicas.reduce((s, a) => s + a.pontos, 0);
+  const pontosExtras = extras.reduce((s, a) => s + a.pontos, 0);
+  const totalPontosEncontro = pontosChamada + pontosDinamicas + pontosExtras;
+  const totalDemeritosEncontro = detalhesEncontro
+    ? detalhesEncontro.demeritos.reduce(
+        (s, d) => s + Math.abs(d.pontosPerdidos),
+        0
+      )
+    : 0;
+  const saldoEncontro = totalPontosEncontro - totalDemeritosEncontro;
+
+  const dinamicasPorNome: Record<string, AvaliacaoCampeonato[]> = {};
+  for (const d of dinamicas) {
+    const nome = extrairNomeDinamica(d.descricao);
+    if (!dinamicasPorNome[nome]) dinamicasPorNome[nome] = [];
+    dinamicasPorNome[nome].push(d);
+  }
 
   return (
-    <div className="space-y-6 p-4 sm:p-6">
+    <div className="space-y-4 sm:space-y-6 p-3 sm:p-6">
       {/* Header - Identidade da Unidade */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
             <div
-              className="w-4 h-10 rounded"
+              className="w-3 h-8 sm:w-4 sm:h-10 rounded shrink-0"
               style={{ backgroundColor: dashboard.unidadeCor }}
             />
-            <div>
-              <p className="text-sm text-gray-500 font-medium">Sua Unidade</p>
-              <h1 className="text-xl font-bold text-gray-900">
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-gray-500 font-medium">
+                Sua Unidade
+              </p>
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
                 {dashboard.unidadeNome}
               </h1>
             </div>
           </div>
-          <div className="flex items-center gap-2 bg-primary/5 rounded-lg px-4 py-2">
-            <Trophy className="h-5 w-5 text-primary" />
+          <div className="flex items-center gap-2 bg-primary/5 rounded-lg px-3 sm:px-4 py-2 self-start">
+            <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
             <div>
-              <p className="text-xs text-gray-500">Total Acumulado</p>
-              <p className="text-2xl font-bold text-primary">
+              <p className="text-[10px] sm:text-xs text-gray-500">
+                Total Acumulado
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-primary">
                 {dashboard.totalPontos.toLocaleString("pt-BR")}
-                <span className="text-sm font-normal ml-1">pts</span>
+                <span className="text-xs sm:text-sm font-normal ml-1">
+                  pts
+                </span>
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Seção HOJE */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Calendar className="h-5 w-5 text-gray-500" />
-          <h2 className="text-base font-semibold text-gray-700">
-            Hoje — {hojeFormatado}
-          </h2>
+      {/* Seção Encontro */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5">
+        <div className="flex items-start gap-2 mb-4">
+          <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 mt-0.5 shrink-0" />
+          <div>
+            <h2 className="text-sm sm:text-base font-semibold text-gray-700 leading-tight">
+              {encontroFormatado
+                ? "Encontro em Andamento"
+                : "Nenhum encontro em andamento"}
+            </h2>
+            {encontroFormatado && (
+              <p className="text-xs text-gray-400 mt-0.5">
+                {encontroFormatado}
+              </p>
+            )}
+          </div>
         </div>
 
-        {!temAtividadeHoje ? (
+        {!temAtividade ? (
           <p className="text-gray-400 text-sm italic">
-            Nenhum registro para hoje ainda.
+            {encontroData
+              ? "Nenhuma pontuação registrada neste encontro ainda."
+              : "Aguardando o administrador iniciar um encontro."}
           </p>
         ) : (
-          <div className="space-y-4">
-            {/* Pontos do dia */}
-            {detalhesHoje.avaliacoes.length > 0 && (
+          <div className="space-y-4 sm:space-y-5">
+            {/* Chamada */}
+            {chamada.length > 0 && (
               <div>
-                <p className="text-xs font-semibold text-green-600 uppercase tracking-wide mb-2">
-                  ✅ Pontos do Dia
-                </p>
+                <div className="flex items-center gap-2 mb-2">
+                  <ClipboardList className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-600" />
+                  <p className="text-[10px] sm:text-xs font-semibold text-blue-600 uppercase tracking-wide">
+                    Chamada
+                  </p>
+                </div>
                 <div className="space-y-1.5">
-                  {detalhesHoje.avaliacoes.map((av) => {
-                    const cores = COR_AVALIACAO[av.cor] || COR_AVALIACAO.vermelho;
-                    const categoriaLabel =
-                      CATEGORIAS_LABELS[av.categoria] || av.categoria;
-                    return (
-                      <div
-                        key={av.id}
-                        className={`flex items-center justify-between px-3 py-2 rounded-lg border ${cores.bg} ${cores.border}`}
-                      >
-                        <span className={`text-sm ${cores.text}`}>
-                          {categoriaLabel} — {av.tipoAvaliacao.replace(/_/g, " ")}
-                        </span>
-                        <span className={`text-sm font-bold ${cores.text}`}>
-                          +{av.pontos} pts
-                        </span>
-                      </div>
-                    );
-                  })}
-                  <div className="flex justify-between px-3 py-1.5 text-sm font-semibold text-green-700">
-                    <span>Subtotal</span>
-                    <span>+{dashboard.pontosDia} pts</span>
-                  </div>
+                  {chamada.map((av) => (
+                    <AvaliacaoItem
+                      key={av.id}
+                      av={av}
+                      label={
+                        LABELS_CHAMADA[av.tipoAvaliacao] || av.tipoAvaliacao
+                      }
+                    />
+                  ))}
+                  <SubtotalRow
+                    label="Subtotal Chamada"
+                    pontos={pontosChamada}
+                    tipo="positivo"
+                  />
                 </div>
               </div>
             )}
 
-            {/* Deméritos do dia */}
-            {detalhesHoje.demeritos.length > 0 && (
+            {/* Dinâmicas */}
+            {dinamicas.length > 0 && (
               <div>
-                <p className="text-xs font-semibold text-red-600 uppercase tracking-wide mb-2">
-                  ⚠️ Deméritos do Dia
-                </p>
+                <div className="flex items-center gap-2 mb-2">
+                  <Gamepad2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-purple-600" />
+                  <p className="text-[10px] sm:text-xs font-semibold text-purple-600 uppercase tracking-wide">
+                    Dinâmicas
+                  </p>
+                </div>
                 <div className="space-y-1.5">
-                  {detalhesHoje.demeritos.map((dem) => {
+                  {Object.entries(dinamicasPorNome).map(([nome, avs]) => {
+                    const av = avs[0];
+                    const colocacao = extrairColocacaoDinamica(av.descricao);
+                    const labelDin = colocacao
+                      ? `${nome} — ${colocacao}`
+                      : nome;
+                    return (
+                      <AvaliacaoItem key={av.id} av={av} label={labelDin} />
+                    );
+                  })}
+                  <SubtotalRow
+                    label="Subtotal Dinâmicas"
+                    pontos={pontosDinamicas}
+                    tipo="positivo"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Avaliações Extras */}
+            {extras.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-600" />
+                  <p className="text-[10px] sm:text-xs font-semibold text-amber-600 uppercase tracking-wide">
+                    Avaliações Extras
+                  </p>
+                </div>
+                <div className="space-y-1.5">
+                  {extras.map((av) => {
+                    let label: string;
+                    if (av.tipoAvaliacao === "mensalidade") {
+                      label = "Mensalidade";
+                    } else {
+                      const categoriaLabel =
+                        CATEGORIAS_LABELS[av.categoria] || av.categoria;
+                      const tipoLabel = av.tipoAvaliacao.replace(/_/g, " ");
+                      label = `${categoriaLabel} — ${tipoLabel}`;
+                    }
+                    return (
+                      <AvaliacaoItem key={av.id} av={av} label={label} />
+                    );
+                  })}
+                  <SubtotalRow
+                    label="Subtotal Extras"
+                    pontos={pontosExtras}
+                    tipo="positivo"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Deméritos */}
+            {detalhesEncontro!.demeritos.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <ShieldAlert className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-600" />
+                  <p className="text-[10px] sm:text-xs font-semibold text-red-600 uppercase tracking-wide">
+                    Deméritos
+                  </p>
+                </div>
+                <div className="space-y-1.5">
+                  {detalhesEncontro!.demeritos.map((dem) => {
                     const nivel = getNivelDemerito(dem.tipoDemeritos);
                     const cor = NIVEL_CORES[nivel] || "#DC3545";
                     return (
                       <div
                         key={dem.id}
-                        className="flex items-center justify-between px-3 py-2 rounded-lg border border-red-100 bg-red-50"
+                        className="flex items-start sm:items-center justify-between gap-2 px-3 py-2.5 rounded-lg border border-red-100 bg-red-50"
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
                           <span
-                            className="text-xs font-bold px-1.5 py-0.5 rounded text-white"
+                            className="text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded text-white shrink-0"
                             style={{ backgroundColor: cor }}
                           >
                             {nivel}
                           </span>
-                          <span className="text-sm text-red-700">
-                            ❌ {getLabelDemerito(dem.tipoDemeritos)}
+                          <span className="text-sm text-red-700 leading-tight">
+                            {getLabelDemerito(dem.tipoDemeritos)}
                           </span>
                         </div>
-                        <span className="text-sm font-bold text-red-700">
-                          {dem.pontos} pts
+                        <span className="text-sm font-bold text-red-700 shrink-0">
+                          {dem.pontosPerdidos}
                         </span>
                       </div>
                     );
                   })}
-                  <div className="flex justify-between px-3 py-1.5 text-sm font-semibold text-red-700">
-                    <span>Subtotal</span>
-                    <span>-{dashboard.demeritosDia} pts</span>
-                  </div>
+                  <SubtotalRow
+                    label="Subtotal Deméritos"
+                    pontos={totalDemeritosEncontro}
+                    tipo="negativo"
+                  />
                 </div>
               </div>
             )}
 
-            {/* Total do dia */}
-            <div className="border-t border-gray-100 pt-3">
-              <div className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg">
+            {/* Total do Encontro */}
+            <div className="border-t border-gray-200 pt-3">
+              <div className="flex items-center justify-between px-3 sm:px-4 py-3 bg-gray-50 rounded-lg">
                 <span className="text-sm font-bold text-gray-700">
-                  💰 Total do Dia
+                  Total do Encontro
                 </span>
                 <span
-                  className={`text-base font-bold ${
-                    dashboard.saldoDia >= 0 ? "text-green-600" : "text-red-600"
+                  className={`text-base sm:text-lg font-bold ${
+                    saldoEncontro >= 0 ? "text-green-600" : "text-red-600"
                   }`}
                 >
-                  {dashboard.saldoDia >= 0 ? "+" : ""}
-                  {dashboard.saldoDia} pts
+                  {saldoEncontro >= 0 ? "+" : ""}
+                  {saldoEncontro} pts
                 </span>
               </div>
             </div>
           </div>
         )}
       </div>
-
-      {/* Gráfico de Evolução Anual */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="h-5 w-5 text-primary" />
-          <h2 className="text-base font-semibold text-gray-700">
-            Evolução Anual 2026
-          </h2>
-        </div>
-        <div className="h-48">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={evolucao}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis
-                dataKey="nomeMes"
-                tick={{ fontSize: 12, fill: "#6b7280" }}
-              />
-              <YAxis tick={{ fontSize: 11, fill: "#6b7280" }} />
-              <Tooltip
-                formatter={(value) => [
-                  `${Number(value).toLocaleString("pt-BR")} pts`,
-                  "Acumulado",
-                ]}
-                labelFormatter={(label) => `Mês: ${label}`}
-              />
-              <Line
-                type="monotone"
-                dataKey="acumulado"
-                stroke="#1a2b5f"
-                strokeWidth={2}
-                dot={{ fill: "#1a2b5f", r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Próximas Metas */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Target className="h-5 w-5 text-primary" />
-          <h2 className="text-base font-semibold text-gray-700">
-            Metas do Campeonato
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {metas.map((meta) => (
-            <MetaCard key={meta.nome} meta={meta} />
-          ))}
-        </div>
-      </div>
-
-      {/* Histórico 30 dias */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <button
-          className="flex items-center justify-between w-full"
-          onClick={() => setMostrarHistorico(!mostrarHistorico)}
-        >
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-gray-400" />
-            <h2 className="text-base font-semibold text-gray-700">
-              Histórico — Últimos 30 Dias
-            </h2>
-            <span className="text-xs text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">
-              {historico.length}
-            </span>
-          </div>
-          {mostrarHistorico ? (
-            <ChevronUp className="h-4 w-4 text-gray-400" />
-          ) : (
-            <ChevronDown className="h-4 w-4 text-gray-400" />
-          )}
-        </button>
-
-        {mostrarHistorico && (
-          <div className="mt-4 overflow-x-auto">
-            {historico.length === 0 ? (
-              <p className="text-gray-400 text-sm italic">
-                Nenhum registro nos últimos 30 dias.
-              </p>
-            ) : (
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left py-2 text-xs font-semibold text-gray-500 uppercase">
-                      Data
-                    </th>
-                    <th className="text-left py-2 text-xs font-semibold text-gray-500 uppercase">
-                      Tipo
-                    </th>
-                    <th className="text-left py-2 text-xs font-semibold text-gray-500 uppercase hidden sm:table-cell">
-                      Categoria
-                    </th>
-                    <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase">
-                      Pontos
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {historico.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                      <td className="py-2 text-gray-600">
-                        {formatarData(item.dataRegistro)}
-                      </td>
-                      <td className="py-2">
-                        <span
-                          className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                            item.tipoRegistro === "avaliacao"
-                              ? "bg-blue-50 text-blue-700"
-                              : "bg-red-50 text-red-700"
-                          }`}
-                        >
-                          {item.tipoRegistro === "avaliacao" ? "Avaliação" : "Demérito"}
-                        </span>
-                      </td>
-                      <td className="py-2 text-gray-500 hidden sm:table-cell">
-                        {item.categoria
-                          ? CATEGORIAS_LABELS[item.categoria as keyof typeof CATEGORIAS_LABELS] ||
-                            item.categoria
-                          : "—"}
-                      </td>
-                      <td className="py-2 text-right font-semibold">
-                        {item.tipoRegistro === "avaliacao" ? (
-                          <span className="text-green-600">+{item.pontosGanhos}</span>
-                        ) : (
-                          <span className="text-red-600">-{item.pontosPerdidos}</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function MetaCard({ meta }: { meta: MetaCampeonato }) {
-  const statusConfig = {
-    concluido: {
-      label: "Concluído ✅",
-      cls: "bg-green-50 border-green-200 text-green-700",
-    },
-    disponivel: {
-      label: "Disponível",
-      cls: "bg-blue-50 border-blue-200 text-blue-700",
-    },
-    vencido: {
-      label: "Vencido ❌",
-      cls: "bg-red-50 border-red-200 text-red-700",
-    },
-    em_progresso: {
-      label: "Em Progresso",
-      cls: "bg-yellow-50 border-yellow-200 text-yellow-700",
-    },
-    em_dia: {
-      label: "Em Dia ✅",
-      cls: "bg-green-50 border-green-200 text-green-700",
-    },
-    com_atraso: {
-      label: "Com Atraso ⚠️",
-      cls: "bg-orange-50 border-orange-200 text-orange-700",
-    },
-  };
-
-  const cfg = statusConfig[meta.status] || statusConfig.disponivel;
-
-  return (
-    <div className={`border rounded-lg p-4 ${cfg.cls}`}>
-      <div className="flex items-start justify-between">
-        <h3 className="font-semibold text-sm">{meta.nome}</h3>
-        <span className="text-xs font-bold">{meta.pontos} pts</span>
-      </div>
-      <div className="mt-2 flex items-center justify-between">
-        <span className="text-xs font-medium">{cfg.label}</span>
-        {meta.prazo && (
-          <span className="text-xs opacity-70">
-            até {meta.prazo.split("-").reverse().join("/")}
-          </span>
-        )}
-      </div>
-      {meta.progresso && (
-        <div className="mt-2">
-          <div className="flex justify-between text-xs mb-1">
-            <span>
-              {meta.progresso.atual}/{meta.progresso.maximo}
-            </span>
-            <span>
-              {Math.round((meta.progresso.atual / meta.progresso.maximo) * 100)}%
-            </span>
-          </div>
-          <div className="w-full bg-white/50 rounded-full h-1.5">
-            <div
-              className="h-1.5 rounded-full bg-current"
-              style={{
-                width: `${Math.min(
-                  100,
-                  (meta.progresso.atual / meta.progresso.maximo) * 100
-                )}%`,
-              }}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

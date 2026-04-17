@@ -15,6 +15,7 @@ import {
   BookOpen,
   Shirt,
   UserCog,
+  Gamepad2,
 } from "lucide-react";
 import { Loading } from "@/components/ui/loading";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -199,6 +200,12 @@ export default function EncontroDetalhesPage() {
                   Chamada
                 </Button>
               </Link>
+              <Link href={`/admin/encontros/${encontroId}/dinamicas`} className="flex-1 sm:flex-none">
+                <Button size="sm" variant="outline" className="w-full">
+                  <Gamepad2 className="h-4 w-4 mr-1" />
+                  Dinâmicas
+                </Button>
+              </Link>
               <Button
                 size="sm"
                 variant="outline"
@@ -211,12 +218,20 @@ export default function EncontroDetalhesPage() {
             </>
           )}
           {encontro.status === "finalizado" && (
-            <Link href={`/admin/encontros/${encontroId}/chamada`} className="flex-1 sm:flex-none">
-              <Button variant="outline" size="sm" className="w-full">
-                <ClipboardList className="h-4 w-4 mr-1" />
-                Ver Chamada
-              </Button>
-            </Link>
+            <>
+              <Link href={`/admin/encontros/${encontroId}/chamada`} className="flex-1 sm:flex-none">
+                <Button variant="outline" size="sm" className="w-full">
+                  <ClipboardList className="h-4 w-4 mr-1" />
+                  Ver Chamada
+                </Button>
+              </Link>
+              <Link href={`/admin/encontros/${encontroId}/dinamicas`} className="flex-1 sm:flex-none">
+                <Button variant="outline" size="sm" className="w-full">
+                  <Gamepad2 className="h-4 w-4 mr-1" />
+                  Ver Dinâmicas
+                </Button>
+              </Link>
+            </>
           )}
         </div>
       </div>
