@@ -174,6 +174,7 @@ const menuItems: Record<PapelUsuario, MenuConfig> = {
       items: [
         { href: "/conselheiro/campeonato", label: "Pontuação do Dia", icon: Trophy },
         { href: "/conselheiro/campeonato/historico", label: "Histórico", icon: BarChart3 },
+        { href: "/conselheiro/campeonato/como-funciona", label: "Como Funciona", icon: BookOpen },
       ],
     },
   ],
