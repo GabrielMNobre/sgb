@@ -1,0 +1,23 @@
+---
+description: Tipos e constantes do projeto
+globs: src/types/**/*.ts, src/lib/constants.ts
+alwaysApply: false
+---
+
+# Tipos e Constantes SGB
+
+## Tipos (src/types/)
+- Entidades: `Membro`, `Unidade`, `Encontro`, `Venda`, etc.
+- Com relações: `MembroComRelacoes`, `EncontroComPresencas`
+- Form: `MembroFormData`, `VendaFormData` (camelCase)
+- Filtros: `FiltrosMembro`, `FiltrosVenda` (camelCase)
+
+## Constantes (src/lib/constants.ts)
+- `ROLES`, `ROLE_LABELS` – admin, secretaria, tesoureiro, conselheiro
+- `PRESENCE_STATUS`, `PRESENCE_LABELS` – pontual, atrasado, falta, falta_justificada
+- `MEETING_STATUS`, `MEETING_LABELS` – agendado, em_andamento, finalizado
+- `MENSALIDADE_DESBRAVADOR`, `MENSALIDADE_DIRETORIA` – valores em R$
+- `MESES_LABELS`, `MESES_ABREVIADOS` – meses
+- `STATUS_MENSALIDADE_LABELS` – pendente, pago
+
+Usar constantes em vez de strings mágicas; labels para exibição em UI.

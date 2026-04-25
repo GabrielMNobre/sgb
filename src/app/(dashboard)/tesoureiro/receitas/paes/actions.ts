@@ -27,6 +27,7 @@ import {
   gerarPedidosRecorrentesParaSemana,
 } from "@/services/pedidos-recorrentes-paes";
 import { updateConfiguracoes } from "@/services/configuracoes-paes";
+import { createGasto } from "@/services/gastos";
 import type {
   ClientePaesFormData,
   SemanaPaesFormData,
@@ -34,6 +35,9 @@ import type {
   PedidoRecorrentePaesFormData,
   ConfiguracoesPaesFormData,
 } from "@/types/paes";
+import type { GastoFormData } from "@/types/gasto";
+
+const EVENTO_ID_PAES = "b422fa7c-da84-4b38-9ecd-ad9213557003";
 
 function revalidatePaes() {
   revalidatePath("/tesoureiro/receitas/paes");
@@ -405,6 +409,30 @@ export async function gerarRecorrentesParaSemanaAction(semanaId: string) {
       success: false,
       error: "Erro ao gerar pedidos recorrentes para semana",
     };
+  }
+}
+
+// ========== Gastos Actions ==========
+
+export async function criarGastoPaesAction(formData: Omit<GastoFormData, "eventoId">) {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      throw new Error("Usuário não autenticado");
+    }
+
+    await createGasto({ ...formData, eventoId: EVENTO_ID_PAES }, user.id);
+
+    revalidatePaes();
+
+    return { success: true };
+  } catch (error) {
+    console.error("Erro ao registrar custo de pães:", error);
+    return { success: false, error: "Erro ao registrar custo de pães" };
   }
 }
 

@@ -10,9 +10,10 @@ import { PedidoPaesModal } from "@/components/forms/pedido-paes-modal";
 import { VenderSemDonoModal } from "@/components/forms/vender-sem-dono-modal";
 import { SemanaPaesModal } from "@/components/forms/semana-paes-modal";
 import { NaoEntregueModal } from "@/components/forms/nao-entregue-modal";
+import { GastoModal } from "@/components/forms/gasto-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Loading } from "@/components/ui/loading";
-import { Plus, ShoppingBag, Wheat } from "lucide-react";
+import { Plus, ShoppingBag, Wheat, Receipt } from "lucide-react";
 import type {
   PedidoPaesComCliente,
   PedidoPaesFormData,
@@ -32,7 +33,17 @@ import {
   criarPedidoSemDonoAction,
   criarSemanaPaesAction,
   criarClientePaesAction,
+  criarGastoPaesAction,
 } from "./actions";
+import type { GastoFormData } from "@/types/gasto";
+
+const EVENTO_PAES_MOCK = {
+  id: "b422fa7c-da84-4b38-9ecd-ad9213557003",
+  nome: "Pães",
+  ativo: true,
+  criadoEm: new Date(),
+  atualizadoEm: new Date(),
+};
 import { formatDate } from "@/lib/utils/date";
 
 export default function PaesPage() {
@@ -48,6 +59,7 @@ export default function PaesPage() {
   const [vendaSemDonoModalOpen, setVendaSemDonoModalOpen] = useState(false);
   const [semanaModalOpen, setSemanaModalOpen] = useState(false);
   const [naoEntregueModalOpen, setNaoEntregueModalOpen] = useState(false);
+  const [gastoModalOpen, setGastoModalOpen] = useState(false);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [pedidoParaExcluir, setPedidoParaExcluir] = useState<string | null>(
@@ -108,12 +120,15 @@ export default function PaesPage() {
 
   const semanaAtual = semanas.find((s) => s.status === "aberta") || null;
 
-  const totalPotencial = semanas.reduce((sum, s) => sum + s.totalValor, 0);
-  const totalPago = semanas.reduce((sum, s) => sum + s.totalPago, 0);
-  const totalPendente = totalPotencial - totalPago;
-  const totalPedidos = semanas.reduce((sum, s) => sum + s.totalPedidos, 0);
-  const totalPaes = semanas.reduce((sum, s) => sum + s.totalPaes, 0);
-  const totalFornadas = semanas.reduce((sum, s) => sum + s.fornadas, 0);
+  // Stats da semana atual (aberta) apenas
+  const totalPago = semanaAtual?.totalPago ?? 0;
+  const totalPendente = (semanaAtual?.totalValor ?? 0) - totalPago;
+  const totalPedidos = semanaAtual?.totalPedidos ?? 0;
+  const totalFornadas = semanaAtual?.fornadas ?? 0;
+
+  const paesEntregues = pedidos.filter((p) => p.statusEntrega === "entregue").reduce((sum, p) => sum + p.quantidade, 0);
+  const paesPendentesEntrega = pedidos.filter((p) => p.statusEntrega === "pendente").reduce((sum, p) => sum + p.quantidade, 0);
+  const paesSemDono = semanaAtual?.paesSemDono || 0;
 
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("pt-BR", {
@@ -144,6 +159,16 @@ export default function PaesPage() {
 
   const handleNovaSemana = () => {
     setSemanaModalOpen(true);
+  };
+
+  const handleAdicionarCusto = () => {
+    setGastoModalOpen(true);
+  };
+
+  const handleSalvarGasto = async (data: GastoFormData) => {
+    const { eventoId: _eventoId, ...resto } = data;
+    await criarGastoPaesAction(resto);
+    setGastoModalOpen(false);
   };
 
   const handleSalvarPedido = async (data: PedidoPaesFormData, id?: string) => {
@@ -234,49 +259,78 @@ export default function PaesPage() {
         </div>
       </div>
 
-      {/* Resumo */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+      {/* Resumo da semana atual */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         <Card>
           <div className="p-6">
-            <p className="text-sm text-gray-600">Total Arrecadado</p>
+            <p className="text-sm text-gray-600">Arrecadado</p>
             <p className="text-2xl sm:text-3xl font-bold text-green-600 mt-1">
-              {formatCurrency(totalPago)}
+              {semanaAtual ? formatCurrency(totalPago) : "—"}
             </p>
+            <p className="text-xs text-gray-400 mt-0.5">semana atual</p>
           </div>
         </Card>
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Pendente</p>
-            <p className={`text-2xl sm:text-3xl font-bold mt-1 ${totalPendente > 0 ? "text-amber-600" : "text-gray-400"}`}>
-              {formatCurrency(totalPendente)}
+            <p className={`text-2xl sm:text-3xl font-bold mt-1 ${semanaAtual && totalPendente > 0 ? "text-amber-600" : "text-gray-400"}`}>
+              {semanaAtual ? formatCurrency(totalPendente) : "—"}
             </p>
+            <p className="text-xs text-gray-400 mt-0.5">semana atual</p>
           </div>
         </Card>
         <Card>
           <div className="p-6">
-            <p className="text-sm text-gray-600">Total Pedidos</p>
+            <p className="text-sm text-gray-600">Pedidos</p>
             <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
-              {totalPedidos}
+              {semanaAtual ? totalPedidos : "—"}
             </p>
-          </div>
-        </Card>
-        <Card>
-          <div className="p-6">
-            <p className="text-sm text-gray-600">Total Pães</p>
-            <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
-              {totalPaes}
-            </p>
+            <p className="text-xs text-gray-400 mt-0.5">semana atual</p>
           </div>
         </Card>
         <Card>
           <div className="p-6">
             <p className="text-sm text-gray-600">Fornadas</p>
             <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
-              {totalFornadas}
+              {semanaAtual ? totalFornadas : "—"}
             </p>
+            <p className="text-xs text-gray-400 mt-0.5">semana atual</p>
           </div>
         </Card>
       </div>
+
+      {/* Entregas da Semana */}
+      {semanaAtual && (
+        <div className="grid grid-cols-3 gap-4">
+          <Card>
+            <div className="p-6">
+              <p className="text-sm text-gray-600">Entregues</p>
+              <p className="text-2xl sm:text-3xl font-bold text-green-600 mt-1">
+                {paesEntregues}
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">pães</p>
+            </div>
+          </Card>
+          <Card>
+            <div className="p-6">
+              <p className="text-sm text-gray-600">Entregas Pendentes</p>
+              <p className={`text-2xl sm:text-3xl font-bold mt-1 ${paesPendentesEntrega > 0 ? "text-amber-600" : "text-gray-400"}`}>
+                {paesPendentesEntrega}
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">pães</p>
+            </div>
+          </Card>
+          <Card>
+            <div className="p-6">
+              <p className="text-sm text-gray-600">Sem Dono</p>
+              <p className={`text-2xl sm:text-3xl font-bold mt-1 ${paesSemDono > 0 ? "text-amber-600" : "text-gray-400"}`}>
+                {paesSemDono}
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">pães</p>
+            </div>
+          </Card>
+        </div>
+      )}
 
       {/* Semana Atual */}
       <Card>
@@ -330,6 +384,12 @@ export default function PaesPage() {
                   {semanaAtual.paesSemDono} paes sem dono nesta semana
                 </p>
               )}
+              <div className="pt-2">
+                <Button variant="outline" size="sm" onClick={handleAdicionarCusto}>
+                  <Receipt className="w-4 h-4 mr-2" />
+                  Registrar Custo
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="text-center py-8">
@@ -457,6 +517,15 @@ export default function PaesPage() {
         message="Tem certeza que deseja excluir este pedido? Esta acao nao pode ser desfeita."
         confirmText="Excluir"
         variant="danger"
+      />
+
+      {/* Modal Registrar Custo */}
+      <GastoModal
+        isOpen={gastoModalOpen}
+        onClose={() => setGastoModalOpen(false)}
+        eventos={[EVENTO_PAES_MOCK]}
+        eventoIdPadrao={EVENTO_PAES_MOCK.id}
+        onSubmit={handleSalvarGasto}
       />
     </div>
   );

@@ -128,6 +128,54 @@ export interface HistoricoUsoCredito {
   criadoEm: Date;
 }
 
+// === Inadimplentes ===
+export interface InadimplentePaesPedido {
+  pedidoId: string;
+  semanaId: string;
+  dataProducao: Date;
+  dataEntrega: Date;
+  statusSemana: StatusSemana;
+  quantidade: number;
+  valorTotal: number;
+  valorPago: number;
+  valorPendente: number;
+}
+
+export interface InadimplentePaes {
+  clienteId: string;
+  clienteNome: string;
+  totalPendente: number;
+  totalPaes: number;
+  pedidos: InadimplentePaesPedido[];
+}
+
+// === Resultados ===
+export interface ResultadoSemanaPaes {
+  semanaId: string;
+  dataProducao: Date;
+  dataEntrega: Date;
+  status: StatusSemana;
+  totalPaes: number;
+  totalPedidos: number;
+  totalValor: number;
+  totalPago: number;
+  totalPendente: number;
+  custoProducao: number;
+  lucro: number;
+  fornadas: number;
+}
+
+export interface ResultadosGeraisPaes {
+  totalArrecadado: number;
+  totalPendente: number;
+  totalPaes: number;
+  totalPedidos: number;
+  totalFornadas: number;
+  custoTotal: number;
+  lucroTotal: number;
+  semanas: ResultadoSemanaPaes[];
+}
+
 // === Configurações ===
 export interface ConfiguracoesPaes {
   id: string;

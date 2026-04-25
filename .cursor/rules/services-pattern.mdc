@@ -1,0 +1,36 @@
+---
+description: Padrões para services - Supabase, case-converter
+globs: src/services/**/*.ts
+alwaysApply: false
+---
+
+# Services - Padrões SGB
+
+## Imports obrigatórios
+```typescript
+import { createClient } from "@/lib/supabase/server";
+import { snakeToCamel, camelToSnake } from "@/lib/utils/case-converter";
+```
+
+## Padrão de cliente
+```typescript
+const supabase = await createClient();
+const db = supabase as any;  // para queries dinâmicas com .from(), .select()
+```
+
+## Conversão de dados
+- **Retorno do banco** (select): sempre `snakeToCamel<T>(row)` ou `(data || []).map(item => snakeToCamel<T>(item))`
+- **Envio ao banco** (insert/update): sempre `camelToSnake(formData)` antes de passar ao Supabase
+
+## Queries
+- Usar `snake_case` nos nomes de tabelas e colunas nas queries (`unidade_id`, `data_nascimento`)
+- Colunas de relações: manter snake_case no select, converter manualmente objetos aninhados se necessário
+
+## Exemplo
+```typescript
+const { data, error } = await db.from("membros").select("*, unidades(nome)").eq("ativo", true);
+return (data || []).map(item => snakeToCamel<Membro>(item));
+```
+
+## Regra
+Um service por domínio em `src/services/`. Nome do arquivo: kebab-case (ex: `membros.ts`, `pedidos-paes.ts`).
