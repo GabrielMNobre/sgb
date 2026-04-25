@@ -252,7 +252,7 @@ export default function DinamicasPage() {
     );
   }
 
-  const emAndamento = encontro.status === "em_andamento";
+  const podeEditar = encontro.status === "em_andamento" || encontro.status === "finalizado";
 
   // Unidades disponíveis para seleção de pódio (exclui as já escolhidas)
   const podioSelecionados = new Set(
@@ -312,7 +312,7 @@ export default function DinamicasPage() {
       )}
 
       {/* Formulário - só se em andamento */}
-      {emAndamento && (
+      {podeEditar && (
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Info da dinâmica */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
@@ -577,7 +577,7 @@ export default function DinamicasPage() {
                     {din.tipo === "colocacao" ? "Colocação" : "Para Todos"}
                   </Badge>
                 </div>
-                {emAndamento && (
+                {podeEditar && (
                   <button
                     onClick={() => handleDeletar(din.nome)}
                     className="p-1.5 hover:bg-red-50 text-red-500 rounded transition-colors"

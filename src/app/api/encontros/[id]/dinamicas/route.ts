@@ -84,9 +84,9 @@ export async function POST(
       return NextResponse.json({ error: "Encontro não encontrado" }, { status: 404 });
     }
 
-    if (encontro.status !== "em_andamento") {
+    if (encontro.status === "agendado") {
       return NextResponse.json(
-        { error: "Encontro deve estar em andamento para registrar dinâmicas" },
+        { error: "Encontro deve estar em andamento ou finalizado para registrar dinâmicas" },
         { status: 400 }
       );
     }
@@ -150,9 +150,9 @@ export async function DELETE(
       return NextResponse.json({ error: "Encontro não encontrado" }, { status: 404 });
     }
 
-    if (encontro.status !== "em_andamento") {
+    if (encontro.status === "agendado") {
       return NextResponse.json(
-        { error: "Encontro deve estar em andamento para deletar dinâmicas" },
+        { error: "Encontro deve estar em andamento ou finalizado para deletar dinâmicas" },
         { status: 400 }
       );
     }
