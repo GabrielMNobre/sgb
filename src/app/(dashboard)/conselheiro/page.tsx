@@ -30,6 +30,8 @@ import {
   getEncontroEmAndamento,
 } from "@/services/encontros";
 import { formatDate } from "@/lib/utils/date";
+import { getCampeonatoAtivo, getDashboardConselheiro } from "@/services/campeonato";
+import { Trophy, TrendingDown } from "lucide-react";
 
 function getPercentageColor(value: number) {
   if (value >= 80) return "text-green-600";
@@ -113,6 +115,7 @@ export default async function ConselheiroPage() {
   let encontroEmAndamento: Awaited<
     ReturnType<typeof getEncontroEmAndamento>
   > = null;
+  let dashCampeonato: Awaited<ReturnType<typeof getDashboardConselheiro>> | null = null;
 
   try {
     [
@@ -132,6 +135,11 @@ export default async function ConselheiroPage() {
       getProximoEncontro(),
       getEncontroEmAndamento(),
     ]);
+
+    const campeonato = await getCampeonatoAtivo();
+    if (campeonato) {
+      dashCampeonato = await getDashboardConselheiro(campeonato.id, unidadeInfo.unidadeId).catch(() => null);
+    }
   } catch (error) {
     console.error("Erro ao carregar dados do dashboard:", error);
   }
@@ -558,6 +566,57 @@ export default async function ConselheiroPage() {
           </Card>
         </div>
       </div>
+
+      {/* Campeonato 2026 */}
+      {dashCampeonato && (
+        <div>
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+            Campeonato 2026
+          </h2>
+          <Link href="/conselheiro/campeonato">
+            <Card className="hover:bg-gray-50 transition-colors cursor-pointer">
+              <CardContent className="pt-4 pb-4 sm:pt-6 sm:pb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="h-12 w-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: dashCampeonato.unidadeCor }}>
+                      <Trophy className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Progresso do Campeonato</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {dashCampeonato.totalPontos.toLocaleString("pt-BR")}
+                        <span className="text-sm font-normal text-gray-400 ml-1">pts</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 sm:gap-6">
+                    <div className="text-center">
+                      <p className="text-xs text-gray-400 mb-1">Hoje +</p>
+                      <div className="flex items-center gap-1">
+                        <TrendingUp className="h-3.5 w-3.5 text-green-500" />
+                        <span className="text-base font-bold text-green-600">{dashCampeonato.pontosDia}</span>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-400 mb-1">Hoje -</p>
+                      <div className="flex items-center gap-1">
+                        <TrendingDown className="h-3.5 w-3.5 text-red-500" />
+                        <span className="text-base font-bold text-red-600">{dashCampeonato.demeritosDia}</span>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-400 mb-1">Saldo</p>
+                      <span className={`text-base font-bold ${dashCampeonato.saldoDia >= 0 ? "text-green-600" : "text-red-600"}`}>
+                        {dashCampeonato.saldoDia >= 0 ? "+" : ""}{dashCampeonato.saldoDia}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div>

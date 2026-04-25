@@ -20,6 +20,7 @@ import {
 } from "@/services/membros";
 import { countConselheirosAtivos } from "@/services/conselheiros";
 import { getProximosEncontros, countEncontrosNoMes } from "@/services/encontros";
+import { AdminCampeonatoCard } from "./campeonato-card";
 // import { countEspecialidadesAtivas } from "@/services/especialidades"; // Temporariamente oculto
 // import { countConquistasPendentes } from "@/services/membros-especialidades"; // Temporariamente oculto
 
@@ -325,6 +326,9 @@ export default async function AdminPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Campeonato 2026 */}
+      <AdminCampeonatoCard />
 
       {/* Atalhos rápidos */}
       <div>

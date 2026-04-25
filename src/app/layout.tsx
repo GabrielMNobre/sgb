@@ -20,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
-      <body className={inter.className}>
+    <html lang="pt-BR" suppressHydrationWarning>
+      <body className={inter.className} suppressHydrationWarning>
         <NextTopLoader color="#1a2b5f" showSpinner={false} height={3} />
         <ToastProvider>{children}</ToastProvider>
       </body>

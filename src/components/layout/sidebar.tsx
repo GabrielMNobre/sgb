@@ -21,6 +21,9 @@ import {
   Heart,
   Wheat,
   Tent,
+  Trophy,
+  AlertTriangle,
+  BookOpen,
   CheckCircle2,
   ChevronDown,
   ChevronRight,
@@ -113,6 +116,17 @@ const adminMenu: MenuSection[] = [
     ],
   },
   {
+    section: "Campeonato 2026",
+    items: [
+      { href: "/admin/campeonato", label: "Dashboard", icon: Trophy },
+      { href: "/admin/campeonato/ranking", label: "Ranking", icon: Award },
+      { href: "/admin/campeonato/registrar-avaliacao", label: "Avaliações", icon: ClipboardList },
+      { href: "/admin/campeonato/registrar-demeritos", label: "Deméritos", icon: AlertTriangle },
+      { href: "/admin/campeonato/classes", label: "Classes", icon: BookOpen },
+      { href: "/admin/campeonato/mensalidades", label: "Mensalidades", icon: DollarSign },
+    ],
+  },
+  {
     section: "Relatórios",
     items: [{ href: "/admin/relatorios", label: "Relatórios", icon: BarChart3 }],
   },
@@ -194,6 +208,14 @@ const menuItems: Record<PapelUsuario, MenuConfig> = {
       section: "Financeiro",
       items: [
         { href: "/conselheiro/mensalidades", label: "Mensalidades", icon: DollarSign },
+      ],
+    },
+    {
+      section: "Campeonato 2026",
+      items: [
+        { href: "/conselheiro/campeonato", label: "Pontuação do Dia", icon: Trophy },
+        { href: "/conselheiro/campeonato/historico", label: "Histórico", icon: BarChart3 },
+        { href: "/conselheiro/campeonato/como-funciona", label: "Como Funciona", icon: BookOpen },
       ],
     },
   ],
