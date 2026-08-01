@@ -309,6 +309,7 @@ function DiaCard({ dia }: { dia: DiaAgrupado }) {
   );
 }
 
+
 export function HistoricoClient({
   dashboard,
   historico,
@@ -317,7 +318,6 @@ export function HistoricoClient({
 }: Props) {
   const diasAgrupados = agruparPorDia(historico);
 
-  const totalGeral = diasAgrupados.reduce((s, d) => s + d.saldo, 0);
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
@@ -415,14 +415,9 @@ export function HistoricoClient({
               {diasAgrupados.length} {diasAgrupados.length === 1 ? "encontro" : "encontros"}
             </span>
           </div>
-          {totalGeral !== 0 && (
-            <span
-              className={`text-sm font-bold ${
-                totalGeral >= 0 ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              Total: {totalGeral >= 0 ? "+" : ""}
-              {totalGeral} pts
+          {dashboard.totalPontos !== 0 && (
+            <span className="text-sm font-bold text-green-600">
+              Total: {dashboard.totalPontos.toLocaleString("pt-BR")} pts
             </span>
           )}
         </div>

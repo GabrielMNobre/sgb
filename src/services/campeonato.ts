@@ -280,7 +280,7 @@ export async function getEvolucaoAnual(
     { num: 11, nome: "Nov" },
   ];
 
-  const [{ data: avaliacoes }, { data: demeritos }] = await Promise.all([
+  const [{ data: avaliacoes }, { data: demeritos }, { data: classes }] = await Promise.all([
     db
       .from("avaliacoes_campeonatos")
       .select("data_avaliacao, pontos")
@@ -291,7 +291,21 @@ export async function getEvolucaoAnual(
       .select("data_ocorrencia, pontos_perdidos")
       .eq("campeonato_id", campeonatoId)
       .eq("unidade_id", unidadeId),
+    db
+      .from("acompanhamento_classes_campeonato")
+      .select("classe_regular_completada, classe_avancada_completada, classe_biblica_em_dia, total_especialidades, atualizado_em")
+      .eq("campeonato_id", campeonatoId)
+      .eq("unidade_id", unidadeId)
+      .single(),
   ]);
+
+  let pontosClasses = 0;
+  if (classes) {
+    if (classes.classe_regular_completada) pontosClasses += 200;
+    if (classes.classe_avancada_completada) pontosClasses += 300;
+    if (classes.classe_biblica_em_dia) pontosClasses += 200;
+    pontosClasses += Math.min(classes.total_especialidades || 0, 20) * 100;
+  }
 
   const pontosPorMes: Record<number, number> = {};
 
@@ -303,6 +317,13 @@ export async function getEvolucaoAnual(
     const mes = new Date(d.data_ocorrencia + "T00:00:00").getMonth() + 1;
     pontosPorMes[mes] = (pontosPorMes[mes] || 0) + (d.pontos_perdidos || 0);
   });
+
+  // Adiciona pontos de classes no primeiro mês da lista que tenha atividade,
+  // ou no primeiro mês da lista caso não haja nenhuma atividade ainda
+  if (pontosClasses > 0) {
+    const mesAtivo = meses.find(({ num }) => pontosPorMes[num] !== undefined)?.num ?? meses[0].num;
+    pontosPorMes[mesAtivo] = (pontosPorMes[mesAtivo] || 0) + pontosClasses;
+  }
 
   let acumulado = 0;
   return meses.map(({ num, nome }) => {
@@ -394,8 +415,8 @@ export async function getMetas(
   metas.push({
     nome: "Especialidades",
     pontos: Math.min(totalEsp, 20) * 100,
-    status: "em_progresso",
-    progresso: { atual: totalEsp, maximo: 20 },
+    status: totalEsp >= 20 ? "concluido" : "em_progresso",
+    progresso: { atual: Math.min(totalEsp, 20), maximo: 20 },
   });
 
   return metas;
@@ -854,8 +875,10 @@ export async function getDashboardExecutivo(
   const [
     { count: totalAvaliacoes },
     { count: totalDemeritos },
-    { data: top5 },
-    { data: unidadesParticipantes },
+    { data: unidades },
+    { data: avaliacoes },
+    { data: demeritos },
+    { data: classes },
   ] = await Promise.all([
     db
       .from("avaliacoes_campeonatos")
@@ -865,27 +888,57 @@ export async function getDashboardExecutivo(
       .from("demeritos_campeonatos")
       .select("*", { count: "exact", head: true })
       .eq("campeonato_id", campeonatoId),
+    db.from("unidades").select("id, nome").eq("ativa", true),
     db
-      .from("ranking_campeonatos")
-      .select("pontos_totais, unidades(nome)")
-      .eq("campeonato_id", campeonatoId)
-      .order("pontos_totais", { ascending: false })
-      .limit(6),
+      .from("avaliacoes_campeonatos")
+      .select("unidade_id, pontos")
+      .eq("campeonato_id", campeonatoId),
     db
-      .from("ranking_campeonatos")
-      .select("unidade_id")
+      .from("demeritos_campeonatos")
+      .select("unidade_id, pontos_perdidos")
+      .eq("campeonato_id", campeonatoId),
+    db
+      .from("acompanhamento_classes_campeonato")
+      .select("unidade_id, classe_regular_completada, classe_avancada_completada, classe_biblica_em_dia, total_especialidades")
       .eq("campeonato_id", campeonatoId),
   ]);
+
+  // Agrega pontos por unidade em tempo real (mesma lógica do conselheiro)
+  const avaliacaoMap: Record<string, number> = {};
+  (avaliacoes || []).forEach((a: any) => {
+    avaliacaoMap[a.unidade_id] = (avaliacaoMap[a.unidade_id] || 0) + (a.pontos || 0);
+  });
+  const demeritoMap: Record<string, number> = {};
+  (demeritos || []).forEach((d: any) => {
+    demeritoMap[d.unidade_id] = (demeritoMap[d.unidade_id] || 0) + (d.pontos_perdidos || 0);
+  });
+  const classesMap: Record<string, number> = {};
+  (classes || []).forEach((c: any) => {
+    let pts = 0;
+    if (c.classe_regular_completada) pts += 200;
+    if (c.classe_avancada_completada) pts += 300;
+    if (c.classe_biblica_em_dia) pts += 200;
+    pts += Math.min(c.total_especialidades || 0, 20) * 100;
+    classesMap[c.unidade_id] = pts;
+  });
+
+  const top5 = (unidades || [])
+    .map((u: any) => ({
+      nome: u.nome,
+      pontos: Math.max(
+        0,
+        (avaliacaoMap[u.id] || 0) + (demeritoMap[u.id] || 0) + (classesMap[u.id] || 0)
+      ),
+    }))
+    .sort((a: any, b: any) => b.pontos - a.pontos)
+    .slice(0, 5);
 
   return {
     totalAvaliacoes: totalAvaliacoes || 0,
     totalDemeritos: totalDemeritos || 0,
-    unidadesParticipantes: (unidadesParticipantes || []).length,
+    unidadesParticipantes: (unidades || []).length,
     diasCampanha,
-    top5: (top5 || []).map((r: any) => ({
-      nome: r.unidades?.nome || "",
-      pontos: r.pontos_totais || 0,
-    })),
+    top5,
   };
 }
 
@@ -1116,13 +1169,11 @@ export async function sincronizarRanking(campeonatoId: string): Promise<void> {
     db
       .from("avaliacoes_campeonatos")
       .select("unidade_id, pontos")
-      .eq("campeonato_id", campeonatoId)
-      .gt("pontos", 0),
+      .eq("campeonato_id", campeonatoId),
     db
       .from("demeritos_campeonatos")
       .select("unidade_id, pontos_perdidos")
-      .eq("campeonato_id", campeonatoId)
-      .lt("pontos_perdidos", 0),
+      .eq("campeonato_id", campeonatoId),
     db
       .from("acompanhamento_classes_campeonato")
       .select("unidade_id, classe_regular_completada, classe_avancada_completada, classe_biblica_em_dia, total_especialidades")
