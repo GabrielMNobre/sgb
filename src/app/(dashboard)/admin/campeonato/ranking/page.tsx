@@ -33,7 +33,7 @@ export default function RankingPage() {
       const url = filtro
         ? `/api/admin/campeonato/ranking?filtro=${encodeURIComponent(filtro)}`
         : "/api/admin/campeonato/ranking";
-      const res = await fetch(url);
+      const res = await fetch(url, { cache: "no-store" });
       if (res.ok) {
         setRanking(await res.json());
         setUltimaAtualizacao(new Date());
