@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getCampeonatoAtivo, getRankingCompleto } from "@/services/campeonato";
+import { getCampeonatoAtivo, getRankingCompleto, sincronizarRanking } from "@/services/campeonato";
 
 async function verificarAdmin(supabase: any, userId: string): Promise<boolean> {
   const db = supabase as any;
@@ -38,6 +38,11 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       );
     }
+
+    // Garante que ranking_campeonatos esteja atualizado antes de ler
+    await sincronizarRanking(campeonato.id).catch((err) =>
+      console.error("Erro ao sincronizar ranking antes da leitura:", err)
+    );
 
     const ranking = await getRankingCompleto(campeonato.id, filtro);
     return NextResponse.json(ranking);

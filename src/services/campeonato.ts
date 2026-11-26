@@ -18,6 +18,37 @@ import type {
 } from "@/types/campeonato";
 import { DEMERITOS_CONFIG } from "@/types/campeonato";
 
+// O Supabase/PostgREST limita cada consulta a 1000 linhas por padrão. Para somar
+// pontos corretamente é preciso paginar, senão linhas além do limite são ignoradas.
+async function buscarTodasLinhas(
+  tabela: string,
+  colunas: string,
+  campeonatoId: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<{ data: any[]; error: any }> {
+  const supabase = await createClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+  const TAMANHO = 1000;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const todas: any[] = [];
+
+  for (let inicio = 0; ; inicio += TAMANHO) {
+    const { data, error } = await db
+      .from(tabela)
+      .select(colunas)
+      .eq("campeonato_id", campeonatoId)
+      .order("id", { ascending: true })
+      .range(inicio, inicio + TAMANHO - 1);
+
+    if (error) return { data: todas, error };
+    todas.push(...(data || []));
+    if (!data || data.length < TAMANHO) break;
+  }
+
+  return { data: todas, error: null };
+}
+
 // ─── Campeonato Ativo ──────────────────────────────────────────────────────────
 
 export async function getCampeonatoAtivo(): Promise<Campeonato | null> {
@@ -121,7 +152,16 @@ export async function getDashboardConselheiro(
     pontosClasses += Math.min(classes.total_especialidades || 0, 20) * 100;
   }
 
-  const totalPontos = Math.max(0, totalAvaliacoes + totalDemeritos + pontosClasses);
+  // Total oficial vem da tabela ranking_campeonatos (fallback: cálculo local)
+  const { data: rankingRow } = await db
+    .from("ranking_campeonatos")
+    .select("pontos_totais")
+    .eq("campeonato_id", campeonatoId)
+    .eq("unidade_id", unidadeId)
+    .maybeSingle();
+
+  const totalPontos: number =
+    rankingRow?.pontos_totais ?? totalAvaliacoes + totalDemeritos + pontosClasses;
 
   // Pontos do dia (hoje)
   const pontosDia = (avaliacoesAll || [])
@@ -649,23 +689,28 @@ export async function getRankingCompleto(
     { data: avaliacoes },
     { data: demeritos },
     { data: classes },
+    { data: rankingRows },
   ] = await Promise.all([
     db.from("unidades").select("id, nome, cor_primaria").eq("ativa", true).order("nome"),
-    db
-      .from("avaliacoes_campeonatos")
-      .select("unidade_id, categoria, tipo_avaliacao, pontos")
-      .eq("campeonato_id", campeonatoId),
-    db
-      .from("demeritos_campeonatos")
-      .select("unidade_id, pontos_perdidos")
-      .eq("campeonato_id", campeonatoId),
+    buscarTodasLinhas("avaliacoes_campeonatos", "id, unidade_id, categoria, tipo_avaliacao, pontos", campeonatoId),
+    buscarTodasLinhas("demeritos_campeonatos", "id, unidade_id, pontos_perdidos", campeonatoId),
     db
       .from("acompanhamento_classes_campeonato")
       .select("unidade_id, classe_regular_completada, classe_avancada_completada, classe_biblica_em_dia, total_especialidades")
       .eq("campeonato_id", campeonatoId),
+    db
+      .from("ranking_campeonatos")
+      .select("unidade_id, pontos_totais, posicao")
+      .eq("campeonato_id", campeonatoId),
   ]);
 
   if (!unidades?.length) return [];
+
+  // Total e posição oficiais vêm da tabela ranking_campeonatos
+  const rankingMap: Record<string, { pontos: number; posicao: number }> = {};
+  for (const r of rankingRows || []) {
+    rankingMap[r.unidade_id] = { pontos: r.pontos_totais ?? 0, posicao: r.posicao ?? 9999 };
+  }
 
   // Agrega avaliações por unidade, categoria e tipo especial
   const avPorUnidade: Record<string, Record<string, number>> = {};
@@ -675,7 +720,8 @@ export async function getRankingCompleto(
     if (!avPorUnidade[a.unidade_id]) {
       avPorUnidade[a.unidade_id] = { compromisso: 0, vida_unidade: 0, identidade: 0, formacao: 0, social: 0 };
     }
-    const pts = a.pontos || 0;
+    // Igual ao banco: apenas pontos > 0 entram na pontuação
+    const pts = (a.pontos || 0) > 0 ? a.pontos : 0;
     if (a.tipo_avaliacao === "dinamicas") {
       dinPorUnidade[a.unidade_id] = (dinPorUnidade[a.unidade_id] || 0) + pts;
     } else if (a.tipo_avaliacao === "mensalidade") {
@@ -689,7 +735,11 @@ export async function getRankingCompleto(
   // Agrega deméritos por unidade
   const demPorUnidade: Record<string, number> = {};
   for (const d of demeritos || []) {
-    demPorUnidade[d.unidade_id] = (demPorUnidade[d.unidade_id] || 0) + Math.abs(d.pontos_perdidos || 0);
+    // Igual ao banco: apenas pontos_perdidos < 0 (exibido como valor positivo)
+    const perdidos = d.pontos_perdidos || 0;
+    if (perdidos < 0) {
+      demPorUnidade[d.unidade_id] = (demPorUnidade[d.unidade_id] || 0) + Math.abs(perdidos);
+    }
   }
 
   // Classes por unidade
@@ -711,8 +761,7 @@ export async function getRankingCompleto(
     const din = dinPorUnidade[u.id] || 0;
     const mens = mensPorUnidade[u.id] || 0;
 
-    const totalAvaliacoes = av.compromisso + av.vida_unidade + av.identidade + av.formacao + av.social;
-    const total = Math.max(0, totalAvaliacoes - dem + cls);
+    const total = rankingMap[u.id]?.pontos ?? 0;
 
     return {
       posicao: 0,
@@ -733,8 +782,13 @@ export async function getRankingCompleto(
     };
   });
 
-  // Ordena por total DESC
-  items.sort((a, b) => b.total - a.total);
+  // Ordena pela posição oficial da tabela (desempate por total e nome)
+  items.sort(
+    (a, b) =>
+      (rankingMap[a.unidadeId]?.posicao ?? 9999) - (rankingMap[b.unidadeId]?.posicao ?? 9999) ||
+      b.total - a.total ||
+      a.unidadeNome.localeCompare(b.unidadeNome)
+  );
 
   // Atribui posição e badge
   items.forEach((item, i) => {
@@ -876,9 +930,7 @@ export async function getDashboardExecutivo(
     { count: totalAvaliacoes },
     { count: totalDemeritos },
     { data: unidades },
-    { data: avaliacoes },
-    { data: demeritos },
-    { data: classes },
+    { data: rankingRows },
   ] = await Promise.all([
     db
       .from("avaliacoes_campeonatos")
@@ -890,48 +942,28 @@ export async function getDashboardExecutivo(
       .eq("campeonato_id", campeonatoId),
     db.from("unidades").select("id, nome").eq("ativa", true),
     db
-      .from("avaliacoes_campeonatos")
-      .select("unidade_id, pontos")
-      .eq("campeonato_id", campeonatoId),
-    db
-      .from("demeritos_campeonatos")
-      .select("unidade_id, pontos_perdidos")
-      .eq("campeonato_id", campeonatoId),
-    db
-      .from("acompanhamento_classes_campeonato")
-      .select("unidade_id, classe_regular_completada, classe_avancada_completada, classe_biblica_em_dia, total_especialidades")
+      .from("ranking_campeonatos")
+      .select("unidade_id, pontos_totais, posicao")
       .eq("campeonato_id", campeonatoId),
   ]);
 
-  // Agrega pontos por unidade em tempo real (mesma lógica do conselheiro)
-  const avaliacaoMap: Record<string, number> = {};
-  (avaliacoes || []).forEach((a: any) => {
-    avaliacaoMap[a.unidade_id] = (avaliacaoMap[a.unidade_id] || 0) + (a.pontos || 0);
-  });
-  const demeritoMap: Record<string, number> = {};
-  (demeritos || []).forEach((d: any) => {
-    demeritoMap[d.unidade_id] = (demeritoMap[d.unidade_id] || 0) + (d.pontos_perdidos || 0);
-  });
-  const classesMap: Record<string, number> = {};
-  (classes || []).forEach((c: any) => {
-    let pts = 0;
-    if (c.classe_regular_completada) pts += 200;
-    if (c.classe_avancada_completada) pts += 300;
-    if (c.classe_biblica_em_dia) pts += 200;
-    pts += Math.min(c.total_especialidades || 0, 20) * 100;
-    classesMap[c.unidade_id] = pts;
-  });
+  // Pontos e posição vêm direto da tabela ranking_campeonatos
+  const rankingMap: Record<string, { pontos: number; posicao: number }> = {};
+  (rankingRows || []).forEach(
+    (r: { unidade_id: string; pontos_totais: number | null; posicao: number | null }) => {
+      rankingMap[r.unidade_id] = { pontos: r.pontos_totais ?? 0, posicao: r.posicao ?? 9999 };
+    }
+  );
 
-  const top5 = (unidades || [])
-    .map((u: any) => ({
+  const top5 = ((unidades || []) as { id: string; nome: string }[])
+    .map((u) => ({
       nome: u.nome,
-      pontos: Math.max(
-        0,
-        (avaliacaoMap[u.id] || 0) + (demeritoMap[u.id] || 0) + (classesMap[u.id] || 0)
-      ),
+      pontos: rankingMap[u.id]?.pontos ?? 0,
+      posicao: rankingMap[u.id]?.posicao ?? 9999,
     }))
-    .sort((a: any, b: any) => b.pontos - a.pontos)
-    .slice(0, 5);
+    .sort((a, b) => a.posicao - b.posicao || b.pontos - a.pontos)
+    .slice(0, 5)
+    .map(({ nome, pontos }) => ({ nome, pontos }));
 
   return {
     totalAvaliacoes: totalAvaliacoes || 0,
@@ -1164,16 +1196,10 @@ export async function sincronizarRanking(campeonatoId: string): Promise<void> {
   ] = await Promise.all([
     db
       .from("ranking_campeonatos")
-      .select("unidade_id")
+      .select("id, unidade_id")
       .eq("campeonato_id", campeonatoId),
-    db
-      .from("avaliacoes_campeonatos")
-      .select("unidade_id, pontos")
-      .eq("campeonato_id", campeonatoId),
-    db
-      .from("demeritos_campeonatos")
-      .select("unidade_id, pontos_perdidos")
-      .eq("campeonato_id", campeonatoId),
+    buscarTodasLinhas("avaliacoes_campeonatos", "id, unidade_id, pontos", campeonatoId),
+    buscarTodasLinhas("demeritos_campeonatos", "id, unidade_id, pontos_perdidos", campeonatoId),
     db
       .from("acompanhamento_classes_campeonato")
       .select("unidade_id, classe_regular_completada, classe_avancada_completada, classe_biblica_em_dia, total_especialidades")
@@ -1187,13 +1213,16 @@ export async function sincronizarRanking(campeonatoId: string): Promise<void> {
   // 2. Agrega pontos por unidade (replicando os SUMs do SQL)
   const avaliacaoMap: Record<string, number> = {};
   (avaliacoes || []).forEach((a: any) => {
-    avaliacaoMap[a.unidade_id] = (avaliacaoMap[a.unidade_id] || 0) + (a.pontos || 0);
+    // Igual ao banco: soma apenas pontos > 0
+    const pts = a.pontos || 0;
+    avaliacaoMap[a.unidade_id] = (avaliacaoMap[a.unidade_id] || 0) + (pts > 0 ? pts : 0);
   });
 
   const demeritoMap: Record<string, number> = {};
   (demeritos || []).forEach((d: any) => {
-    // pontos_perdidos já é negativo no banco; soma diretamente para subtrair
-    demeritoMap[d.unidade_id] = (demeritoMap[d.unidade_id] || 0) + (d.pontos_perdidos || 0);
+    // Igual ao banco: soma apenas pontos_perdidos < 0 (já negativos)
+    const pts = d.pontos_perdidos || 0;
+    demeritoMap[d.unidade_id] = (demeritoMap[d.unidade_id] || 0) + (pts < 0 ? pts : 0);
   });
 
   // 3. Calcula classes_pts (equivalente a calcular_pontos_classes)
@@ -1207,19 +1236,20 @@ export async function sincronizarRanking(campeonatoId: string): Promise<void> {
     classesMap[c.unidade_id] = pts;
   });
 
-  // 4. Calcula pontos_totais = GREATEST(0, avaliacao + demerito_negativo_invertido + classes)
-  const atualizacoes = (rankingRows as { unidade_id: string }[]).map((row) => ({
+  // 4. pontos_totais = avaliacao(+) + demeritos(-) + classes (sem limite mínimo, como no banco)
+  const atualizacoes = (rankingRows as { id: string; unidade_id: string }[]).map((row) => ({
+    id: row.id,
     unidade_id: row.unidade_id,
-    pontos_totais: Math.max(
-      0,
+    pontos_totais:
       (avaliacaoMap[row.unidade_id] || 0) +
       (demeritoMap[row.unidade_id] || 0) +
-      (classesMap[row.unidade_id] || 0)
-    ),
+      (classesMap[row.unidade_id] || 0),
   }));
 
-  // 5. Ordena por pontos DESC para calcular posições (ROW_NUMBER)
-  atualizacoes.sort((a, b) => b.pontos_totais - a.pontos_totais || a.unidade_id.localeCompare(b.unidade_id));
+  // 5. ROW_NUMBER() OVER (ORDER BY pontos_totais DESC, id ASC)
+  atualizacoes.sort(
+    (a, b) => b.pontos_totais - a.pontos_totais || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)
+  );
 
   // 6. Atualiza pontos_totais e posicao de cada unidade
   const resultados = await Promise.all(
